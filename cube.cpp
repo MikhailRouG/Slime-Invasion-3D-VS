@@ -30,7 +30,7 @@ struct Vertex3d{
 //キューブの頂点情報
 //原点0、1*1*1
 //右回り
-static Vertex3d g_CubeVertex[36]{
+static Vertex3d g_CubeVertex[NUM_VERTEX]{
 	//6行で1面分
 	{{-0.5f,  0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f}}, //正面
 	{{ 0.5f, -0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f}}, //赤
@@ -116,33 +116,14 @@ void Cube_Draw(void){
 
 
 	//ワールド座標変換行列の作成
-	XMMATRIX mtxWorld = XMMatrixIdentity(); //単位行列の作成
+	//XMMATRIX mtxWorld = XMMatrixIdentity(); //単位行列の作成
+	XMMATRIX mtxWorld = XMMatrixTranslation(3.0f, 0.5f, 1.0f);
 	//頂点シェーダーにワールド座標変換行列を設定
 	Shader3d_SetWorldMatrix(mtxWorld);
-
-
-	//ビュー変換行列の作成
-	//(カメラの座標、視点、固定用の真上方向)
-	XMMATRIX mtxView = XMMatrixLookAtLH({-2.0f,-2.0f,5.0f},{0.0f,0.0f,0.0f},{0.0f,1.0f,0.0f} );
-	//頂点シェーダーにビュー変換行列を設定
-	Shader3d_SetViewMatrix(mtxView);
-
-
-	// 頂点シェーダーに変換行列を設定
-	// パースペクティブ行列の作成
-	//(カメラアングルをラジアン角で、画面の幅/高さ、カメラからスクリーンまでの距離、カメラから視錐台の端まで)
-	constexpr float fovAnglerY = XMConvertToRadians(60.0f);
-	float aspextRatio = (float)Direct3D_GetBackBufferWidth() / (float)Direct3D_GetBackBufferHeight();
-	float nearz = 0.1f;
-	float farz = 100.0f;
-	XMMATRIX mtxPerspective = XMMatrixPerspectiveFovLH(fovAnglerY, aspextRatio, nearz, farz);
-	//頂点シェーダーにプロジェクション変換行列を設定
-	Shader3d_SetProjectionMatrix(mtxPerspective);
-
 
 	// プリミティブトポロジ設定
 	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// ポリゴン描画命令発行
-	g_pContext->Draw(NUM_VERTEX, 0); ///////////////////////面を増やしたら増やす
+	g_pContext->Draw(NUM_VERTEX, 0); 
 }

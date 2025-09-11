@@ -93,21 +93,14 @@
     <ClCompile Include="shader2d.cpp">
       <Filter>ソースファイル\リソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="grid.cpp" />
+    <ClCompile Include="camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="audio_manager.h">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="boss.h">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="boss_ui.h">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="clear.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="collision.h">
@@ -155,9 +148,6 @@
     <ClInclude Include="polygon.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
-    <ClInclude Include="result.h">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </ClInclude>
     <ClInclude Include="scene.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
@@ -179,12 +169,6 @@
     <ClInclude Include="texture.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
-    <ClInclude Include="title.h">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="volume.h">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </ClInclude>
     <ClInclude Include="WICTextureLoader11.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
@@ -192,6 +176,12 @@
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="shader2d.h">
+      <Filter>ソースファイル\ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="grid.h">
+      <Filter>ソースファイル\ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="audio_manager.cpp" />
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="cube.cpp" />
     <ClCompile Include="debug_ostream.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="game_window.cpp" />
+    <ClCompile Include="grid.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="key_logger.cpp" />
     <ClCompile Include="main.cpp" />
@@ -166,9 +168,7 @@
   <ItemGroup>
     <ClInclude Include="Audio.h" />
     <ClInclude Include="audio_manager.h" />
-    <ClInclude Include="boss.h" />
-    <ClInclude Include="boss_ui.h" />
-    <ClInclude Include="clear.h" />
+    <ClInclude Include="camera.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="cube.h" />
     <ClInclude Include="debug_ostream.h" />
@@ -179,13 +179,13 @@
     <ClInclude Include="fade.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="game_window.h" />
+    <ClInclude Include="grid.h" />
     <ClInclude Include="keyboard.h" />
     <ClInclude Include="key_logger.h" />
     <ClInclude Include="mouse.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="pause.h" />
     <ClInclude Include="polygon.h" />
-    <ClInclude Include="result.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="shader2d.h" />
@@ -194,8 +194,6 @@
     <ClInclude Include="sprite_anim.h" />
     <ClInclude Include="system_timer.h" />
     <ClInclude Include="texture.h" />
-    <ClInclude Include="title.h" />
-    <ClInclude Include="volume.h" />
     <ClInclude Include="WICTextureLoader11.h" />
   </ItemGroup>
   <ItemGroup>

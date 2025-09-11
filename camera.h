@@ -1,24 +1,18 @@
 /*==============================================================================
 
-  タイトル制御[title.h]
+   カメラ制御 [camera.h]
 														 Author : Harada Ren
-														 Date   : 2025/07/11
+														 Date   : 2025/09/11
 --------------------------------------------------------------------------------
 
 ==============================================================================*/
-#ifndef TITLE_H
-#define TITLE_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
-enum TitleMenu {
-	TITLE_GAMESTART,
-	TITLE_VOLUME,
-	TITLE_EXIT,
-	TITLE_MAX
-};
+#include <d3d11.h>
 
-void Title_Initialize();
-void Title_Finalize();
-void Title_Update();
-void Title_Draw();
+void Camera_Initialize();
+void Camera_Finalize();
+void Camera_Update();
 
-#endif //TITLE_H
+#endif //GRID_H

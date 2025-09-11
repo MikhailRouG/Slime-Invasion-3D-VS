@@ -1,17 +1,18 @@
 /*==============================================================================
 
-  ボリューム制御[volume.h]
+   XZ平面グリッドの表示 [grid.h]
 														 Author : Harada Ren
-														 Date   : 2025/08/20
+														 Date   : 2025/09/11
 --------------------------------------------------------------------------------
 
 ==============================================================================*/
-#ifndef VOLUME_H
-#define VOLUME_H
+#ifndef GRID_H
+#define GRID_H
 
-void Volume_Initialize();
-void Volume_Finalize();
-void Volume_Update(double elapsed_time);
-void Volume_Draw();
+#include <d3d11.h>
 
-#endif //VOLUME_H
+void Grid_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+void Grid_Finalize(void);
+void Grid_Draw(void);
+
+#endif //GRID_H

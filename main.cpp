@@ -32,6 +32,7 @@
 #include "game.h"
 #include "polygon.h"
 #include "cube.h"
+#include "grid.h"
 
 
 //ÉÅÉCÉì
@@ -58,6 +59,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Fade_Initialize();
 	Scene_Initialize();
 	Polygon_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
+	Grid_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Cube_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 
 #if defined(DEBUG)||defined(_DEBUG)
@@ -153,6 +155,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 
 	//èâä˙âªÇ∆ãtèáÇ…å„ï–ïtÇØ
 	Cube_Finalize();
+	Grid_Finalize();
 	Scene_Finalize();
 	Fade_Finalize();
 	Polygon_Finalize();

@@ -7,12 +7,8 @@
 
 ==============================================================================*/
 #include "scene.h"
-#include "title.h"
-#include "volume.h"
 #include "game.h"
 #include "pause.h"
-#include "result.h"
-#include "clear.h"
 #include <vector>
 
 static std::vector<Scene> g_SceneStack;
