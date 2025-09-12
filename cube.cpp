@@ -105,7 +105,8 @@ void Cube_Finalize(void){
 	SAFE_RELEASE(g_pVertexBuffer);
 }
 
-void Cube_Draw(void){
+
+void Cube_Draw(const DirectX::XMMATRIX mtxWorld){
 	// シェーダーを描画パイプラインに設定
 	Shader3d_Begin();
 
@@ -115,15 +116,16 @@ void Cube_Draw(void){
 	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 
 
-	//ワールド座標変換行列の作成
-	//XMMATRIX mtxWorld = XMMatrixIdentity(); //単位行列の作成
-	XMMATRIX mtxWorld = XMMatrixTranslation(3.0f, 0.5f, 1.0f);
-	//頂点シェーダーにワールド座標変換行列を設定
-	Shader3d_SetWorldMatrix(mtxWorld);
-
 	// プリミティブトポロジ設定
 	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	//ワールド座標変換行列の作成
+	//XMMATRIX mtxWorld = XMMatrixIdentity(); //単位行列の作成(データに対して何もしない)
+
+	//頂点シェーダーにワールド座標変換行列を設定
+	Shader3d_SetWorldMatrix(mtxWorld);
+
 	// ポリゴン描画命令発行
-	g_pContext->Draw(NUM_VERTEX, 0); 
+	g_pContext->Draw(NUM_VERTEX, 0);
+
 }

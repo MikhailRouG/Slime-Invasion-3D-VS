@@ -11,6 +11,9 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "shader3d.h"
+#include "key_logger.h"
+
+static XMFLOAT3 g_CameraPosition = { 15.0f,15.0f,-15.0f };
 
 void Camera_Initialize()
 {
@@ -21,9 +24,24 @@ void Camera_Finalize()
 }
 
 void Camera_Update(){
+	if (KeyLogger_IsPressed(KK_W)) {
+		g_CameraPosition.z += 0.2f;
+	}
+	if (KeyLogger_IsPressed(KK_S)) {
+		g_CameraPosition.z -= 0.2f;
+	}
+	if (KeyLogger_IsPressed(KK_D)) {
+		g_CameraPosition.x += 0.2f;
+	}
+	if (KeyLogger_IsPressed(KK_A)) {
+		g_CameraPosition.z -= 0.2f;
+	}
+
+	XMVECTOR eyePosition = XMLoadFloat3(&g_CameraPosition);
+
 	//ビュー変換行列の作成
-	//(カメラの座標、視点、固定用の真上方向)
-	XMMATRIX mtxView = XMMatrixLookAtLH({ 2.0f,2.0f,-5.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f });
+	//(カメラの座標、注視点、固定用の真上方向)
+	XMMATRIX mtxView = XMMatrixLookAtLH(eyePosition, { 0.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f });
 	//頂点シェーダーにビュー変換行列を設定
 	Shader3d_SetViewMatrix(mtxView);
 
@@ -36,6 +54,7 @@ void Camera_Update(){
 	float nearz = 0.1f;
 	float farz = 100.0f;
 	XMMATRIX mtxPerspective = XMMatrixPerspectiveFovLH(fovAnglerY, aspextRatio, nearz, farz);
+
 	//頂点シェーダーにプロジェクション変換行列を設定
 	Shader3d_SetProjectionMatrix(mtxPerspective);
 }
