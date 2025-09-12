@@ -93,8 +93,12 @@
     <ClCompile Include="shader2d.cpp">
       <Filter>ソースファイル\リソースファイル</Filter>
     </ClCompile>
-    <ClCompile Include="grid.cpp" />
-    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="camera.cpp">
+      <Filter>ソースファイル\リソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="grid.cpp">
+      <Filter>ソースファイル\リソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h">
