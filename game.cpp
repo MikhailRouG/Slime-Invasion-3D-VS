@@ -30,6 +30,8 @@ void Game_Finalize(){
 }
 
 void Game_Update(double elapsed_time){
+	Camera_Update(elapsed_time);
+
 	if (KeyLogger_IsTrigger(KK_ESCAPE)) {
 		SendMessage(GameWindow_GetHWND(), WM_CLOSE, 0, 0);
 	}
@@ -41,7 +43,7 @@ void Game_Update(double elapsed_time){
 }
 
 void Game_Draw(){
-	Camera_Update();
+	
 	Grid_Draw();
 
 	float xtrans = 4.5f;
