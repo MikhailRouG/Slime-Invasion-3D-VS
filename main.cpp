@@ -68,7 +68,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 		Direct3D_GetBackBufferWidth(), Direct3D_GetBackBufferHeight(),
 		0.0f, 0.0f, //Т▓Ро
 		0, 0,
-		0.0f, 16.0f); //Т▓Ро
+		0.0f, 14.0f); //Т▓Ро
 
 	Collision_DebugInitialize(Direct3D_GetDevice(), Direct3D_GetContext());
 #endif
@@ -133,7 +133,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 				std::stringstream ss;
 				ss << "fps:" << fps << std::endl;
 
-				dt.SetText(ss.str().c_str());
+				dt.SetText(ss.str().c_str(), { 0.0f,1.0f,0.0f,1.0f });
 				//dt.SetText("debug!\nwatashidayo! \n nye!!", { 0.0f,0.0f,1.0f,1.0f });
 
 				dt.Draw();

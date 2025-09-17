@@ -20,9 +20,13 @@ static float g_x = 0.0f;
 static float g_angle = 0.0f;
 static float g_scale = 1.0f;
 static double g_AccumulatedTime = 0.0;
+static XMFLOAT3 g_CubePosition{};
+static XMFLOAT3 g_CubeVelocity{};
+
 
 void Game_Initialize(){
-	Camera_Initialize();
+	Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f},{-0.3f,0.9f,0.3f});
+	//Camera_Initialize();
 }
 
 void Game_Finalize(){
@@ -40,11 +44,26 @@ void Game_Update(double elapsed_time){
 	g_x = (float)sin(g_AccumulatedTime) * 4.5f; //-4.5~4.5
 	g_angle = (float)g_AccumulatedTime * 2.0f; //1ïbä‘Ç…90ìx
 	g_scale = ((float)sin(g_AccumulatedTime) + 1.0f) * 0.5f * 5.0f; //0~5
+
+
+	if (KeyLogger_IsTrigger(KK_SPACE)) {
+		g_CubePosition = Camera_GetPosition();
+		XMStoreFloat3(&g_CubeVelocity, XMLoadFloat3(&Camera_GetFront()) * 20.0f);
+	}
+
+	XMVECTOR cube_position = XMLoadFloat3(&g_CubePosition);
+	cube_position += XMLoadFloat3(&g_CubeVelocity) * (float)elapsed_time;
+	XMStoreFloat3(&g_CubePosition, cube_position);
 }
 
 void Game_Draw(){
-	
 	Grid_Draw();
+	
+	XMMATRIX mtxWorldtemp = XMMatrixRotationY(g_angle*2.0f);
+	mtxWorldtemp *= XMMatrixRotationX(g_angle * 2.0f);
+	mtxWorldtemp *= XMMatrixTranslationFromVector(XMLoadFloat3(&g_CubePosition));
+
+	Cube_Draw(mtxWorldtemp);
 
 	float xtrans = 4.5f;
 	float ztrans = 4.5f;
@@ -74,5 +93,7 @@ void Game_Draw(){
 		ztrans -= 0.5f;
 	}
 	//}
+
+	Camera_DebugDraw();
 }
 

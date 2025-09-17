@@ -11,11 +11,14 @@
 #include "shader3d.h"
 #include <DirectXMath.h>
 using namespace DirectX;
+#include "texture.h"
 
 
 static constexpr int NUM_VERTEX = 3*2*6; // 頂点数(一面に三角形2個=6個 * 6面分
 
 static ID3D11Buffer* g_pVertexBuffer = nullptr; // 頂点バッファ
+
+static int g_CubeTexId = -1;
 
 // 注意！初期化で外部から設定されるもの。Release不要。
 static ID3D11Device* g_pDevice = nullptr;
@@ -25,6 +28,7 @@ static ID3D11DeviceContext* g_pContext = nullptr;
 struct Vertex3d{
 	XMFLOAT3 position; // 頂点座標
 	XMFLOAT4 color; //頂点カラー
+	XMFLOAT2 texcoord; //UV
 };
 
 //キューブの頂点情報
@@ -32,12 +36,12 @@ struct Vertex3d{
 //右回り
 static Vertex3d g_CubeVertex[NUM_VERTEX]{
 	//6行で1面分
-	{{-0.5f,  0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f}}, //正面
-	{{ 0.5f, -0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f}}, //赤
-	{{-0.5f, -0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f}},
-	{{-0.5f,  0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f}},
-	{{ 0.5f,  0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f}},
-	{{ 0.5f, -0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f}},
+	{{-0.5f,  0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f},{0.0f,0.0f}}, //正面
+	{{ 0.5f, -0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f},{0.25f,0.25f}}, //赤
+	{{-0.5f, -0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f},{0.0f,0.25f}},
+	{{-0.5f,  0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f},{0.0f,0.0f}},
+	{{ 0.5f,  0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f},{0.25f,0.0f}},
+	{{ 0.5f, -0.5f, -0.5f},{1.0f,0.0f,0.0f,1.0f},{0.25f,0.25f}},
 
 	{{0.5f,  0.5f, -0.5f},{0.0f,1.0f,0.0f,1.0f}}, //右
 	{{0.5f, -0.5f,  0.5f},{0.0f,1.0f,0.0f,1.0f}}, //緑
@@ -99,6 +103,7 @@ void Cube_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 
 	g_pDevice->CreateBuffer(&bd, &sd, &g_pVertexBuffer);
 
+	g_CubeTexId = Texture_Load(L"resource/texture/BoxTestTexture.png");
 }
 
 void Cube_Finalize(void){
@@ -109,6 +114,10 @@ void Cube_Finalize(void){
 void Cube_Draw(const DirectX::XMMATRIX mtxWorld){
 	// シェーダーを描画パイプラインに設定
 	Shader3d_Begin();
+
+	//テクスチャの設定
+	Texture_SetTexture(g_CubeTexId);
+
 
 	// 頂点バッファを描画パイプラインに設定
 	UINT stride = sizeof(Vertex3d);
