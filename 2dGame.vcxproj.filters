@@ -99,6 +99,7 @@
     <ClCompile Include="grid.cpp">
       <Filter>ソースファイル\リソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="sampler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h">
@@ -186,6 +187,9 @@
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
+      <Filter>ソースファイル\ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="sampler.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
   </ItemGroup>

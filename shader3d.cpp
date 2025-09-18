@@ -21,7 +21,6 @@ static ID3D11Buffer* g_pVSConstantBuffer0 = nullptr; //’θ”ƒoƒbƒtƒ@b0(world“]‘——
 static ID3D11Buffer* g_pVSConstantBuffer1 = nullptr; //’θ”ƒoƒbƒtƒ@b1(view“]‘——p)
 static ID3D11Buffer* g_pVSConstantBuffer2 = nullptr; //’θ”ƒoƒbƒtƒ@b2(proj“]‘——p)
 static ID3D11PixelShader* g_pPixelShader = nullptr;
-static ID3D11SamplerState* g_pSamplerState = nullptr;
 
 
 // ’ΣI‰ϊ‰»‚ΕO•”‚©‚ηέ’θ‚³‚κ‚ι‚ΰ‚ΜBRelease•s—vB
@@ -129,34 +128,10 @@ bool Shader3d_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 		return false;
 	}
 
-	//ƒTƒ“ƒvƒ‰[ƒXƒe[ƒgέ’θ
-	D3D11_SAMPLER_DESC sampler_desc{};
-	//ƒtƒBƒ‹ƒ^ƒƒ“ƒO(LINEARc‰ζ‘‚πψ‚«‰„‚Ξ‚·‚½‚ίAό‚Μό‚θ‚ª‚Ϊ‚―‚½΄‚¶‚Ι‚Θ‚ι@¨@k¬‚Θ‚ηγY—ν
-	//				 POINTc‘γ•\“_κ‚Β‚π•ΐ‚Χ‚ι‚½‚ίA‚­‚Α‚«‚θ©‚¦‚ι@¨@ƒhƒbƒgG‚Θ‚ηγY—ν
-	//				 MIPMAPc–‘O‚ΙƒTƒCƒY•Κ‚Μ‰ζ‘‚π—pΣ‚µAg‚¤@¨@iqσ‚ΜG‚Ι‹­‚Ά
-	//				 ANISOTROPICc3d‚ΕγY—νB‚‹‰
-	sampler_desc.Filter = D3D11_FILTER_ANISOTROPIC;
-	//UVQΖO‚Μζµ‚Ά(UVƒAƒhƒƒbƒVƒ“ƒOƒ‚[ƒh)@UV’l‚ª‚O<=x<=1‚Μ‚Θ‚Η
-	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampler_desc.BorderColor[0] = 0.0f;
-	sampler_desc.BorderColor[1] = 0.0f;
-	sampler_desc.BorderColor[2] = 0.0f;
-	sampler_desc.BorderColor[3] = 0.0f;
-	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; //W‚Νg‚ν‚Θ‚Ά
-	sampler_desc.MipLODBias = 0;
-	sampler_desc.MaxAnisotropy = 16;
-	sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	sampler_desc.MinLOD = 0;
-	sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	g_pDevice->CreateSamplerState(&sampler_desc, &g_pSamplerState);
-
 	return true;
 }
 
 void Shader3d_Finalize(){
-	SAFE_RELEASE(g_pSamplerState);
 	SAFE_RELEASE(g_pPixelShader);
 	SAFE_RELEASE(g_pVSConstantBuffer2);
 	SAFE_RELEASE(g_pVSConstantBuffer1);
@@ -214,5 +189,5 @@ void Shader3d_Begin(){
 
 
 	//ƒTƒ“ƒvƒ‰[ƒXƒe[ƒg‚π•`‰ζƒpƒCƒvƒ‰ƒCƒ“‚Ιέ’θ
-	g_pContext->PSSetSamplers(0, 1, &g_pSamplerState);
+	//g_pContext->PSSetSamplers(0, 1, &g_pSamplerState);
 }
