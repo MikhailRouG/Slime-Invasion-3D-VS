@@ -23,7 +23,7 @@ static XMFLOAT3 g_CameraVecRight = { 1.0f,0.0f,0.0f };
 static XMFLOAT3 g_CameraVecUp = { 0.0f,1.0f,0.0f };
 
 static constexpr float CAMERA_MOVE_SPEED = 10.0f;
-static constexpr float CAMERA_ROTATION_SPEED = XMConvertToRadians(45.0f);
+static constexpr float CAMERA_ROTATION_SPEED = XMConvertToRadians(60.0f);
 static XMFLOAT4X4 g_CameraMatrix{};
 static XMFLOAT4X4 g_PerspectiveMatrix{};
 

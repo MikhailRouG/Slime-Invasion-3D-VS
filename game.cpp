@@ -65,34 +65,37 @@ void Game_Draw(){
 
 	Cube_Draw(mtxWorldtemp);
 
-	float xtrans = 4.5f;
+	
+	/*float xtrans = 4.5f;
 	float ztrans = 4.5f;
-	XMMATRIX mtxRotate = XMMatrixRotationY(g_angle);
-	//for (int i = 0;i < 2;i++) {
-		//XMMATRIX mtxTrans = XMMatrixTranslation((float)(-20+20 * i), 0.0f, 0.0f);
-	for (int y = 0;y < 10;y++) {
-		for (int z = 0;z < 10 - y;z++) {
-			for (int x = 0;x < 10 - y;x++) {
-				//ワールド座標変換行列の作成
-				XMMATRIX mtxOffset = XMMatrixTranslation((float)x - xtrans, (float)y, (float)z - ztrans);
-				XMMATRIX mtxWorld = mtxOffset * mtxRotate;// *mtxTrans;
+	XMMATRIX mtxRotate = XMMatrixRotationY(g_angle);*/
 
-				/*
-				XMMATRIX mtxTrans = XMMatrixTranslation(0.5f, 0.5f, 0.0f);//平行移動行列の作成
-				XMMATRIX mtxTransInv = XMMatrixTranslation(-0.5f, 0.0f, 0.0f);//平行移動行列の作成
-				XMMATRIX mtxRotate = XMMatrixRotationY(XMConvertToRadians(g_angle));//回転行列の作成
-				XMMATRIX mtxScale = XMMatrixScaling(4.0f,0.5f,0.5f);//拡大行列の作成
-				XMMATRIX mtxWorld = mtxTrans * mtxScale * mtxTransInv* mtxRotate;
-				*/
+	//for (int y = 0;y < 10;y++) {
+	//	for (int z = 0;z < 10 - y;z++) {
+	//		for (int x = 0;x < 10 - y;x++) {
+	//			//ワールド座標変換行列の作成
+	//			XMMATRIX mtxOffset = XMMatrixTranslation((float)x - xtrans, (float)y, (float)z - ztrans);
+	//			XMMATRIX mtxWorld = mtxOffset * mtxRotate;// *mtxTrans;
 
-				Cube_Draw(mtxWorld);
-			}
+	//			/*
+	//			XMMATRIX mtxTrans = XMMatrixTranslation(0.5f, 0.5f, 0.0f);//平行移動行列の作成
+	//			XMMATRIX mtxTransInv = XMMatrixTranslation(-0.5f, 0.0f, 0.0f);//平行移動行列の作成
+	//			XMMATRIX mtxRotate = XMMatrixRotationY(XMConvertToRadians(g_angle));//回転行列の作成
+	//			XMMATRIX mtxScale = XMMatrixScaling(4.0f,0.5f,0.5f);//拡大行列の作成
+	//			XMMATRIX mtxWorld = mtxTrans * mtxScale * mtxTransInv* mtxRotate;
+	//			*/
 
-		}
-		xtrans -= 0.5f;
-		ztrans -= 0.5f;
-	}
+	//			Cube_Draw(mtxWorld);
+	//		}
+
+	//	}
+	//	xtrans -= 0.5f;
+	//	ztrans -= 0.5f;
 	//}
+
+	XMMATRIX mtxWorld = XMMatrixIdentity();
+	Cube_Draw(mtxWorld);
+	
 
 	Camera_DebugDraw();
 }

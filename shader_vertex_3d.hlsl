@@ -26,11 +26,13 @@ struct VS_IN{
     //:~ セマンティクス
     float4 posL : POSITION0;
     float4 color: COLOR0; 
+    float2 texcoord : TEXCOORD0;
 };
 
 struct VS_OUT{
     float4 posH : SV_POSITION;
     float4 color: COLOR0;
+    float2 texcoord : TEXCOORD0;
 };
 
 //=============================================================================
@@ -52,6 +54,7 @@ VS_OUT main(VS_IN vi){
     //vo.posH = mul(vi.posL, mul(mul(world, view), proj));
     
     vo.color = vi.color;
+    vo.texcoord = vi.texcoord;
     
 	return vo;
 }
