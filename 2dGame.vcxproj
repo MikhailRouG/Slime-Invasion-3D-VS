@@ -152,6 +152,7 @@
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="key_logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="meshfield.cpp" />
     <ClCompile Include="mouse.cpp" />
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="sampler.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="grid.h" />
     <ClInclude Include="keyboard.h" />
     <ClInclude Include="key_logger.h" />
+    <ClInclude Include="meshfield.h" />
     <ClInclude Include="mouse.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="pause.h" />

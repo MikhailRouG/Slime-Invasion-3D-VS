@@ -102,9 +102,6 @@ void Cube_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 	g_pDevice = pDevice;
 	g_pContext = pContext;
 
-	//点の数を算出
-	//g_NumVertex = (int)(g_Radius * 2.0f + XM_PI);
-
 	// 頂点バッファ生成
 	D3D11_BUFFER_DESC bd = {};
 	//書き換えない(3dでは元の座標は変わらない)
