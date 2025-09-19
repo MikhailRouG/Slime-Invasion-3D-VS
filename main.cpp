@@ -14,6 +14,7 @@
 #include "direct3d.h"
 #include "shader2d.h"
 #include "shader3d.h"
+#include "sampler.h"
 #include "sprite.h"
 #include "Texture.h"
 #include "debug_ostream.h"
@@ -30,7 +31,6 @@
 #include "scene.h"
 #include "Audio.h"
 #include "game.h"
-#include "polygon.h"
 #include "cube.h"
 #include "grid.h"
 
@@ -54,11 +54,11 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Direct3D_Initialize(hWnd); //ダイレクト3Dの初期化
 	Shader2d_Initialize(Direct3D_GetDevice(), Direct3D_GetContext()); //↓ダイレクト3Dの初期化の後に初期化
 	Shader3d_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
+	Sampler_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Texture_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Sprite_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Fade_Initialize();
 	Scene_Initialize();
-	Polygon_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Grid_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Cube_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 
@@ -158,7 +158,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Grid_Finalize();
 	Scene_Finalize();
 	Fade_Finalize();
-	Polygon_Finalize();
+	Sampler_Finalize();
 	Shader3d_Finalize();
 	Shader2d_Finalize();
 	Direct3D_Finalize();

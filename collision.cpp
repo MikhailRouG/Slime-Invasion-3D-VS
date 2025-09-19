@@ -10,7 +10,6 @@
 #include "direct3d.h"
 #include "texture.h"
 #include "shader2d.h"
-#include "DirectXTex.h"
 using namespace DirectX;
 #include <algorithm>
 
@@ -88,7 +87,7 @@ bool Collision_IsOverlapOBBVSCircle(const OBB& obb, const Circle& circle)
 	XMVECTOR obb_axis1 = XMLoadFloat2(&obb.axis[1]);
 
 	// ドット積を使って、OBBのローカル座標系での円の中心座標を計算
-	XMFLOAT2 circle_center_local;
+	XMFLOAT2 circle_center_local{};
 	circle_center_local.x = XMVectorGetX(XMVector2Dot(vec_to_circle, obb_axis0));
 	circle_center_local.y = XMVectorGetY(XMVector2Dot(vec_to_circle, obb_axis1));
 
@@ -112,7 +111,7 @@ bool Collision_IsOverlapOBBVSCircle(const OBB& obb, const Circle& circle)
 bool Collision_IsOverlapOBBVSBox(const OBB& obb, const Box& box){
 	//BoxをOBBとみなしてOBBどうしの当たり判定を見る
 	//BoxをOBBに変換する
-	OBB box_as_obb;
+	OBB box_as_obb{};
 	box_as_obb.center = box.center;
 	box_as_obb.half_extent = { box.half_width, box.half_height };
 	//回転していないので、軸ベクトルは標準の(1,0)と(0,1)
@@ -292,7 +291,7 @@ void Collision_DebugDraw(const OBB& obb, const DirectX::XMFLOAT4& color) {
 	XMVECTOR center = XMLoadFloat2(&obb.center);
 
 	//OBBの4つの頂点のワールド座標を計算
-	XMFLOAT2 corners[4];
+	XMFLOAT2 corners[4]{};
 	XMStoreFloat2(&corners[0], center - half_extent_x - half_extent_y); // 左上
 	XMStoreFloat2(&corners[1], center + half_extent_x - half_extent_y); // 右上
 	XMStoreFloat2(&corners[2], center + half_extent_x + half_extent_y); // 右下

@@ -10,19 +10,20 @@
 
 #include "texture.h"
 #include "direct3d.h"
-#include "DirectXTex.h"
-using namespace DirectX;
 #include <string>
+#include "WICTextureLoader11.h"
+using namespace DirectX;
 
 
 //テクスチャ管理最大数
-static constexpr int TEXTURE_MAX = 512;
+static constexpr int TEXTURE_MAX = 1024;
 
 struct Texture {
 	std::wstring filename;
-	ID3D11ShaderResourceView* pTexture; //テクスチャ //static消した
 	unsigned int width;
 	unsigned int height;
+	ID3D11Resource* pTexture = nullptr;
+	ID3D11ShaderResourceView* pTextureView = nullptr; //テクスチャ
 };
 
 static Texture g_Textures[TEXTURE_MAX]{};
@@ -35,6 +36,7 @@ static ID3D11DeviceContext* g_pContext = nullptr;
 void Texture_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 	for (Texture& t : g_Textures) {
 		t.pTexture = nullptr; //初期化
+		t.pTextureView = nullptr;
 	}
 
 	g_SetTextureIndex = -1;
@@ -64,22 +66,23 @@ int Texture_Load(const wchar_t* pFilename){
 			continue;
 		}
 		//テクスチャの読み込み
-		TexMetadata metadata;
-		ScratchImage image;
+		HRESULT hr;
 
-		//ファイルの読み込みをしてメタデータを作る
-		HRESULT hr = LoadFromWICFile(pFilename, WIC_FLAGS_NONE, &metadata, image);
+		hr = CreateWICTextureFromFile(g_pDevice, g_pContext, pFilename, &g_Textures[i].pTexture, &g_Textures[i].pTextureView);
+
+		ID3D11Texture2D* pTexture = (ID3D11Texture2D*)g_Textures[i].pTexture;
+		D3D11_TEXTURE2D_DESC t2desc;
+		pTexture->GetDesc(&t2desc);
+		g_Textures[i].width = t2desc.Width;
+		g_Textures[i].height = t2desc.Height;
+
 		if (FAILED(hr)) {
 			MessageBoxW(nullptr, L"テクスチャの読み込みに失敗しました", pFilename, MB_OK);
 			return -1;
 		}
 
 		g_Textures[i].filename = pFilename;
-		g_Textures[i].width = (unsigned int)metadata.width;
-		g_Textures[i].height = (unsigned int)metadata.height;
 
-
-		hr = CreateShaderResourceView(g_pDevice, image.GetImages(), image.GetImageCount(), metadata, &g_Textures[i].pTexture);
 		return i; //管理番号
 	}
 
@@ -91,6 +94,7 @@ void Texture_AllRelease(){
 	for (Texture& t : g_Textures) {
 		t.filename.clear();
 		SAFE_RELEASE(t.pTexture);
+		SAFE_RELEASE(t.pTextureView);
 	}
 }
 
@@ -101,7 +105,7 @@ void Texture_SetTexture(int texid){
 
 	g_SetTextureIndex = texid;
 	//テクスチャ設定
-	g_pContext->PSSetShaderResources(0, 1, &g_Textures[texid].pTexture);
+	g_pContext->PSSetShaderResources(0, 1, &g_Textures[texid].pTextureView);
 }
 
 unsigned int Texture_Width(int texid){

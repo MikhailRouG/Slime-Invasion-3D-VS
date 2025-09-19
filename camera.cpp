@@ -26,16 +26,21 @@ static constexpr float CAMERA_MOVE_SPEED = 10.0f;
 static constexpr float CAMERA_ROTATION_SPEED = XMConvertToRadians(60.0f);
 static XMFLOAT4X4 g_CameraMatrix{};
 static XMFLOAT4X4 g_PerspectiveMatrix{};
+static float g_Fov = XMConvertToRadians(60.0f);
 
 static hal::DebugText* g_pDT = nullptr;
 
-void Camera_Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& right, const DirectX::XMFLOAT3& up){
+void Camera_Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& right){
 	Camera_Initialize();
 
 	g_CameraPosition = position;
-	XMStoreFloat3(&g_CameraVecFront,XMVector3Normalize(XMLoadFloat3(&front)));
-	XMStoreFloat3(&g_CameraVecRight, XMVector3Normalize(XMLoadFloat3(&right)));
-	XMStoreFloat3(&g_CameraVecUp, XMVector3Normalize(XMLoadFloat3(&up)));
+
+	XMVECTOR f= XMVector3Normalize(XMLoadFloat3(&front));
+	XMVECTOR r= XMVector3Normalize(XMLoadFloat3(&right) * XMVECTOR { 1.0f, 0.0f, 1.0f });
+	XMVECTOR u = XMVector3Normalize(XMVector3Cross(f, r));
+	XMStoreFloat3(&g_CameraVecFront, f);
+	XMStoreFloat3(&g_CameraVecRight, r);
+	XMStoreFloat3(&g_CameraVecUp, u);
 
 	XMStoreFloat4x4(&g_CameraMatrix, XMMatrixIdentity());
 	XMStoreFloat4x4(&g_PerspectiveMatrix, XMMatrixIdentity());
@@ -46,6 +51,7 @@ void Camera_Initialize(){
 	g_CameraVecFront = { 0.0f,0.0f,1.0f };
 	g_CameraVecRight = { 1.0f,0.0f,0.0f };
 	g_CameraVecUp = { 0.0f,1.0f,0.0f };
+	g_Fov = XMConvertToRadians(60.0f);
 
 	XMStoreFloat4x4(&g_CameraMatrix, XMMatrixIdentity());
 	XMStoreFloat4x4(&g_PerspectiveMatrix, XMMatrixIdentity());
@@ -133,6 +139,14 @@ void Camera_Update(double elapsed_time){
 		position += XMVECTOR{ 0.0f,-1.0f,0.0f }*CAMERA_MOVE_SPEED * (float)elapsed_time;
 	}
 
+	if (KeyLogger_IsPressed(KK_Z)) {
+		g_Fov -= XMConvertToRadians(10.0f) * (float)elapsed_time;
+	}
+	if (KeyLogger_IsPressed(KK_C)) {
+		g_Fov += XMConvertToRadians(10.0f) * (float)elapsed_time;
+	}
+
+
 	//更新結果の保存
 	XMStoreFloat3(&g_CameraPosition,position);
 	XMStoreFloat3(&g_CameraVecFront, front);
@@ -152,11 +166,11 @@ void Camera_Update(double elapsed_time){
 	// 頂点シェーダーに変換行列を設定
 	// パースペクティブ行列の作成
 	//(カメラアングルをラジアン角で、画面の幅/高さ、カメラからスクリーンまでの距離、カメラから視錐台の端まで)
-	constexpr float fovAnglerY = XMConvertToRadians(60.0f);
+	//constexpr float fovAnglerY = XMConvertToRadians(60.0f);
 	float aspextRatio = (float)Direct3D_GetBackBufferWidth() / (float)Direct3D_GetBackBufferHeight();
 	float nearz = 0.1f;
 	float farz = 100.0f;
-	XMMATRIX mtxPerspective = XMMatrixPerspectiveFovLH(fovAnglerY, aspextRatio, nearz, farz);
+	XMMATRIX mtxPerspective = XMMatrixPerspectiveFovLH(g_Fov, aspextRatio, nearz, farz);
 
 	XMStoreFloat4x4(&g_PerspectiveMatrix, mtxPerspective);
 	//頂点シェーダーにプロジェクション変換行列を設定
@@ -179,6 +193,10 @@ const DirectX::XMFLOAT3& Camera_GetFront(){
 	return g_CameraVecFront;
 }
 
+float Camera_GetFov(){
+	return 0.0f;
+}
+
 void Camera_DebugDraw(){
 #if defined(DEBUG)||defined(_DEBUG)//デバッグの時だけ有効
 	std::stringstream ss;
@@ -197,6 +215,8 @@ void Camera_DebugDraw(){
 	ss << "Camera Up      : x=" << g_CameraVecUp.x;
 	ss << " y=" << g_CameraVecUp.y;
 	ss << " z=" << g_CameraVecUp.z << std::endl;
+
+	ss << "Camera Fov     : " << g_Fov << std::endl;
 
 
 	g_pDT->SetText(ss.str().c_str(),{0.0f,1.0f,0.0f,1.0f});

@@ -15,6 +15,7 @@
 #include "camera.h"
 #include <DirectXMath.h>
 using namespace DirectX;
+#include "sampler.h"
 
 static float g_x = 0.0f;
 static float g_angle = 0.0f;
@@ -25,7 +26,7 @@ static XMFLOAT3 g_CubeVelocity{};
 
 
 void Game_Initialize(){
-	Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f},{-0.3f,0.9f,0.3f});
+	Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f});
 	//Camera_Initialize();
 }
 
@@ -59,11 +60,28 @@ void Game_Update(double elapsed_time){
 void Game_Draw(){
 	Grid_Draw();
 	
-	XMMATRIX mtxWorldtemp = XMMatrixRotationY(g_angle*2.0f);
-	mtxWorldtemp *= XMMatrixRotationX(g_angle * 2.0f);
-	mtxWorldtemp *= XMMatrixTranslationFromVector(XMLoadFloat3(&g_CubePosition));
+	Sampler_SetFilterAnisotropic();
+	XMMATRIX mtxWorldShot = XMMatrixRotationY(g_angle*2.0f);
+	mtxWorldShot *= XMMatrixRotationX(g_angle * 2.0f);
+	mtxWorldShot *= XMMatrixTranslationFromVector(XMLoadFloat3(&g_CubePosition));
+	Cube_Draw(mtxWorldShot);
 
-	Cube_Draw(mtxWorldtemp);
+
+	Sampler_SetFilterAnisotropic();
+	XMMATRIX mtxWorld = XMMatrixIdentity();
+	Cube_Draw(mtxWorld);
+
+	Sampler_SetFilterLinear();
+	XMMATRIX mtxWorldLinear = XMMatrixIdentity();
+	mtxWorldLinear = XMMatrixTranslation(1.5f, 0.0f, 0.0f);
+	Cube_Draw(mtxWorldLinear);
+
+	Sampler_SetFilterPoint();
+	XMMATRIX mtxWorldPoint = XMMatrixIdentity();
+	mtxWorldPoint = XMMatrixTranslation(3.0f, 0.0f, 0.0f);
+	Cube_Draw(mtxWorldPoint);
+
+	
 
 	
 	/*float xtrans = 4.5f;
@@ -92,9 +110,6 @@ void Game_Draw(){
 	//	xtrans -= 0.5f;
 	//	ztrans -= 0.5f;
 	//}
-
-	XMMATRIX mtxWorld = XMMatrixIdentity();
-	Cube_Draw(mtxWorld);
 	
 
 	Camera_DebugDraw();

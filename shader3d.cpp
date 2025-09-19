@@ -13,6 +13,7 @@ using namespace DirectX;
 #include "debug_ostream.h"
 #include <fstream>
 #include "shader3d.h"
+#include "sampler.h"
 
 
 static ID3D11VertexShader* g_pVertexShader = nullptr;
@@ -189,5 +190,6 @@ void Shader3d_Begin(){
 
 
 	//サンプラーステートを描画パイプラインに設定
-	//g_pContext->PSSetSamplers(0, 1, &g_pSamplerState);
+	//デフォルトはAnisotropic
+	//Sampler_SetFilterAnisotropic();
 }
