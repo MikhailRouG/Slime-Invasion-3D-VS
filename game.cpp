@@ -16,6 +16,7 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "sampler.h"
+#include "meshfield.h"
 
 static float g_x = 0.0f;
 static float g_angle = 0.0f;
@@ -66,7 +67,7 @@ void Game_Draw(){
 	mtxWorldShot *= XMMatrixTranslationFromVector(XMLoadFloat3(&g_CubePosition));
 	Cube_Draw(mtxWorldShot);
 
-
+	/*
 	Sampler_SetFilterAnisotropic();
 	XMMATRIX mtxWorld = XMMatrixIdentity();
 	Cube_Draw(mtxWorld);
@@ -80,8 +81,9 @@ void Game_Draw(){
 	XMMATRIX mtxWorldPoint = XMMatrixIdentity();
 	mtxWorldPoint = XMMatrixTranslation(3.0f, 0.0f, 0.0f);
 	Cube_Draw(mtxWorldPoint);
+	*/
 
-	
+	Meshfield_Draw();
 
 	
 	/*float xtrans = 4.5f;

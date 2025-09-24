@@ -14,6 +14,6 @@
 
 void Meshfield_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 void Meshfield_Finalize(void);
-void Meshfield_Draw(const DirectX::XMMATRIX mtxWorld);
+void Meshfield_Draw();
 
 #endif //MESHFIELD_H
