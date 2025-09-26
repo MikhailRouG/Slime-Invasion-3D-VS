@@ -8,16 +8,17 @@
 ==============================================================================*/
 #include "meshfield.h"
 #include "direct3d.h"
-#include "shader3d.h"
+#include "shader_field.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "texture.h"
 #include "sampler.h"
 #include "cube.h"
+#include "camera.h"
 
 static constexpr float FIELD_SIZE = 1.0f;//メッシュ1枚分のサイズ
-static constexpr int FIELD_H_COUNT = 30; //横のメッシュ数
-static constexpr int FIELD_V_COUNT = 30; //縦のメッシュ数
+static constexpr int FIELD_H_COUNT = 50; //横のメッシュ数
+static constexpr int FIELD_V_COUNT = 50; //縦のメッシュ数
 static constexpr int FIELD_H_VERTEX_COUNT = FIELD_H_COUNT + 1; //横の頂点数
 static constexpr int FIELD_V_VERTEX_COUNT = FIELD_V_COUNT + 1; //縦の頂点数
 
@@ -27,7 +28,8 @@ static constexpr int NUM_INDEX = 3 * 2 * FIELD_H_COUNT * FIELD_V_COUNT; //インデ
 static ID3D11Buffer* g_pVertexBuffer = nullptr; // 頂点バッファ
 static ID3D11Buffer* g_pIndexBuffer = nullptr; // インデックスバッファ
 
-static int g_CubeTexId = -1;
+static int g_CubeTexId0 = -1;
+static int g_CubeTexId1 = -1;
 
 // 注意！初期化で外部から設定されるもの。Release不要。
 static ID3D11Device* g_pDevice = nullptr;
@@ -68,9 +70,18 @@ void Meshfield_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 			//横＋横の最大数*縦
 			int index = x + FIELD_H_VERTEX_COUNT * z;
 			g_MeshfieldVertex[index].position = { x * FIELD_SIZE,0.0f,z * FIELD_SIZE };
-			g_MeshfieldVertex[index].color = { 1.0f,1.0f,1.0f,1.0f };
+			g_MeshfieldVertex[index].color = { 0.0f,1.0f,0.0f,1.0f };
 			g_MeshfieldVertex[index].texcoord = { x * 1.0f,z * 1.0f };
 		}
+	}
+
+	for (int z = 0;z < FIELD_H_VERTEX_COUNT;z++) {
+		int index = 25 + FIELD_H_VERTEX_COUNT * z;
+		g_MeshfieldVertex[index].color = { 1.0f,0.0f,0.0f,1.0f };
+		index = 24 + FIELD_H_VERTEX_COUNT * z;
+		g_MeshfieldVertex[index].color = { 1.0f,0.0f,0.0f,1.0f };
+		index = 26 + FIELD_H_VERTEX_COUNT * z;
+		g_MeshfieldVertex[index].color = { 1.0f,0.0f,0.0f,1.0f };
 	}
 
 	
@@ -112,20 +123,25 @@ void Meshfield_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 
 
 
-	g_CubeTexId = Texture_Load(L"resource/texture/blockground2.png");
+	g_CubeTexId0 = Texture_Load(L"resource/texture/blockground2.png");
+	g_CubeTexId1 = Texture_Load(L"resource/texture/blockground.png");
+
+	ShaderField_Initialize(pDevice, pContext);
 }
 
 void Meshfield_Finalize(void){
+	ShaderField_Finalize();
 	SAFE_RELEASE(g_pVertexBuffer);
 	SAFE_RELEASE(g_pIndexBuffer);
 }
 
 void Meshfield_Draw() {
 	// シェーダーを描画パイプラインに設定
-	Shader3d_Begin();
+	ShaderField_Begin();
 
 	//テクスチャの設定
-	Texture_SetTexture(g_CubeTexId);
+	Texture_SetTexture(g_CubeTexId0, 0);
+	Texture_SetTexture(g_CubeTexId1, 1);
 
 
 	// 頂点バッファを描画パイプラインに設定
@@ -145,7 +161,11 @@ void Meshfield_Draw() {
 	XMMATRIX mtxWorld = XMMatrixTranslation(-offset_x, 0.0f, -offset_z);
 
 	//頂点シェーダーにワールド座標変換行列を設定
-	Shader3d_SetWorldMatrix(mtxWorld);
+	ShaderField_SetWorldMatrix(mtxWorld);
+
+	//カメラとパースペクティブ行列
+	ShaderField_SetViewMatrix(XMLoadFloat4x4(&Camera_GetMatrix()));
+	ShaderField_SetProjectionMatrix(XMLoadFloat4x4(&Camera_GetPerspectiveMatrix()));
 
 	// ポリゴン描画命令発行
 	//g_pContext->Draw(NUM_VERTEX, 0);

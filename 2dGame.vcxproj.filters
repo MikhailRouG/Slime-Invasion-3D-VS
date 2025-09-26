@@ -13,6 +13,9 @@
     <FxCompile Include="shader_vertex_2d.hlsl">
       <Filter>シェーダーファイル</Filter>
     </FxCompile>
+    <FxCompile Include="shader_pixel_field.hlsl">
+      <Filter>シェーダーファイル</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Audio.cpp">
@@ -60,9 +63,6 @@
     <ClCompile Include="particle.cpp">
       <Filter>ソースファイル\リソースファイル</Filter>
     </ClCompile>
-    <ClCompile Include="polygon.cpp">
-      <Filter>ソースファイル\リソースファイル</Filter>
-    </ClCompile>
     <ClCompile Include="scene.cpp">
       <Filter>ソースファイル\リソースファイル</Filter>
     </ClCompile>
@@ -100,6 +100,8 @@
       <Filter>ソースファイル\リソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="sampler.cpp" />
+    <ClCompile Include="meshfield.cpp" />
+    <ClCompile Include="shader_field.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h">
@@ -118,9 +120,6 @@
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="direct3d.h">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectXTex.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="effect.h">
@@ -148,9 +147,6 @@
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="pause.h">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="polygon.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="scene.h">
@@ -192,6 +188,10 @@
     <ClInclude Include="sampler.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
+    <ClInclude Include="meshfield.h" />
+    <ClInclude Include="shader_field.h">
+      <Filter>ソースファイル\ヘッダーファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ソースファイル">
@@ -206,10 +206,5 @@
     <Filter Include="ソースファイル\リソースファイル">
       <UniqueIdentifier>{7c97c68f-d3c4-4195-a72b-5ffe59c41546}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DirectXTex.inl">
-      <Filter>ソースファイル\ヘッダーファイル</Filter>
-    </None>
   </ItemGroup>
 </Project>

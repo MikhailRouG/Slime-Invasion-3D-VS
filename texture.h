@@ -24,7 +24,7 @@ int Texture_Load(const wchar_t* pFilename); //引数はファイル名
 void Texture_AllRelease();
 
 //管理番号を与えるとポリゴンにテクスチャをセットする
-void Texture_SetTexture(int texid);
+void Texture_SetTexture(int texid, int slot = 0);
 
 //テクスチャの幅/高さを返す
 unsigned int Texture_Width(int texid);

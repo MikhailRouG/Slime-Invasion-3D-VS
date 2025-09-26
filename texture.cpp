@@ -98,14 +98,15 @@ void Texture_AllRelease(){
 	}
 }
 
-void Texture_SetTexture(int texid){
+
+void Texture_SetTexture(int texid, int slot){
 	if (texid < 0) {
 		return; //-1だったら何もしないで返す
 	}
 
 	g_SetTextureIndex = texid;
-	//テクスチャ設定
-	g_pContext->PSSetShaderResources(0, 1, &g_Textures[texid].pTextureView);
+	//テクスチャ設定,スロット番号のレジスタに渡す
+	g_pContext->PSSetShaderResources(slot, 1, &g_Textures[texid].pTextureView);
 }
 
 unsigned int Texture_Width(int texid){

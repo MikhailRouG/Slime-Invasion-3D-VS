@@ -160,6 +160,7 @@
     <ClCompile Include="score.cpp" />
     <ClCompile Include="shader2d.cpp" />
     <ClCompile Include="shader3d.cpp" />
+    <ClCompile Include="shader_field.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="sprite_anim.cpp" />
     <ClCompile Include="system_timer.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="score.h" />
     <ClInclude Include="shader2d.h" />
     <ClInclude Include="shader3d.h" />
+    <ClInclude Include="shader_field.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="sprite_anim.h" />
     <ClInclude Include="system_timer.h" />
@@ -203,6 +205,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="shader_pixel_3d.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="shader_pixel_field.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
