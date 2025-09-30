@@ -20,11 +20,20 @@ cbuffer VS_CONSTANT_BUFFER : register(b2){
     float4x4 proj;
 };
 
+cbuffer VS_CONSTANT_BUFFER : register(b3){
+    float4 ambient_color ;
+};
+
+cbuffer VS_CONSTANT_BUFFER : register(b4){
+    float4 directional_world_vector;
+    float4 directional_color;
+};
    
 
 struct VS_IN{
     //:~ セマンティクス
     float4 posL : POSITION0;
+    float4 normalL : NORMAL0; //ローカル
     float4 color: COLOR0; 
     float2 texcoord : TEXCOORD0;
 };
@@ -46,14 +55,16 @@ VS_OUT main(VS_IN vi){
     float4 posWV = mul(posW, view); // posWをビュー変換
     vo.posH = mul(posWV, proj); //posWVをプロジェクション変換
     
-    /*
-    float4x4 mtxWV = mul(world, view);
-    float4x4 mtxWVP = mul(mtxWV, proj);
-    vo.posH = mul(vi.posL, mtxWVP);
-    */
-    //vo.posH = mul(vi.posL, mul(mul(world, view), proj));
+    //ライト計算
+    //普通のワールド変換行列はだめ(拡大縮小の影響を受けるため)
+    //ワールド変換行列の転置逆行列を使う
+    float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //αは0
+    normalW = normalize(normalW); //単位ベクトル化
+    float dl = dot(-directional_world_vector, normalW); //内積
     
-    vo.color = vi.color;
+    float3 color = vi.color.rgb * directional_color.rgb * dl + ambient_color.rgb * vi.color.rgb;
+    
+    vo.color = float4(color, vi.color.a);
     vo.texcoord = vi.texcoord;
     
 	return vo;

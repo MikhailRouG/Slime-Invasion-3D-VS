@@ -102,6 +102,7 @@
     <ClCompile Include="sampler.cpp" />
     <ClCompile Include="meshfield.cpp" />
     <ClCompile Include="shader_field.cpp" />
+    <ClCompile Include="light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h">
@@ -190,6 +191,9 @@
     </ClInclude>
     <ClInclude Include="meshfield.h" />
     <ClInclude Include="shader_field.h">
+      <Filter>ソースファイル\ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
   </ItemGroup>

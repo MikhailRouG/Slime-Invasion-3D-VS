@@ -18,5 +18,4 @@ SamplerState samp; //テクスチャサンプラ
 
 float4 main(PS_IN pi) : SV_TARGET{
     return tex.Sample(samp, pi.texcoord) * pi.color; //uvの座標のサンプラーのテクスチャの色を返す
-
 }

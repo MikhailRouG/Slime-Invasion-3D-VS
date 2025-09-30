@@ -151,6 +151,7 @@
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="key_logger.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshfield.cpp" />
     <ClCompile Include="mouse.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="mouse.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="pause.h" />
+    <ClInclude Include="light.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="score.h" />
