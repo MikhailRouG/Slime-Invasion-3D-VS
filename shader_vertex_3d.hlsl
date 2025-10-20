@@ -60,7 +60,7 @@ VS_OUT main(VS_IN vi){
     //ワールド変換行列の転置逆行列を使う
     float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //αは0
     normalW = normalize(normalW); //単位ベクトル化
-    float dl = max(0, dot(-directional_world_vector, normalW)); //内積
+    float dl = max(0.0f, dot(-directional_world_vector, normalW)); //内積
     
     float3 color = vi.color.rgb * directional_color.rgb * dl + ambient_color.rgb * vi.color.rgb;
     

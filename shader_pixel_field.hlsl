@@ -10,6 +10,8 @@
 struct PS_IN{
     float4 posH : SV_POSITION;
     float4 color: COLOR0;
+    float4 directional : COLOR1;
+    float4 ambient : COLOR2;
     float2 texcoord : TEXCOORD0;
 };
 
@@ -25,7 +27,8 @@ float4 main(PS_IN pi) : SV_TARGET{
     uv.x = cos(angle) * pi.texcoord.x + sin(angle) * pi.texcoord.y;
     uv.y = cos(angle) * pi.texcoord.y - sin(angle) * pi.texcoord.x;
     
-    return tex0.Sample(samp, pi.texcoord) * pi.color.g + tex1.Sample(samp, pi.texcoord) * pi.color.r;
+    float4 tex_color = tex0.Sample(samp, pi.texcoord) * pi.color.g + tex1.Sample(samp, pi.texcoord) * pi.color.r;
+    return tex_color * pi.directional + tex_color * pi.ambient;
     //大きなテクスチャと小さなテクスチャを重ねることで繰り返し感をなくす
     //return tex0.Sample(samp, pi.texcoord) * 0.5f + tex1.Sample(samp, uv) * 0.5f; //* pi.color; //uvの座標のサンプラーのテクスチャの色を返す
 

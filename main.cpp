@@ -64,7 +64,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Grid_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Cube_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Light_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
-	//Meshfield_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
+	Meshfield_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	
 
 #if defined(DEBUG)||defined(_DEBUG)
