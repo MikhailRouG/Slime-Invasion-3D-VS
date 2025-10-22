@@ -8,8 +8,7 @@
 ==============================================================================*/
 
 //定数バッファ
-cbuffer PS_CONSTANT_BUFFER : register(b0)
-{
+cbuffer PS_CONSTANT_BUFFER : register(b0){
     float4 color;
 };
 

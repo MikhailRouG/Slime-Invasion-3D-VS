@@ -137,9 +137,12 @@ void Cube_Finalize(void){
 }
 
 
-void Cube_Draw(const DirectX::XMMATRIX mtxWorld){
+void Cube_Draw(const DirectX::XMMATRIX mtxWorld) {
 	// シェーダーを描画パイプラインに設定
 	Shader3d_Begin();
+
+	//ピクセルシェーダーに色を設定
+	Shader3d_SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 	//テクスチャの設定
 	Texture_SetTexture(g_CubeTexId);

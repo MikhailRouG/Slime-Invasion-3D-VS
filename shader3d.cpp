@@ -132,7 +132,7 @@ bool Shader3d_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	}
 
 	// ピクセルシェーダー用定数バッファの作成
-	D3D11_BUFFER_DESC buffer_desc{};
+	//D3D11_BUFFER_DESC buffer_desc{};
 	buffer_desc.ByteWidth = sizeof(XMFLOAT4); // バッファのサイズ
 	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // バインドフラグ
 
@@ -185,6 +185,11 @@ void Shader3d_SetProjectionMatrix(const DirectX::XMMATRIX& matrix){
 	g_pContext->UpdateSubresource(g_pVSConstantBuffer2, 0, nullptr, &transpose, 0, 0);
 }
 
+void Shader3d_SetColor(const DirectX::XMFLOAT4 color) {
+	// 定数バッファに行列をセット
+	g_pContext->UpdateSubresource(g_pPSConstantBuffer0, 0, nullptr, &color, 0, 0);
+}
+
 void Shader3d_Begin(){
 	// 頂点シェーダーとピクセルシェーダーを描画パイプラインに設定
 	g_pContext->VSSetShader(g_pVertexShader, nullptr, 0);
@@ -197,6 +202,7 @@ void Shader3d_Begin(){
 	g_pContext->VSSetConstantBuffers(0, 1, &g_pVSConstantBuffer0);
 	g_pContext->VSSetConstantBuffers(1, 1, &g_pVSConstantBuffer1);
 	g_pContext->VSSetConstantBuffers(2, 1, &g_pVSConstantBuffer2);
+	g_pContext->PSSetConstantBuffers(0, 1, &g_pPSConstantBuffer0);
 
 
 	//サンプラーステートを描画パイプラインに設定

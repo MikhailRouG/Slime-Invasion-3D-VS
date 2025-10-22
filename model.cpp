@@ -24,16 +24,16 @@ struct Vertex3d {
 
 static int g_TextureWhite = -1;
 
-MODEL* ModelLoad( const char *FileName, float scale, bool bBlender){
+MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 	MODEL* model = new MODEL;
 
-	const std::string modelPath( FileName );
+	const std::string modelPath(FileName);
 
 	model->AiScene = aiImportFile(FileName, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded);
 	assert(model->AiScene);
 
-	model->VertexBuffer = new ID3D11Buffer*[model->AiScene->mNumMeshes];
-	model->IndexBuffer = new ID3D11Buffer*[model->AiScene->mNumMeshes];
+	model->VertexBuffer = new ID3D11Buffer * [model->AiScene->mNumMeshes];
+	model->IndexBuffer = new ID3D11Buffer * [model->AiScene->mNumMeshes];
 
 
 	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++)
@@ -55,7 +55,7 @@ MODEL* ModelLoad( const char *FileName, float scale, bool bBlender){
 					vertex[v].normal = XMFLOAT3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z);
 				}
 				vertex[v].color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-				vertex[v].texcoord = XMFLOAT2( mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
+				vertex[v].texcoord = XMFLOAT2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
 			}
 
 			D3D11_BUFFER_DESC bd;
@@ -108,31 +108,56 @@ MODEL* ModelLoad( const char *FileName, float scale, bool bBlender){
 
 	}
 
-	//テクスチャが読み込まれてなかったら
-	if (model->AiScene->mNumTextures == 0) {
-		g_TextureWhite = Texture_Load(L"resource/texture/white.png");
+	g_TextureWhite = Texture_Load(L"resource/texture/white.png");
+	/*
+	//テクスチャがFBXとは別ファイル
+	for (unsigned int m = 0; m < model->AiScene->mNumTextures; m++) {
+		aiString texture;
+		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
+		aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
+		
+		const wchar_t* p = (const wchar_t*)texture.C_Str();
+
+		ID3D11ShaderResourceView* texture;
+		ID3D11Resource* resource;
+
+		CreateWICTextureFromFile(
+			Direct3D_GetDevice(),
+			Direct3D_GetContext(),
+			(const uint8_t*)aitexture->pcData,
+			(size_t)aitexture->mWidth,
+			&resource,
+			&texture);
+
+		assert(texture);
+
+		resource->Release();
+
+		model->Texture[aitexture->mFilename.data] = texture;
 	}
-	else {
-		//テクスチャ読み込み
-		for (unsigned int i = 0; i < model->AiScene->mNumTextures; i++) {
-			aiTexture* aitexture = model->AiScene->mTextures[i];
+	*/
 
-			ID3D11ShaderResourceView* texture;
-			ID3D11Resource* resource;
+	//FBXに内包されている場合
+	//テクスチャ読み込み
+	for (unsigned int i = 0; i < model->AiScene->mNumTextures; i++) {
+		aiTexture* aitexture = model->AiScene->mTextures[i];
 
-			CreateWICTextureFromMemory(
-				Direct3D_GetDevice(),
-				Direct3D_GetContext(),
-				(const uint8_t*)aitexture->pcData,
-				(size_t)aitexture->mWidth,
-				&resource, //releaseする
-				&texture);
+		ID3D11ShaderResourceView* texture;
+		ID3D11Resource* resource;
 
-			assert(texture);
+		CreateWICTextureFromMemory(
+			Direct3D_GetDevice(),
+			Direct3D_GetContext(),
+			(const uint8_t*)aitexture->pcData,
+			(size_t)aitexture->mWidth,
+			&resource,
+			&texture);
 
-			model->Texture[aitexture->mFilename.data] = texture;
-		}
+		assert(texture);
 
+		resource->Release();
+
+		model->Texture[aitexture->mFilename.data] = texture;
 	}
 
 	return model;
@@ -165,7 +190,7 @@ void ModelRelease(MODEL* model)
 	delete model;
 }
 
-void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld){
+void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
 	// シェーダーを描画パイプラインに設定
 	Shader3d_Begin();
 
@@ -183,7 +208,7 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld){
 			aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
 
 			if (texture.length != 0) {
-			//if (texture != aiString("")) {
+				//if (texture != aiString("")) {
 				Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
 			}
 		}
@@ -192,7 +217,10 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld){
 		}
 
 		//マテリアル設定
-		MATERIAL material
+		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
+		aiColor3D diffuse;
+		aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+		Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
 
 		// 頂点バッファを描画パイプラインに設定
 		UINT stride = sizeof(Vertex3d);
