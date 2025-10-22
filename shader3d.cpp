@@ -21,6 +21,7 @@ static ID3D11InputLayout* g_pInputLayout = nullptr;
 static ID3D11Buffer* g_pVSConstantBuffer0 = nullptr; //定数バッファb0(world転送用)
 static ID3D11Buffer* g_pVSConstantBuffer1 = nullptr; //定数バッファb1(view転送用)
 static ID3D11Buffer* g_pVSConstantBuffer2 = nullptr; //定数バッファb2(proj転送用)
+static ID3D11Buffer* g_pPSConstantBuffer0 = nullptr;//ピクセルシェーダ用定数バッファb0
 static ID3D11PixelShader* g_pPixelShader = nullptr;
 
 
@@ -129,6 +130,14 @@ bool Shader3d_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 		hal::dout << "Shader_Initialize() : ピクセルシェーダーの作成に失敗しました" << std::endl;
 		return false;
 	}
+
+	// ピクセルシェーダー用定数バッファの作成
+	D3D11_BUFFER_DESC buffer_desc{};
+	buffer_desc.ByteWidth = sizeof(XMFLOAT4); // バッファのサイズ
+	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // バインドフラグ
+
+	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pPSConstantBuffer0);
+
 
 	return true;
 }

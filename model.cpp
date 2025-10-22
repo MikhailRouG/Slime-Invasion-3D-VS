@@ -12,6 +12,8 @@
 #include "model.h"
 #include <DirectXMath.h>
 using namespace DirectX;
+#include "WICTextureLoader11.h"
+#include "shader3d.h"
 
 struct Vertex3d {
 	XMFLOAT3 position; // 頂点座標
@@ -20,10 +22,10 @@ struct Vertex3d {
 	XMFLOAT2 texcoord; //UV
 };
 
-MODEL* ModelLoad( const char *FileName )
-{
-	MODEL* model = new MODEL;
+static int g_TextureWhite = -1;
 
+MODEL* ModelLoad( const char *FileName, float scale, bool bBlender){
+	MODEL* model = new MODEL;
 
 	const std::string modelPath( FileName );
 
@@ -44,18 +46,24 @@ MODEL* ModelLoad( const char *FileName )
 
 			for (unsigned int v = 0; v < mesh->mNumVertices; v++)
 			{
-				vertex[v].position = XMFLOAT3(mesh->mVertices[v].x, -mesh->mVertices[v].z, mesh->mVertices[v].y);
-				vertex[v].normal = XMFLOAT3(mesh->mNormals[v].x, -mesh->mNormals[v].z, mesh->mNormals[v].y);
+				if (bBlender) {
+					vertex[v].position = XMFLOAT3(mesh->mVertices[v].x * scale, -mesh->mVertices[v].z * scale, mesh->mVertices[v].y * scale);
+					vertex[v].normal = XMFLOAT3(mesh->mNormals[v].x, -mesh->mNormals[v].z, mesh->mNormals[v].y);
+				}
+				else {
+					vertex[v].position = XMFLOAT3(mesh->mVertices[v].x * scale, mesh->mVertices[v].y * scale, mesh->mVertices[v].z * scale);
+					vertex[v].normal = XMFLOAT3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z);
+				}
 				vertex[v].color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 				vertex[v].texcoord = XMFLOAT2( mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
 			}
 
 			D3D11_BUFFER_DESC bd;
 			ZeroMemory(&bd, sizeof(bd));
-			bd.Usage = D3D11_USAGE_DYNAMIC;
+			bd.Usage = D3D11_USAGE_DEFAULT;
 			bd.ByteWidth = sizeof(Vertex3d) * mesh->mNumVertices;
 			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			bd.CPUAccessFlags = 0;
 
 			D3D11_SUBRESOURCE_DATA sd;
 			ZeroMemory(&sd, sizeof(sd));
@@ -100,24 +108,32 @@ MODEL* ModelLoad( const char *FileName )
 
 	}
 
-
-
-	//テクスチャ読み込み
-	for(int i = 0; i < model->AiScene->mNumTextures; i++)
-	{
-		aiTexture* aitexture = model->AiScene->mTextures[i];
-
-		ID3D11ShaderResourceView* texture;
-		TexMetadata metadata;
-		ScratchImage image;
-		LoadFromWICMemory(aitexture->pcData, aitexture->mWidth, WIC_FLAGS_NONE, &metadata, image);
-		CreateShaderResourceView(DirectXGetDevice(), image.GetImages(), image.GetImageCount(), metadata, &texture);
-		assert(texture);
-
-		model->Texture[aitexture->mFilename.data] = texture;
+	//テクスチャが読み込まれてなかったら
+	if (model->AiScene->mNumTextures == 0) {
+		g_TextureWhite = Texture_Load(L"resource/texture/white.png");
 	}
+	else {
+		//テクスチャ読み込み
+		for (unsigned int i = 0; i < model->AiScene->mNumTextures; i++) {
+			aiTexture* aitexture = model->AiScene->mTextures[i];
 
+			ID3D11ShaderResourceView* texture;
+			ID3D11Resource* resource;
 
+			CreateWICTextureFromMemory(
+				Direct3D_GetDevice(),
+				Direct3D_GetContext(),
+				(const uint8_t*)aitexture->pcData,
+				(size_t)aitexture->mWidth,
+				&resource, //releaseする
+				&texture);
+
+			assert(texture);
+
+			model->Texture[aitexture->mFilename.data] = texture;
+		}
+
+	}
 
 	return model;
 }
@@ -149,6 +165,47 @@ void ModelRelease(MODEL* model)
 	delete model;
 }
 
+void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld){
+	// シェーダーを描画パイプラインに設定
+	Shader3d_Begin();
+
+	// プリミティブトポロジ設定
+	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//頂点シェーダーにワールド座標変換行列を設定
+	Shader3d_SetWorldMatrix(mtxWorld);
+
+	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++) {
+		//テクスチャの設定
+		if (model->AiScene->mNumTextures) {
+			aiString texture;
+			aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
+			aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
+
+			if (texture.length != 0) {
+			//if (texture != aiString("")) {
+				Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
+			}
+		}
+		else {
+			Texture_SetTexture(g_TextureWhite);
+		}
+
+		//マテリアル設定
+		MATERIAL material
+
+		// 頂点バッファを描画パイプラインに設定
+		UINT stride = sizeof(Vertex3d);
+		UINT offset = 0;
+		Direct3D_GetContext()->IASetVertexBuffers(0, 1, &model->VertexBuffer[m], &stride, &offset);
+
+		// インデックスバッファを描画パイプラインに設定
+		Direct3D_GetContext()->IASetIndexBuffer(model->IndexBuffer[m], DXGI_FORMAT_R32_UINT, 0);
+
+		// ポリゴン描画命令発行
+		Direct3D_GetContext()->DrawIndexed(model->AiScene->mMeshes[m]->mNumFaces * 3, 0, 0);
+	}
+}
 
 
 

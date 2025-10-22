@@ -18,6 +18,7 @@ using namespace DirectX;
 #include "sampler.h"
 #include "meshfield.h"
 #include "light.h"
+#include "model.h"
 
 static float g_x = 0.0f;
 static float g_angle = 0.0f;
@@ -26,13 +27,16 @@ static double g_AccumulatedTime = 0.0;
 static XMFLOAT3 g_CubePosition{};
 static XMFLOAT3 g_CubeVelocity{};
 
+static MODEL* g_pModelTest = nullptr;
 
 void Game_Initialize(){
 	Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f});
 	//Camera_Initialize();
+	g_pModelTest = ModelLoad("resource/model/test.fbx", 0.1f);
 }
 
 void Game_Finalize(){
+	ModelRelease(g_pModelTest);
 	Camera_Finalize();
 }
 
@@ -95,6 +99,7 @@ void Game_Draw(){
 
 	Meshfield_Draw();
 
+	ModelDraw(g_pModelTest, XMMatrixTranslation(-2.0f,1.0f,0.0f));
 	
 	/*float xtrans = 4.5f;
 	float ztrans = 4.5f;
