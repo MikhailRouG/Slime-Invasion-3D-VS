@@ -19,6 +19,7 @@ static ID3D11Buffer* g_pVSConstantBuffer4 = nullptr; //定数バッファb4
 struct DirectionalLight {
 	XMFLOAT4 directional;
 	XMFLOAT4 color;
+	XMFLOAT3 CameraPosition;
 };
 
 void Light_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){

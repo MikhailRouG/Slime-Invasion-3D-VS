@@ -27,8 +27,6 @@ static int g_TextureWhite = -1;
 MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 	MODEL* model = new MODEL;
 
-	const std::string modelPath(FileName);
-
 	model->AiScene = aiImportFile(FileName, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded);
 	assert(model->AiScene);
 
@@ -108,35 +106,9 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 
 	}
 
+
 	g_TextureWhite = Texture_Load(L"resource/texture/white.png");
-	/*
-	//テクスチャがFBXとは別ファイル
-	for (unsigned int m = 0; m < model->AiScene->mNumTextures; m++) {
-		aiString texture;
-		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
-		aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
-		
-		const wchar_t* p = (const wchar_t*)texture.C_Str();
-
-		ID3D11ShaderResourceView* texture;
-		ID3D11Resource* resource;
-
-		CreateWICTextureFromFile(
-			Direct3D_GetDevice(),
-			Direct3D_GetContext(),
-			(const uint8_t*)aitexture->pcData,
-			(size_t)aitexture->mWidth,
-			&resource,
-			&texture);
-
-		assert(texture);
-
-		resource->Release();
-
-		model->Texture[aitexture->mFilename.data] = texture;
-	}
-	*/
-
+	
 	//FBXに内包されている場合
 	//テクスチャ読み込み
 	for (unsigned int i = 0; i < model->AiScene->mNumTextures; i++) {
@@ -160,6 +132,60 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 		model->Texture[aitexture->mFilename.data] = texture;
 	}
 
+	//fbxのファイルパスだけ取得
+	const std::string modelPath(FileName);
+
+	//最後の'/'または'\\'の位置を探す
+	size_t pos = modelPath.find_last_of("/\\");
+	std::string directory;
+
+	if (pos != std::string::npos) {
+		directory = modelPath.substr(0, pos); //ファイル名を除いた部分
+	}
+	else {
+		directory = ""; //パスに区切りがない場合(ファイル名のみ)
+	}
+
+	
+	//テクスチャがFBXとは別に用意されている
+	for (unsigned int m = 0; m < model->AiScene->mNumTextures; m++) {
+		aiString filename;
+		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
+		aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &filename);
+
+		if (filename.length == 0) {
+			continue;
+		}
+		if (model->Texture.count(filename.C_Str())) {
+			continue;
+		}
+
+		ID3D11ShaderResourceView* texture;
+		ID3D11Resource* resource;
+
+		std::string texfilename = directory + "/" + filename.C_Str();
+
+		int len = MultiByteToWideChar(CP_UTF8, 0, texfilename.c_str(), -1, nullptr, 0);
+		wchar_t* pWideFilename = new wchar_t[len];
+		MultiByteToWideChar(CP_UTF8, 0, texfilename.c_str(), -1, pWideFilename, len);
+
+		CreateWICTextureFromFile(
+			Direct3D_GetDevice(),
+			Direct3D_GetContext(),
+			pWideFilename,
+			&resource,
+			&texture);
+
+		delete[] pWideFilename;
+
+		assert(texture);
+
+		resource->Release();
+
+		model->Texture[filename.C_Str()] = texture;
+	}
+	
+
 	return model;
 }
 
@@ -180,7 +206,10 @@ void ModelRelease(MODEL* model)
 
 	for (std::pair<const std::string, ID3D11ShaderResourceView*> pair : model->Texture)
 	{
-		pair.second->Release();
+		if (pair.second) {
+			pair.second->Release();
+			pair.second = nullptr;
+		}
 	}
 
 
@@ -202,25 +231,27 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
 
 	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++) {
 		//テクスチャの設定
-		if (model->AiScene->mNumTextures) {
-			aiString texture;
-			aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
-			aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
+		aiString texture;
+		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
+		aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
 
-			if (texture.length != 0) {
-				//if (texture != aiString("")) {
-				Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
-			}
+		if (texture.length != 0) {
+			//if (texture != aiString("")) {
+			Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
+			Shader3d_SetColor({ 1.0f,1.0f,1.0f, 1.0f });
 		}
 		else {
 			Texture_SetTexture(g_TextureWhite);
+			aiColor3D diffuse;
+			aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+			Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
 		}
 
 		//マテリアル設定
-		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
-		aiColor3D diffuse;
-		aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
-		Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
+		//aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
+		//aiColor3D diffuse;
+		//aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+		//Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
 
 		// 頂点バッファを描画パイプラインに設定
 		UINT stride = sizeof(Vertex3d);

@@ -28,11 +28,18 @@ static XMFLOAT3 g_CubePosition{};
 static XMFLOAT3 g_CubeVelocity{};
 
 static MODEL* g_pModelTest = nullptr;
+static MODEL* g_pModelTest2 = nullptr;
+static MODEL* g_pModelTest3 = nullptr;
+static MODEL* g_pModelTest4 = nullptr;
 
 void Game_Initialize(){
 	Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f});
 	//Camera_Initialize();
 	g_pModelTest = ModelLoad("resource/model/test.fbx", 0.1f);
+	g_pModelTest2 = ModelLoad("resource/model/slime.fbx", 0.5f);
+	g_pModelTest3 = ModelLoad("resource/model/BOTTLE HIGH POLY.fbx", 0.01f);
+	g_pModelTest4 = ModelLoad("resource/model/Glass FBX.fbx", 0.1f);
+
 }
 
 void Game_Finalize(){
@@ -100,6 +107,10 @@ void Game_Draw(){
 	Meshfield_Draw();
 
 	ModelDraw(g_pModelTest, XMMatrixTranslation(-2.0f,1.0f,0.0f));
+	ModelDraw(g_pModelTest2, XMMatrixTranslation(-5.0f, 1.0f, 0.0f));
+	ModelDraw(g_pModelTest3, XMMatrixTranslation(-8.0f, 1.0f, 0.0f));
+	//ModelDraw(g_pModelTest4, XMMatrixTranslation(-11.0f, 1.0f, 0.0f));
+
 	
 	/*float xtrans = 4.5f;
 	float ztrans = 4.5f;
