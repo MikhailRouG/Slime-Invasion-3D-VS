@@ -19,18 +19,6 @@ cbuffer VS_CONSTANT_BUFFER : register(b1){
 cbuffer VS_CONSTANT_BUFFER : register(b2){
     float4x4 proj;
 };
-
-cbuffer VS_CONSTANT_BUFFER : register(b3){
-    float4 ambient_color ;
-};
-
-cbuffer VS_CONSTANT_BUFFER : register(b4){
-    float4 directional_world_vector;
-    float4 directional_color;
-    //float3 gColorSpecularLight;
-    float3 eye_posW;
-    //float specular_power;
-};
    
 
 struct VS_IN{
@@ -43,6 +31,8 @@ struct VS_IN{
 
 struct VS_OUT{
     float4 posH : SV_POSITION;
+    float4 posW : POSITION0;
+    float4 normalW : NORMAL0;
     float4 color: COLOR0;
     float2 texcoord : TEXCOORD0;
 };
@@ -55,31 +45,17 @@ VS_OUT main(VS_IN vi){
     
     
     //座標変換
-    //float4 posW = mul(vi.posL, world); 
-    //float4 posWV = mul(posW, view); 
-    //vo.posH = mul(posWV, proj); 
     float4x4 mtxWV = mul(world, view); //ビュー変換
     float4x4 mtxWVP = mul(mtxWV, proj); // プロジェクション変換
     vo.posH = mul(vi.posL, mtxWVP);
     
-    //ライト計算
     //普通のワールド変換行列はだめ(拡大縮小の影響を受けるため)
     //ワールド変換行列の転置逆行列を使う
     float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //αは0
-    normalW = normalize(normalW); //単位ベクトル化
-    float dl = max(0.0f, dot(-directional_world_vector, normalW)); //内積
+    vo.normalW = normalize(normalW); //単位ベクトル化    
+    vo.posW = mul(vi.posL, world);
     
-    //スペキュラ
-    float4 posW = mul(vi.posL, world);
-    float3 toEye = normalize(eye_posW - posW.xyz);
-    float3 r = reflect(normalize(directional_world_vector),normalW);
-    
-    float t = pow(max(dot(r, toEye), 0.0f), 10.0f);
-    
-    
-    float3 color = vi.color.rgb * directional_color.rgb * dl + ambient_color.rgb * vi.color.rgb;
-    color += float3(1.0f, 1.0f, 1.0f) * t;
-    vo.color = float4(color, vi.color.a);
+    vo.color = vi.color;
     vo.texcoord = vi.texcoord;
     
 	return vo;

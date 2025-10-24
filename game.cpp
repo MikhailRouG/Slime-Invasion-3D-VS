@@ -38,7 +38,7 @@ void Game_Initialize(){
 	g_pModelTest = ModelLoad("resource/model/test.fbx", 0.1f);
 	g_pModelTest2 = ModelLoad("resource/model/slime.fbx", 0.5f);
 	g_pModelTest3 = ModelLoad("resource/model/BOTTLE HIGH POLY.fbx", 0.01f);
-	g_pModelTest4 = ModelLoad("resource/model/Glass FBX.fbx", 0.1f);
+	//g_pModelTest4 = ModelLoad("resource/model/Glass FBX.fbx", 0.1f);
 
 }
 
@@ -76,7 +76,7 @@ void Game_Draw(){
 	v = XMVector3Normalize(v);
 	XMFLOAT4 dir;
 	XMStoreFloat4(&dir, v);
-	Light_SetDirectionalWorld(dir, {0.9f,0.7f,0.5f,1.0f});
+	Light_SetDirectionalWorld(dir, {0.9f,0.7f,0.5f,1.0f},Camera_GetPosition());
 	//Light_SetDirectionalWorld({1.0f,0.0f,0.0f,0.0f}, {0.8f,0.6f,0.3f,1.0f});
 
 	//Grid_Draw();
