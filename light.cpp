@@ -8,6 +8,7 @@
 ==============================================================================*/
 #include "light.h"
 using namespace DirectX;
+#include "direct3d.h"
 
 // 注意！初期化で外部から設定されるもの。Release不要。
 static ID3D11Device* g_pDevice = nullptr;
@@ -15,11 +16,19 @@ static ID3D11DeviceContext* g_pContext = nullptr;
 
 static ID3D11Buffer* g_pPSConstantBuffer1 = nullptr; //定数バッファb1
 static ID3D11Buffer* g_pPSConstantBuffer2 = nullptr; //定数バッファb2
+static ID3D11Buffer* g_pPSConstantBuffer3 = nullptr; //定数バッファb3
 
+//並行光源(拡散反射光)
 struct DirectionalLight {
 	XMFLOAT4 directional;
-	XMFLOAT4 color;
-	XMFLOAT4 CameraPosition;
+	XMFLOAT4 color;	
+};
+
+//鏡面反射光
+struct SpecularLight {
+	XMFLOAT3 CameraPosition;
+	float Power;
+	XMFLOAT4 Color;
 };
 
 void Light_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
@@ -37,10 +46,15 @@ void Light_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 
 	buffer_desc.ByteWidth = sizeof(DirectionalLight); // バッファのサイズ
 	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pPSConstantBuffer2); //directional
+
+	buffer_desc.ByteWidth = sizeof(SpecularLight); // バッファのサイズ
+	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pPSConstantBuffer3); //specular
 }
 
-void Light_Finalize(void)
-{
+void Light_Finalize(void){
+	SAFE_RELEASE(g_pPSConstantBuffer3);
+	SAFE_RELEASE(g_pPSConstantBuffer2);
+	SAFE_RELEASE(g_pPSConstantBuffer1);
 }
 
 void Light_SetAmbient(const XMFLOAT3& color){
@@ -49,19 +63,17 @@ void Light_SetAmbient(const XMFLOAT3& color){
 	g_pContext->PSSetConstantBuffers(1, 1, &g_pPSConstantBuffer1);
 }
 
-void Light_SetDirectionalWorld(const XMFLOAT4& world_directional, const XMFLOAT4& color,const XMFLOAT3 camera_position){
-	DirectionalLight light{
-		world_directional,
-		color,
-		{
-			camera_position.x,
-			camera_position.y,
-			camera_position.z,
-			0.0f
-		}
-	};
+void Light_SetDirectionalWorld(const XMFLOAT4& world_directional, const XMFLOAT4& color){
+	DirectionalLight light{ world_directional,color };
 
 	// 定数バッファにディレクショナルをセット
 	g_pContext->UpdateSubresource(g_pPSConstantBuffer2, 0, nullptr, &light, 0, 0);
 	g_pContext->PSSetConstantBuffers(2, 1, &g_pPSConstantBuffer2);
+}
+
+void Light_SetSpecularWorld(const DirectX::XMFLOAT3& camera_position, float power, const DirectX::XMFLOAT4& color){
+	SpecularLight light{ camera_position,power,color };
+
+	g_pContext->UpdateSubresource(g_pPSConstantBuffer3, 0, nullptr, &light, 0, 0);
+	g_pContext->PSSetConstantBuffers(3, 1, &g_pPSConstantBuffer3);
 }

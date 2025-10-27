@@ -243,6 +243,8 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
 		else {
 			Texture_SetTexture(g_TextureWhite);
 			aiColor3D diffuse;
+			//一つのモデル内でパーツごと(メッシュごと)に分ける場合
+			//AI_MATKEY_COLOR_SPECULARなど利用 or スペキュラマップ利用
 			aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
 			Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
 		}
