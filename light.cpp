@@ -35,9 +35,10 @@ struct SpecularLight {
 
 //点光源(ポイントライト)
 struct PointLight {
-	XMFLOAT3 Lightposition;
+	XMFLOAT3 LightPosition;
 	float Range;
 	XMFLOAT4 color;
+	//float SpecularPower;
 };
 
 struct PointLightList {
@@ -45,6 +46,8 @@ struct PointLightList {
 	int count;
 	XMFLOAT3 dummy;
 };
+
+static PointLightList g_PointLights{};
 
 void Light_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 	// デバイスとデバイスコンテキストの保存
@@ -67,19 +70,6 @@ void Light_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 
 	buffer_desc.ByteWidth = sizeof(PointLightList); // バッファのサイズ
 	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pPSConstantBuffer4); //specular
-
-	PointLightList list{
-		{
-			{ { 0.0f,2.0f,0.0f }, 5.0f, { 1.0f,1.0f,0.0f,1.0f } },
-			{ { 3.0f,2.0f,0.0f }, 5.0f, { 0.0f,0.0f,1.0f,1.0f } },
-			{ { -3.0f,2.0f,0.0f }, 5.0f, { 1.0f,0.0f,0.0f,1.0f } },
-			{ { -6.0f,2.0f,0.0f }, 5.0f, { 0.0f,1.0f,0.0f,1.0f } },
-		},
-		4
-		//dummy
-	};
-	g_pContext->UpdateSubresource(g_pPSConstantBuffer4, 0, nullptr, &list, 0, 0);
-	g_pContext->PSSetConstantBuffers(4, 1, &g_pPSConstantBuffer4);
 }
 
 void Light_Finalize(void){
@@ -108,4 +98,19 @@ void Light_SetSpecularWorld(const DirectX::XMFLOAT3& camera_position, float powe
 
 	g_pContext->UpdateSubresource(g_pPSConstantBuffer3, 0, nullptr, &light, 0, 0);
 	g_pContext->PSSetConstantBuffers(3, 1, &g_pPSConstantBuffer3);
+}
+
+void Light_SetPointLightcount(int count){
+	g_PointLights.count = count;
+	g_pContext->UpdateSubresource(g_pPSConstantBuffer4, 0, nullptr, &g_PointLights, 0, 0);
+	g_pContext->PSSetConstantBuffers(4, 1, &g_pPSConstantBuffer4);
+}
+
+void Light_SetPointLight(int n, const DirectX::XMFLOAT3& position, float range, const DirectX::XMFLOAT3& color){
+	g_PointLights.light[n].LightPosition = position;
+	g_PointLights.light[n].Range = range;
+	g_PointLights.light[n].color = { color.x,color.y,color.z,1.0f };
+
+	g_pContext->UpdateSubresource(g_pPSConstantBuffer4, 0, nullptr, &g_PointLights, 0, 0);
+	g_pContext->PSSetConstantBuffers(4, 1, &g_pPSConstantBuffer4);
 }

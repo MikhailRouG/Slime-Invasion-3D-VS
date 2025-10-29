@@ -72,12 +72,24 @@ void Game_Update(double elapsed_time){
 
 void Game_Draw(){
 	Light_SetAmbient({ 0.0f,0.0f,0.0f });
-	XMVECTOR v{ -1.0f,-1.0f,1.0f ,0.0f};
+	XMVECTOR v{ -1.0f,-1.0f,1.0f};
 	v = XMVector3Normalize(v);
 	XMFLOAT4 dir;
 	XMStoreFloat4(&dir, v);
 	//Light_SetDirectionalWorld(dir, {0.9f,0.7f,0.5f,1.0f});
-	Light_SetDirectionalWorld(dir, { 0.0f,0.0f,0.0f,1.0f });
+	Light_SetDirectionalWorld(dir, { 0.3f,0.3f,0.2f,1.0f });
+
+	Light_SetPointLightcount(3);
+	XMMATRIX rot = XMMatrixRotationY(g_angle);
+	XMFLOAT3 pp0,pp1,pp2;
+	XMStoreFloat3(&pp0, XMVector3Transform({ 0.0f,0.3f,-3.0f }, rot));
+	XMStoreFloat3(&pp1, XMVector3Transform({ 0.0f,0.3f,3.0f }, rot));
+	XMStoreFloat3(&pp2, XMVector3Transform({ 3.0f,0.3f,-3.0f }, rot));
+
+	Light_SetPointLight(0, pp0, 5.0f, {1.0f,0.0f,0.0f});
+	Light_SetPointLight(1, pp1, 5.0f, { 0.0f,1.0f,0.0f });
+	Light_SetPointLight(2, pp2, 5.0f, { 0.0f,0.0f,1.0f });
+
 
 	//Grid_Draw();
 	
@@ -106,7 +118,7 @@ void Game_Draw(){
 	Light_SetSpecularWorld(Camera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
 	Meshfield_Draw();
 
-	Light_SetSpecularWorld(Camera_GetPosition(), 1.0f, { 0.1f,0.1f,0.1f,1.0f });
+	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 0.3f,0.3f,0.3f,1.0f });
 	ModelDraw(g_pModelTest, XMMatrixTranslation(-2.0f,1.0f,0.0f));
 
 	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 1.0f,0.9f,0.7f,1.0f });
