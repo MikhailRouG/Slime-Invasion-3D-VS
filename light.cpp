@@ -17,6 +17,8 @@ static ID3D11DeviceContext* g_pContext = nullptr;
 static ID3D11Buffer* g_pPSConstantBuffer1 = nullptr; //定数バッファb1
 static ID3D11Buffer* g_pPSConstantBuffer2 = nullptr; //定数バッファb2
 static ID3D11Buffer* g_pPSConstantBuffer3 = nullptr; //定数バッファb3
+static ID3D11Buffer* g_pPSConstantBuffer4 = nullptr; //定数バッファb3
+
 
 //並行光源(拡散反射光)
 struct DirectionalLight {
@@ -29,6 +31,19 @@ struct SpecularLight {
 	XMFLOAT3 CameraPosition;
 	float Power;
 	XMFLOAT4 Color;
+};
+
+//点光源(ポイントライト)
+struct PointLight {
+	XMFLOAT3 Lightposition;
+	float Range;
+	XMFLOAT4 color;
+};
+
+struct PointLightList {
+	PointLight light[4];
+	int count;
+	XMFLOAT3 dummy;
 };
 
 void Light_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
@@ -49,9 +64,26 @@ void Light_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 
 	buffer_desc.ByteWidth = sizeof(SpecularLight); // バッファのサイズ
 	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pPSConstantBuffer3); //specular
+
+	buffer_desc.ByteWidth = sizeof(PointLightList); // バッファのサイズ
+	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pPSConstantBuffer4); //specular
+
+	PointLightList list{
+		{
+			{ { 0.0f,2.0f,0.0f }, 5.0f, { 1.0f,1.0f,0.0f,1.0f } },
+			{ { 3.0f,2.0f,0.0f }, 5.0f, { 0.0f,0.0f,1.0f,1.0f } },
+			{ { -3.0f,2.0f,0.0f }, 5.0f, { 1.0f,0.0f,0.0f,1.0f } },
+			{ { -6.0f,2.0f,0.0f }, 5.0f, { 0.0f,1.0f,0.0f,1.0f } },
+		},
+		4
+		//dummy
+	};
+	g_pContext->UpdateSubresource(g_pPSConstantBuffer4, 0, nullptr, &list, 0, 0);
+	g_pContext->PSSetConstantBuffers(4, 1, &g_pPSConstantBuffer4);
 }
 
 void Light_Finalize(void){
+	SAFE_RELEASE(g_pPSConstantBuffer4);
 	SAFE_RELEASE(g_pPSConstantBuffer3);
 	SAFE_RELEASE(g_pPSConstantBuffer2);
 	SAFE_RELEASE(g_pPSConstantBuffer1);

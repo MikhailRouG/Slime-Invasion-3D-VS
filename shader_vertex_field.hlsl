@@ -22,34 +22,23 @@ cbuffer VS_CONSTANT_BUFFER : register(b2)
 {
     float4x4 proj;
 };
-
-cbuffer VS_CONSTANT_BUFFER : register(b3)
-{
-    float4 ambient_color;
-};
-
-cbuffer VS_CONSTANT_BUFFER : register(b4)
-{
-    float4 directional_world_vector;
-    float4 directional_color;
-};
    
 
 struct VS_IN
 {
     //:~ セマンティクス
     float4 posL : POSITION0;
-    float4 normalL : NORMAL0; //ローカル
-    float4 color : COLOR0;
+    float4 normalL : NORMAL0;
+    float4 blend : COLOR0;
     float2 texcoord : TEXCOORD0;
 };
 
 struct VS_OUT
 {
     float4 posH : SV_POSITION;
-    float4 color : COLOR0;
-    float4 directional : COLOR1;
-    float4 ambient : COLOR2;
+    float4 posW : POSITION0;
+    float4 normalW : NORMAL0;
+    float4 blend : COLOR0;
     float2 texcoord : TEXCOORD0;
 };
 
@@ -61,23 +50,20 @@ VS_OUT main(VS_IN vi)
     VS_OUT vo;
     
     //座標変換
-    float4 posW = mul(vi.posL, world); //posLをワールド変換
-    float4 posWV = mul(posW, view); // posWをビュー変換
-    vo.posH = mul(posWV, proj); //posWVをプロジェクション変換
+    float4x4 mtxWV = mul(world, view); //ビュー変換
+    float4x4 mtxWVP = mul(mtxWV, proj); // プロジェクション変換
+    vo.posH = mul(vi.posL, mtxWVP);
+ 
     
-    //ライト計算
     //普通のワールド変換行列はだめ(拡大縮小の影響を受けるため)
     //ワールド変換行列の転置逆行列を使う
     float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //αは0
-    normalW = normalize(normalW); //単位ベクトル化
-    float dl = max(0.0f, dot(-directional_world_vector, normalW)); //内積
+    vo.normalW = normalW; //単位ベクトル化    
+    vo.posW = mul(vi.posL, world);
+
+    //地面のテクスチャのブレンド値はそのままパススルー  
+    vo.blend = vi.blend;
     
-    vo.color = vi.color; //地面のテクスチャのブレンド値はそのままパススルー
-    
-    //ライトの計算
-    float3 color =ambient_color.rgb;
-    vo.directional = float4(directional_color.rgb * dl, 1.0f);
-    vo.ambient = float4(ambient_color.rgb, 1.0f);
     vo.texcoord = vi.texcoord;
     
     return vo;

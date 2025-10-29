@@ -18,14 +18,28 @@ cbuffer PS_CONSTANT_BUFFER : register(b1){
 
 cbuffer PS_CONSTANT_BUFFER : register(b2){
     float4 directional_world_vector;
-    float4 directional_color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float4 directional_color;
 };
 
-cbuffer PS_CONSTANT_BUFFER : register(b3){
+cbuffer PS_CONSTANT_BUFFER : register(b3)
+{
     float3 eye_posW;
-    float specular_power = 30.0f;
-    float4 specular_color = { 0.1f, 0.1f, 0.1f, 1.0f };
-}
+    float specular_power;
+    float4 specular_color;
+};
+
+struct PointLight
+{
+    float3 posW;
+    float range;
+    float4 color;
+};
+cbuffer PS_CONSTANT_BUFFER : register(b4)
+{
+    PointLight point_light[4];
+    int point_light_count;
+    float3 point_light_dummy; //float4つ分ずつ送るためのdummy
+};
 
 
 struct PS_IN{
@@ -52,7 +66,7 @@ float4 main(PS_IN pi) : SV_TARGET{
     //環境光(アンビエントカラー(ライト))
     float3 ambient = material_color * ambient_color.rgb;
     
-    //スペキュラ
+    //スペキュラライト
     float3 toEye = normalize(eye_posW - pi.posW.xyz);
     float3 r = reflect(normalize(directional_world_vector), normalW).xyz;
     float t = pow(max(dot(r, toEye), 0.0f), specular_power);
@@ -61,6 +75,27 @@ float4 main(PS_IN pi) : SV_TARGET{
     
     float alpha = tex.Sample(samp, pi.texcoord).a * diffuse_color.a;
     float3 color = ambient + diffuse + specular; //最終的に我々の目に届く色
+    
+    //リムライト
+    float lim = 1.0f-max(dot(normalW.xyz, toEye), 0.0f);
+    lim = pow(lim, 5.0f);
+    //color += float3(lim, lim, lim);
+    
+    for (int i = 0; i < point_light_count; i++)
+    {
+    //点光源(ポイントライト)
+    //面(ピクセル)とライトとの距離を測る
+        float D = length(pi.posW.xyz - point_light[i].posW);
+    
+    //影響力の計算
+        float A = pow(max(1.0f - 1.0f / point_light[i].range * D, 0.0f), 2.0f);
+    // range = 400 length=0,    A*A=1;
+    //                   =100,  A*A=0.75
+    //                   =200,  A*A=0.5
+    //                   =300,  A*A=0.25
+    //                   =400,  A*A=0;
+        color += point_light[i].color.rgb * A;
+    }
     
     return float4(color, alpha); //uvの座標のサンプラーのテクスチャの色を返す
 }

@@ -71,13 +71,13 @@ void Game_Update(double elapsed_time){
 }
 
 void Game_Draw(){
-	Light_SetAmbient({ 0.3f,0.3f,0.3f });
+	Light_SetAmbient({ 0.0f,0.0f,0.0f });
 	XMVECTOR v{ -1.0f,-1.0f,1.0f ,0.0f};
 	v = XMVector3Normalize(v);
 	XMFLOAT4 dir;
 	XMStoreFloat4(&dir, v);
-	Light_SetDirectionalWorld(dir, {0.9f,0.7f,0.5f,1.0f});
-	//Light_SetDirectionalWorld({1.0f,0.0f,0.0f,0.0f}, {0.8f,0.6f,0.3f,1.0f});
+	//Light_SetDirectionalWorld(dir, {0.9f,0.7f,0.5f,1.0f});
+	Light_SetDirectionalWorld(dir, { 0.0f,0.0f,0.0f,1.0f });
 
 	//Grid_Draw();
 	
@@ -103,7 +103,7 @@ void Game_Draw(){
 	Cube_Draw(mtxWorldPoint);
 	
 
-
+	Light_SetSpecularWorld(Camera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
 	Meshfield_Draw();
 
 	Light_SetSpecularWorld(Camera_GetPosition(), 1.0f, { 0.1f,0.1f,0.1f,1.0f });

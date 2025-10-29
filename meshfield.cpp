@@ -169,6 +169,8 @@ void Meshfield_Draw() {
 	ShaderField_SetViewMatrix(XMLoadFloat4x4(&Camera_GetMatrix()));
 	ShaderField_SetProjectionMatrix(XMLoadFloat4x4(&Camera_GetPerspectiveMatrix()));
 
+	ShaderField_SetColor({ 2.0f,2.0f,2.0f,1.0f });
+
 	// ƒ|ƒŠƒSƒ“•`‰æ–½—ß”­s
 	//g_pContext->Draw(NUM_VERTEX, 0);
 	g_pContext->DrawIndexed(NUM_INDEX, 0, 0);
