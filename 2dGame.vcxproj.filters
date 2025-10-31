@@ -117,6 +117,8 @@
     <ClCompile Include="model.cpp">
       <Filter>ソースファイル\リソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="player.cpp" />
+    <ClCompile Include="player_camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h">
@@ -213,6 +215,12 @@
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="model.h">
+      <Filter>ソースファイル\ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>ソースファイル\ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="player_camera.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
   </ItemGroup>

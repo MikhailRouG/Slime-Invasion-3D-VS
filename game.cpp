@@ -9,16 +9,17 @@
 #include "game.h"
 #include "key_logger.h"
 #include "game_window.h"
-#include "cube.h"
+//#include "cube.h"
 #include "shader3d.h"
-#include "grid.h"
-#include "camera.h"
+//#include "camera.h"
+#include "player_camera.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "sampler.h"
 #include "meshfield.h"
 #include "light.h"
 #include "model.h"
+#include "player.h"
 
 static float g_x = 0.0f;
 static float g_angle = 0.0f;
@@ -27,28 +28,34 @@ static double g_AccumulatedTime = 0.0;
 static XMFLOAT3 g_CubePosition{};
 static XMFLOAT3 g_CubeVelocity{};
 
-static MODEL* g_pModelTest = nullptr;
-static MODEL* g_pModelTest2 = nullptr;
-static MODEL* g_pModelTest3 = nullptr;
-static MODEL* g_pModelTest4 = nullptr;
+//static MODEL* g_pModelTest = nullptr;
+//static MODEL* g_pModelTest2 = nullptr;
+//static MODEL* g_pModelTest3 = nullptr;
+//static MODEL* g_pModelTest4 = nullptr;
 
 void Game_Initialize(){
-	Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f});
+	PlayerCamera_Initialize();
+	//Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f});
 	//Camera_Initialize();
-	g_pModelTest = ModelLoad("resource/model/test.fbx", 0.1f);
-	g_pModelTest2 = ModelLoad("resource/model/slime.fbx", 0.5f);
-	g_pModelTest3 = ModelLoad("resource/model/BOTTLE HIGH POLY.fbx", 0.01f);
+	//g_pModelTest = ModelLoad("resource/model/test.fbx", 0.1f);
+	//g_pModelTest2 = ModelLoad("resource/model/slime.fbx", 0.5f);
+	//g_pModelTest3 = ModelLoad("resource/model/BOTTLE HIGH POLY.fbx", 0.01f);
 	//g_pModelTest4 = ModelLoad("resource/model/Glass FBX.fbx", 0.1f);
+	Player_Initialize({ 0.0f,0.0f,-5.0f }, { 0.0f,0.0f,1.0f });
 
 }
 
 void Game_Finalize(){
-	ModelRelease(g_pModelTest);
-	Camera_Finalize();
+	PlayerCamera_Finalize();
+	Player_Finalize();
+	//ModelRelease(g_pModelTest);
+	//Camera_Finalize();
 }
 
 void Game_Update(double elapsed_time){
-	Camera_Update(elapsed_time);
+	Player_Update(elapsed_time);
+	PlayerCamera_Update(elapsed_time);
+	//Camera_Update(elapsed_time);
 
 	if (KeyLogger_IsTrigger(KK_ESCAPE)) {
 		SendMessage(GameWindow_GetHWND(), WM_CLOSE, 0, 0);
@@ -61,8 +68,8 @@ void Game_Update(double elapsed_time){
 
 
 	if (KeyLogger_IsTrigger(KK_SPACE)) {
-		g_CubePosition = Camera_GetPosition();
-		XMStoreFloat3(&g_CubeVelocity, XMLoadFloat3(&Camera_GetFront()) * 20.0f);
+		g_CubePosition = PlayerCamera_GetPosition();
+		XMStoreFloat3(&g_CubeVelocity, XMLoadFloat3(&PlayerCamera_GetFront()) * 20.0f);
 	}
 
 	XMVECTOR cube_position = XMLoadFloat3(&g_CubePosition);
@@ -86,9 +93,25 @@ void Game_Draw(){
 	XMStoreFloat3(&pp1, XMVector3Transform({ 0.0f,0.3f,3.0f }, rot));
 	XMStoreFloat3(&pp2, XMVector3Transform({ 3.0f,0.3f,-3.0f }, rot));
 
-	Light_SetPointLight(0, pp0, 5.0f, {1.0f,0.0f,0.0f});
-	Light_SetPointLight(1, pp1, 5.0f, { 0.0f,1.0f,0.0f });
-	Light_SetPointLight(2, pp2, 5.0f, { 0.0f,0.0f,1.0f });
+	//Light_SetPointLight(0, pp0, 5.0f, {1.0f,0.0f,0.0f});
+	//Light_SetPointLight(1, pp1, 5.0f, { 0.0f,1.0f,0.0f });
+	//Light_SetPointLight(2, pp2, 5.0f, { 0.0f,0.0f,1.0f });
+
+	Sampler_SetFilterAnisotropic();
+
+	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
+	Meshfield_Draw();
+
+	Player_Draw();
+
+	/*
+	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 0.3f,0.3f,0.3f,1.0f });
+	ModelDraw(g_pModelTest, XMMatrixTranslation(-2.0f, 1.0f, 0.0f));
+
+	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 1.0f,0.9f,0.7f,1.0f });
+	ModelDraw(g_pModelTest2, XMMatrixTranslation(-5.0f, 1.0f, 0.0f));
+	ModelDraw(g_pModelTest3, XMMatrixTranslation(-8.0f, 1.0f, 0.0f));
+	//ModelDraw(g_pModelTest4, XMMatrixTranslation(-11.0f, 1.0f, 0.0f));
 
 
 	//Grid_Draw();
@@ -114,17 +137,8 @@ void Game_Draw(){
 	mtxWorldPoint = XMMatrixTranslation(3.0f, 0.0f, 0.0f);
 	Cube_Draw(mtxWorldPoint);
 	
-
-	Light_SetSpecularWorld(Camera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
-	Meshfield_Draw();
-
-	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 0.3f,0.3f,0.3f,1.0f });
-	ModelDraw(g_pModelTest, XMMatrixTranslation(-2.0f,1.0f,0.0f));
-
-	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 1.0f,0.9f,0.7f,1.0f });
-	ModelDraw(g_pModelTest2, XMMatrixTranslation(-5.0f, 1.0f, 0.0f));
-	ModelDraw(g_pModelTest3, XMMatrixTranslation(-8.0f, 1.0f, 0.0f));
-	//ModelDraw(g_pModelTest4, XMMatrixTranslation(-11.0f, 1.0f, 0.0f));
+	*/
+	
 
 	
 	/*float xtrans = 4.5f;
@@ -155,6 +169,6 @@ void Game_Draw(){
 	//}
 	
 
-	Camera_DebugDraw();
+	//Camera_DebugDraw();
 }
 
