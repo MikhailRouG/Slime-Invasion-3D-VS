@@ -24,6 +24,11 @@ struct Box {
 	float half_height; //半分の高さ
 };
 
+struct AABB {
+	DirectX::XMFLOAT3 min;
+	DirectX::XMFLOAT3 max;
+};
+
 struct OBB {
 	DirectX::XMFLOAT2 center; //中心座標
 	DirectX::XMFLOAT2 half_extent; //各軸方向の半分の長さ
@@ -45,6 +50,8 @@ bool Collision_IsOverlapOBB(const OBB& a, const OBB& b);
 
 //分離軸の定理で使用する
 static void ProjectOBB(float* min, float* max, const OBB& obb, const DirectX::XMFLOAT2& axis);
+
+bool Collision_IsOverlapAABB(const AABB& a, const AABB& b);
 
 void Collision_DebugInitialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 void Collision_DebugFinalize();

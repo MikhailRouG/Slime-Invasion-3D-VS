@@ -9,7 +9,7 @@
 #include "game.h"
 #include "key_logger.h"
 #include "game_window.h"
-//#include "cube.h"
+#include "cube.h"
 #include "shader3d.h"
 //#include "camera.h"
 #include "player_camera.h"
@@ -103,6 +103,10 @@ void Game_Draw(){
 	Meshfield_Draw();
 
 	Player_Draw();
+
+	Sampler_SetFilterAnisotropic();
+	XMMATRIX mtxWorld = XMMatrixTranslation(3.0f,0.5f,2.0f);
+	Cube_Draw(mtxWorld);
 
 	/*
 	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 0.3f,0.3f,0.3f,1.0f });

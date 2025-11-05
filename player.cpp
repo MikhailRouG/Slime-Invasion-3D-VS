@@ -13,6 +13,7 @@ using namespace DirectX;
 #include "key_logger.h"
 #include "light.h"
 #include "player_camera.h"
+#include "cube.h"
 
 static XMFLOAT3 g_PlayerPosition{};
 static XMFLOAT3 g_PlayerFront{0.0f,0.0f,1.0f};
@@ -110,6 +111,17 @@ void Player_Update(double elapsed_time){
 	
 	XMStoreFloat3(&g_PlayerPosition, position);
 	XMStoreFloat3(&g_PlayerVelocity, velocity);
+
+	//“–‚½‚è”»’è
+	AABB player = Player_GetAABB();
+	AABB cube = Cube_GetAABB({ 3.0f, 0.5f, 2.0f });
+
+	if (Collision_IsOverlapAABB(player, cube)) {
+		position -= velocity * (float)elapsed_time;
+		velocity = { 0.0f,0.0f,0.0f };
+		XMStoreFloat3(&g_PlayerPosition, position);
+		XMStoreFloat3(&g_PlayerVelocity, velocity);
+	}
 }
 
 void Player_Draw(){
@@ -131,4 +143,11 @@ const DirectX::XMFLOAT3& Player_GetPosition(){
 
 const DirectX::XMFLOAT3& Player_GetFront(){
 	return g_PlayerFront;
+}
+
+AABB Player_GetAABB(){
+	return {
+		{g_PlayerPosition.x - 1.0f,g_PlayerPosition.y,       g_PlayerPosition.z - 1.0f},
+		{g_PlayerPosition.x + 1.0f,g_PlayerPosition.y + 2.0f,g_PlayerPosition.z + 1.0f}
+	};
 }

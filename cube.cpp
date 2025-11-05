@@ -170,3 +170,10 @@ void Cube_Draw(const DirectX::XMMATRIX mtxWorld) {
 	g_pContext->DrawIndexed(NUM_INDEX, 0, 0);
 
 }
+
+const AABB Cube_GetAABB(const DirectX::XMFLOAT3& position){
+	return {
+		{position.x - 0.5f,position.y - 0.5f,position.z - 0.5f},
+		{position.x + 0.5f,position.y + 0.5f,position.z + 0.5f}
+	};
+}

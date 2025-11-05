@@ -45,6 +45,7 @@ bool Collision_IsOverlapCircle(const Circle& a, const Circle& b){
 	float y1 = b.center.y - a.center.y;
 	
 	return (a.radius + b.radius) * (a.radius + b.radius) > (x1 * x1 + y1 * y1);
+
 }
 
 //四角の当たり判定
@@ -158,6 +159,15 @@ static void ProjectOBB(float* min, float* max, const OBB& obb, const DirectX::XM
 	//中心の射影から、影の端までの距離を足し引きして、影の最小値と最大値を求める
 	*min = p - r;
 	*max = p + r;
+}
+
+bool Collision_IsOverlapAABB(const AABB& a, const AABB& b) {
+	return a.min.x < b.max.x
+		&& a.max.x > b.min.x
+		&& a.min.y < b.max.y
+		&& a.max.y > b.min.y
+		&& a.min.z < b.max.z
+		&& a.max.z > b.min.z;
 }
 
 void Collision_DebugInitialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
