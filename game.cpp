@@ -137,7 +137,7 @@ void Game_Draw(){
 	mtxWorldPoint = XMMatrixTranslation(3.0f, 0.0f, 0.0f);
 	Cube_Draw(mtxWorldPoint);
 	
-	*/
+	*
 	
 
 	

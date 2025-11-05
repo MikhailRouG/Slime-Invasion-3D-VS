@@ -166,8 +166,8 @@ void Meshfield_Draw() {
 	ShaderField_SetWorldMatrix(mtxWorld);
 
 	//カメラとパースペクティブ行列
-	ShaderField_SetViewMatrix(XMLoadFloat4x4(&Camera_GetMatrix()));
-	ShaderField_SetProjectionMatrix(XMLoadFloat4x4(&Camera_GetPerspectiveMatrix()));
+	//ShaderField_SetViewMatrix(XMLoadFloat4x4(&Camera_GetMatrix()));
+	//ShaderField_SetProjectionMatrix(XMLoadFloat4x4(&Camera_GetPerspectiveMatrix()));
 
 	ShaderField_SetColor({ 2.0f,2.0f,2.0f,1.0f });
 

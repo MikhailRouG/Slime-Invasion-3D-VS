@@ -10,6 +10,7 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "shader3d.h"
+#include "shader_field.h"
 #include "direct3d.h"
 #include "player.h"
 
@@ -17,18 +18,23 @@ using namespace DirectX;
 static XMFLOAT3 g_CameraFront = { 0.0f,0.0f,1.0f };
 static XMFLOAT3 g_CameraPosition{ 0.0f,0.0f,0.0f };
 
-void PlayerCamera_Initialize()
-{
+void PlayerCamera_Initialize(){
+
 }
 
 void PlayerCamera_Finalize()
 {
 }
 
-void PlayerCamera_Update(double elapsed_time){
-	XMVECTOR position = XMLoadFloat3(&Player_GetPosition()) - XMLoadFloat3(&Player_GetFront()) * 5.0f;
-	position += {0.0f, 5.0f, 0.0f};
-	XMVECTOR target = XMLoadFloat3(&Player_GetPosition());
+void PlayerCamera_Update(double elapsed_time) {
+	//XMVECTOR position = XMLoadFloat3(&Player_GetPosition()) - XMLoadFloat3(&Player_GetFront()) * 5.0f;
+	XMVECTOR position = XMLoadFloat3(&Player_GetPosition());
+	position *= {1.0f, 0.0f, 1.0f};
+	//position += {0.0f, 15.0f, -15.0f};
+	//XMVECTOR target = XMLoadFloat3(&Player_GetPosition());
+	XMVECTOR target = position;
+	position += {-12.0f, 10.0f, -12.0f};
+	target += {0.0f, 5.0f, 0.0f};
 	XMVECTOR front = XMVector3Normalize(target - position);
 	XMStoreFloat3(&g_CameraPosition, position);
 	XMStoreFloat3(&g_CameraFront, front);
@@ -38,11 +44,12 @@ void PlayerCamera_Update(double elapsed_time){
 	XMMATRIX mtxView = XMMatrixLookAtLH(
 		position, 
 		target,
-		{ 0.0f,1.0f,0.0f });
+		{ 0.0f,1.0f,0.0f }
+	);
 
 	//頂点シェーダーにビュー変換行列を設定
 	Shader3d_SetViewMatrix(mtxView);
-
+	ShaderField_SetViewMatrix(mtxView);
 
 	// 頂点シェーダーに変換行列を設定
 	// パースペクティブ行列の作成
@@ -55,6 +62,7 @@ void PlayerCamera_Update(double elapsed_time){
 
 	//頂点シェーダーにプロジェクション変換行列を設定
 	Shader3d_SetProjectionMatrix(mtxPerspective);
+	ShaderField_SetProjectionMatrix(mtxPerspective);
 }
 
 const DirectX::XMFLOAT3& PlayerCamera_GetFront(){

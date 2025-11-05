@@ -25,9 +25,9 @@ void Player_Initialize(const XMFLOAT3& position,const XMFLOAT3& front){
 	g_PlayerVelocity = { 0.0f,0.0f,0.0f };
 	XMStoreFloat3(&g_PlayerFront, XMVector3Normalize(XMLoadFloat3(&front)));
 
-	//g_pPlayerModel = ModelLoad("resource/model/slime.fbx", 1.0f);
+	g_pPlayerModel = ModelLoad("resource/model/slime.fbx", 1.0f);
 	//g_pPlayerModel = ModelLoad("resource/model/glass-fbx.FBX", 0.01f);
-	g_pPlayerModel = ModelLoad("resource/model/spoon.fbx", 0.5f);
+	//g_pPlayerModel = ModelLoad("resource/model/spoon.fbx", 0.5f);
 	
 }
 
@@ -58,7 +58,7 @@ void Player_Update(double elapsed_time){
 	}
 
 	XMVECTOR direction{};
-	XMVECTOR front = XMLoadFloat3(&PlayerCamera_GetFront());
+	XMVECTOR front = XMLoadFloat3(&PlayerCamera_GetFront()) * XMVECTOR { 1.0f, 0.0f, 1.0f };
 	if (KeyLogger_IsPressed(KK_W)) {
 		direction += front;
 	}
@@ -71,11 +71,41 @@ void Player_Update(double elapsed_time){
 	if (KeyLogger_IsPressed(KK_A)) {
 		direction -= XMVector3Cross({ 0.0f,1.0f,0.0f }, front);
 	}
-
-	direction = XMVector3Normalize(direction);
 	
-	velocity += direction * (float)(80000.0 / 50.0 * elapsed_time);
-	velocity += front * XMVECTOR{ -1.0f, 0.0f, -1.0f }*(float)(5.0 * elapsed_time);
+	if (XMVectorGetX(XMVector3LengthSq(direction)) > 0.0f) {
+		direction = XMVector3Normalize(direction);
+		//XMStoreFloat3(&g_PlayerFront, direction);
+		
+		//2‚Â‚Ì‚×‚¦‚­‚Æ‚é‚Ì‚È‚·Šp
+		float dot = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&g_PlayerFront), direction));
+		float angle = acosf(dot);
+
+		//‰ñ“]‘¬“x
+		const float ROTATION_SPEED = XM_2PI * 1.5f * (float)elapsed_time;
+
+		//front‚ð’Ê‚è‰ß‚¬‚é‚È‚ç‚»‚Ì‚Ü‚Ü
+		if(angle<ROTATION_SPEED){
+			front = direction;
+		}
+		//front‚ð’Ê‚è‰ß‚¬‚È‚¢‚È‚ç‰ñ“]
+		else {
+			//Œü‚«‚½‚¢•ûŒü‚ª‰E‰ñ‚è‚©A¶‰ñ‚è‚©’²‚×‚é
+			XMMATRIX r = XMMatrixIdentity();
+			if (XMVectorGetY(XMVector3Cross(XMLoadFloat3(&g_PlayerFront), direction)) < 0.0f) {
+				r = XMMatrixRotationY(-ROTATION_SPEED);
+			}
+			else {
+				r = XMMatrixRotationY(ROTATION_SPEED);
+			}
+
+			front = XMVector3TransformNormal(XMLoadFloat3(&g_PlayerFront), r);
+		}
+
+		velocity += XMLoadFloat3(&g_PlayerFront) * (float)(2000.0 / 50.0 * elapsed_time);
+		XMStoreFloat3(&g_PlayerFront, front);
+	}
+	
+	velocity += -velocity * (float)(4.0 * elapsed_time);
 	position += velocity * (float)elapsed_time;
 	
 	XMStoreFloat3(&g_PlayerPosition, position);
@@ -83,8 +113,12 @@ void Player_Update(double elapsed_time){
 }
 
 void Player_Draw(){
+	//float dot = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&g_PlayerFront), XMVECTOR{ 1.0f,0.0f,0.0f }));
+	float angle = -atan2f(g_PlayerFront.z,g_PlayerFront.x) + XMConvertToRadians(270);
+
+	XMMATRIX r = XMMatrixRotationY(angle);
 	XMMATRIX t = XMMatrixTranslation(g_PlayerPosition.x, g_PlayerPosition.y+1.0f, g_PlayerPosition.z);
-	XMMATRIX world=t;
+	XMMATRIX world=r * t;
 	ModelDraw(g_pPlayerModel, world);
 
 	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
