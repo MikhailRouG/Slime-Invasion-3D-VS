@@ -29,20 +29,22 @@ static XMFLOAT3 g_CubePosition{};
 static XMFLOAT3 g_CubeVelocity{};
 
 //static MODEL* g_pModelTest = nullptr;
-static MODEL* g_pModelTest2 = nullptr;
-static MODEL* g_pModelTest3 = nullptr;
-static MODEL* g_pModelTest4 = nullptr;
-static MODEL* g_pModelTest5 = nullptr;
+//static MODEL* g_pModelTest3 = nullptr;
+static MODEL* g_pModelSpoon = nullptr;
+static MODEL* g_pModelBottle = nullptr;
+static MODEL* g_pModelCup = nullptr;
+static MODEL* g_pModelTemple = nullptr;
 
 void Game_Initialize(){
 	PlayerCamera_Initialize();
 	//Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f});
 	//Camera_Initialize();
 	//g_pModelTest = ModelLoad("resource/model/test.fbx", 0.1f);
-	g_pModelTest2 = ModelLoad("resource/model/spoon.fbx", 0.2f);
-	g_pModelTest3 = ModelLoad("resource/model/BOTTLE HIGH POLY.fbx", 0.01f);
-	g_pModelTest4 = ModelLoad("resource/model/glass-fbx.FBX", 0.01f);
-	//g_pModelTest5 = ModelLoad("resource/model/EmptyRoom(FBX).fbx", 1.0f);
+	g_pModelBottle = ModelLoad("resource/model/BOTTLE HIGH POLY.fbx", 0.01f);
+	//g_pModelTest3 = ModelLoad("resource/model/glass-fbx.FBX", 0.01f);
+	g_pModelSpoon = ModelLoad("resource/model/spoon.fbx", 0.2f);
+	g_pModelCup = ModelLoad("resource/model/cup.fbx", 1.0f);
+	g_pModelTemple = ModelLoad("resource/model/temple.fbx", 1.0f);
 	Player_Initialize({ 0.0f,0.0f,-5.0f }, { 0.0f,0.0f,1.0f });
 
 }
@@ -50,9 +52,10 @@ void Game_Initialize(){
 void Game_Finalize(){
 	PlayerCamera_Finalize();
 	Player_Finalize();
-	ModelRelease(g_pModelTest4);
-	ModelRelease(g_pModelTest3);
-	ModelRelease(g_pModelTest2);
+	ModelRelease(g_pModelTemple);
+	ModelRelease(g_pModelCup);
+	ModelRelease(g_pModelBottle);
+	ModelRelease(g_pModelSpoon);
 	//Camera_Finalize();
 }
 
@@ -89,7 +92,7 @@ void Game_Draw(){
 	XMStoreFloat4(&dir, v);
 	Light_SetDirectionalWorld(dir, { 0.2f,0.2f,0.2f,1.0f });
 
-	Light_SetPointLightcount(3);
+	Light_SetPointLightcount(4);
 	//XMMATRIX rot = XMMatrixRotationY(g_angle);
 	//XMFLOAT3 pp0,pp1,pp2;
 	//XMStoreFloat3(&pp0, XMVector3Transform({ 0.0f,0.3f,-3.0f }, rot));
@@ -100,9 +103,13 @@ void Game_Draw(){
 	//Light_SetPointLight(1, pp1, 5.0f, { 0.0f,1.0f,0.0f });
 	//Light_SetPointLight(2, pp2, 5.0f, { 0.0f,0.0f,1.0f });
 
-	Light_SetPointLight(0, {7.5f,10.0f,7.5f}, 3.0f, {0.5f,0.5f,0.7f});
+	//Light_SetPointLight(0, { 5.0f,10.0f,5.0f }, 3.0f, { 0.5f,0.5f,0.7f });
+	Light_SetPointLight(0, { 10.0f,5.0f,10.0f }, 5.0f, { 0.3f,0.3f,0.9f });
+	Light_SetPointLight(1, { -10.0f,5.0f,10.0f }, 5.0f, { 0.3f,0.9f,0.3f });
+	Light_SetPointLight(2, { 10.0f,5.0f,-10.0f }, 5.0f, { 0.9f,0.3f,0.3f });
+	Light_SetPointLight(3, { -10.0f,5.0f,-10.0f }, 5.0f, { 0.9f,0.9f,0.3f });
 
-	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 5.0f, { 0.3f,0.3f,0.3f,1.0f });
+	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 5.0f, { 0.2f,0.f,0.2f,1.0f });
 
 	Sampler_SetFilterAnisotropic();
 	
@@ -116,16 +123,23 @@ void Game_Draw(){
 	XMMATRIX mtxWorld2 = XMMatrixTranslation(3.0f, 0.5f, 2.0f);
 	Cube_Draw(mtxWorld2);
 
-	XMMATRIX mtxWorld3 = XMMatrixTranslation(5.0f, 1.5f, -2.0f);
+	XMMATRIX mtxWorld3 = XMMatrixTranslation(2.0f, 1.5f, -2.0f);
 	Cube_Draw(mtxWorld3);
 
-	XMMATRIX mtxWorld4 = XMMatrixTranslation(8.0f, 3.0f, -4.0f);
+	XMMATRIX mtxWorld4 = XMMatrixTranslation(10.0f, 3.0f, -10.0f);
 	Cube_Draw(mtxWorld4);
 
-	ModelDraw(g_pModelTest2, XMMatrixTranslation(-5.0f, 3.0f, -2.0f));
-	ModelDraw(g_pModelTest3, XMMatrixTranslation(0.0f, 1.0f, 2.0f));
-	ModelDraw(g_pModelTest4, XMMatrixTranslation(-5.0f, 1.0f, 0.0f));
-	//ModelDraw(g_pModelTest5, XMMatrixTranslation(-10.0f, 1.0f, 5.0f));
+	XMMATRIX mtxWorld5 = XMMatrixTranslation(-10.0f, 3.0f, 10.0f);
+	Cube_Draw(mtxWorld5);
+
+	//ModelDraw(g_pModelBottle, XMMatrixTranslation(-2.0f, 1.0f, 5.0f));
+	ModelDraw(g_pModelSpoon, XMMatrixTranslation(8.0f, 4.0f, 9.0f));
+	ModelDraw(g_pModelCup, XMMatrixTranslation(10.0f, 2.5f, 10.0f));
+	ModelDraw(g_pModelTemple, XMMatrixTranslation(10.0f, 0.5f, 10.0f));
+	ModelDraw(g_pModelTemple, XMMatrixTranslation(-10.0f, 0.5f, 10.0f));
+	ModelDraw(g_pModelTemple, XMMatrixTranslation(10.0f, 0.5f, -10.0f));
+	ModelDraw(g_pModelTemple, XMMatrixTranslation(-10.0f, 0.5f, -10.0f));
+
 
 	/*
 	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 0.3f,0.3f,0.3f,1.0f });
