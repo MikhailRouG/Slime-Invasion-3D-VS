@@ -27,9 +27,6 @@ void Player_Initialize(const XMFLOAT3& position,const XMFLOAT3& front){
 	XMStoreFloat3(&g_PlayerFront, XMVector3Normalize(XMLoadFloat3(&front)));
 
 	g_pPlayerModel = ModelLoad("resource/model/slime.fbx", 1.0f);
-	//g_pPlayerModel = ModelLoad("resource/model/glass-fbx.FBX", 0.01f);
-	//g_pPlayerModel = ModelLoad("resource/model/spoon.fbx", 0.5f);
-	
 }
 
 void Player_Finalize(){
