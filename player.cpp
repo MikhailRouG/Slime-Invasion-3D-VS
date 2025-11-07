@@ -66,19 +66,7 @@ void Player_Update(double elapsed_time){
 	if (Collision_IsOverlapAABB(player, cube)) {
 		position -= horizontal_move;
 		velocity *= {0.0f, 1.0f, 0.0f};
-		XMStoreFloat3(&g_PlayerPosition, position);
-		/*
-		if (hit.isHit) {
-			if (hit.normal.x > 0.0f) {
-				XMVectorSetX(position, cube.max.x + 1.0f);
-				XMStoreFloat3(&g_PlayerVelocity, velocity * XMVECTOR{ 0.0f,1.0f,1.0f });
-			}
-			else if (hit.normal.x < 0.0f) {
-				XMVectorSetX(position, cube.min.x - 1.0f);
-				XMStoreFloat3(&g_PlayerVelocity, velocity * XMVECTOR{ 0.0f,1.0f,1.0f });
-			}
-		}
-		*/
+		XMStoreFloat3(&g_PlayerPosition, position);		
 	}
 	else {
 		if (XMVectorGetY(velocity) > 0.0f) {
@@ -94,11 +82,11 @@ void Player_Update(double elapsed_time){
 	player = Player_GetAABB();
 
 	hit = Collision_IsHitAABB(cube, player);
-	//if (Collision_IsOverlapAABB(player, cube)) {
-	if (hit.isHit) {
+	if (Collision_IsOverlapAABB(player, cube)) {
+	//if (hit.isHit) {
 		//if (hit.normal.y > 0.0f) {
 			position -= vertical_move;
-			XMVectorSetY(position, cube.max.y);
+			//position = XMVectorSetY(position, cube.max.y);
 
 			// —Ž‰º’†‚É’n–Ê‚É‚Ô‚Â‚©‚Á‚½‚ç’…’n‚Æ‚Ý‚È‚·
 			if (XMVectorGetY(velocity) > 0) {
@@ -205,6 +193,22 @@ void Player_Update(double elapsed_time){
 
 	XMStoreFloat3(&g_PlayerPosition, position);
 	XMStoreFloat3(&g_PlayerVelocity, velocity);
+
+	/*
+	if (hit.isHit) {
+		if (hit.normal.x > 0.0f) {
+			position = XMVectorSetX(position, cube.max.x + 1.0f);
+			XMStoreFloat3(&g_PlayerVelocity, velocity * XMVECTOR{ 0.0f,1.0f,1.0f });
+		}
+		else if (hit.normal.x < 0.0f) {
+			position = XMVectorSetX(position, cube.min.x - 1.0f);
+			XMStoreFloat3(&g_PlayerVelocity, velocity * XMVECTOR{ 0.0f,1.0f,1.0f });
+		}
+	}
+
+	XMStoreFloat3(&g_PlayerPosition, position);
+	XMStoreFloat3(&g_PlayerVelocity, velocity);
+	*/
 
 	/*
 	player = Player_GetAABB();
