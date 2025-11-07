@@ -117,7 +117,7 @@ void Game_Draw(){
 
 	Player_Draw();
 
-	XMMATRIX mtxWorld1 = XMMatrixTranslation(1.0f, 5.5f, 0.0f);
+	XMMATRIX mtxWorld1 = XMMatrixTranslation(5.0f, 5.5f, 0.0f);
 	Cube_Draw(mtxWorld1);
 
 	XMMATRIX mtxWorld2 = XMMatrixTranslation(3.0f, 0.5f, 2.0f);
@@ -135,10 +135,10 @@ void Game_Draw(){
 	//ModelDraw(g_pModelBottle, XMMatrixTranslation(-2.0f, 1.0f, 5.0f));
 	ModelDraw(g_pModelSpoon, XMMatrixTranslation(8.0f, 4.0f, 9.0f));
 	ModelDraw(g_pModelCup, XMMatrixTranslation(10.0f, 2.5f, 10.0f));
-	ModelDraw(g_pModelTemple, XMMatrixTranslation(10.0f, 0.5f, 10.0f));
-	ModelDraw(g_pModelTemple, XMMatrixTranslation(-10.0f, 0.5f, 10.0f));
-	ModelDraw(g_pModelTemple, XMMatrixTranslation(10.0f, 0.5f, -10.0f));
-	ModelDraw(g_pModelTemple, XMMatrixTranslation(-10.0f, 0.5f, -10.0f));
+	//ModelDraw(g_pModelTemple, XMMatrixTranslation(10.0f, 0.5f, 10.0f));
+	//ModelDraw(g_pModelTemple, XMMatrixTranslation(-10.0f, 0.5f, 10.0f));
+	//ModelDraw(g_pModelTemple, XMMatrixTranslation(10.0f, 0.5f, -10.0f));
+	//ModelDraw(g_pModelTemple, XMMatrixTranslation(-10.0f, 0.5f, -10.0f));
 
 
 	/*

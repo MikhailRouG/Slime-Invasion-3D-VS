@@ -170,6 +170,65 @@ bool Collision_IsOverlapAABB(const AABB& a, const AABB& b) {
 		&& a.max.z > b.min.z;
 }
 
+//どの面に当たったかを返す(侵入深度)
+Hit Collision_IsHitAABB(const AABB& a, const AABB& b){
+	Hit hit;
+
+	//重なったか
+	hit.isHit = Collision_IsOverlapAABB(a,b);
+
+	//当たっていなかった
+	if (!hit.isHit) return hit;
+
+	//各軸の深度を調べる
+	float xdepth = std::min(a.max.x, b.max.x) - std::max(a.min.x, b.min.x);
+	float ydepth = std::min(a.max.y, b.max.y) - std::max(a.min.x, b.min.y);
+	float zdepth = std::min(a.max.z, b.max.z) - std::max(a.min.x, b.min.z);
+
+	bool isShallowX = false;
+	bool isShallowY = false;
+	bool isShallowZ = false;
+
+	//最も深度が浅い軸はどれか
+	if (xdepth > ydepth) {
+		if (zdepth > ydepth) {
+			//zの軸
+			isShallowZ = true;
+		}
+		else {
+			//yの軸
+			isShallowY = true;
+		}
+	}
+	else {
+		if (zdepth > xdepth) {
+			//xの軸
+			isShallowX = true;
+		}
+		else {
+			//zの軸
+			isShallowZ = true;
+		}
+	}
+
+	//+or-どっちから当たったか
+	XMFLOAT3 a_center = a.GetCenter();
+	XMFLOAT3 b_center = b.GetCenter();
+	XMVECTOR normal = XMLoadFloat3(&b_center) - XMLoadFloat3(&a_center);
+	if (isShallowX) {
+		normal = XMVector3Normalize(normal* XMVECTOR{ 1.0f,0.0f,0.0f });
+	}
+	else if (isShallowY) {
+		normal = XMVector3Normalize(normal * XMVECTOR{ 0.0f,1.0f,0.0f });
+	}
+	else if (isShallowZ) {
+		normal = XMVector3Normalize(normal * XMVECTOR{ 0.0f,0.0f,1.0f });
+	}
+
+	XMStoreFloat3(&hit.normal, normal);
+	return hit;
+}
+
 void Collision_DebugInitialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 	//デバイスとデバイスコンテキストの保存
 	g_pDevice = pDevice;
