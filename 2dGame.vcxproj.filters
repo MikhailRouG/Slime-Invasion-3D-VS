@@ -123,6 +123,7 @@
     <ClCompile Include="player_camera.cpp">
       <Filter>ソースファイル\リソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="map.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h">
@@ -225,6 +226,9 @@
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="player_camera.h">
+      <Filter>ソースファイル\ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
       <Filter>ソースファイル\ヘッダーファイル</Filter>
     </ClInclude>
   </ItemGroup>

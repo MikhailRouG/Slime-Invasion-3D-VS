@@ -20,6 +20,8 @@ using namespace DirectX;
 #include "light.h"
 #include "model.h"
 #include "player.h"
+#include "map.h"
+#include "texture.h"
 
 static float g_x = 0.0f;
 static float g_angle = 0.0f;
@@ -27,6 +29,8 @@ static float g_scale = 1.0f;
 static double g_AccumulatedTime = 0.0;
 static XMFLOAT3 g_CubePosition{};
 static XMFLOAT3 g_CubeVelocity{};
+
+static int g_CubeTexId = -1;
 
 //static MODEL* g_pModelTest = nullptr;
 //static MODEL* g_pModelTest3 = nullptr;
@@ -45,13 +49,16 @@ void Game_Initialize(){
 	g_pModelSpoon = ModelLoad("resource/model/spoon.fbx", 0.2f);
 	g_pModelCup = ModelLoad("resource/model/cup.fbx", 1.0f);
 	g_pModelTemple = ModelLoad("resource/model/temple.fbx", 1.0f);
+	Map_Initialize();
 	Player_Initialize({ 0.0f,0.0f,-5.0f }, { 0.0f,0.0f,1.0f });
 
+	g_CubeTexId = Texture_Load(L"resource/texture/BoxTestTexture2.png");
 }
 
 void Game_Finalize(){
 	PlayerCamera_Finalize();
 	Player_Finalize();
+	Map_Finalize();
 	ModelRelease(g_pModelTemple);
 	ModelRelease(g_pModelCup);
 	ModelRelease(g_pModelBottle);
@@ -115,22 +122,24 @@ void Game_Draw(){
 	
 	Meshfield_Draw();
 
+	Map_Draw();
+
 	Player_Draw();
 
 	XMMATRIX mtxWorld1 = XMMatrixTranslation(5.0f, 5.5f, 0.0f);
-	Cube_Draw(mtxWorld1);
+	Cube_Draw(g_CubeTexId,mtxWorld1);
 
 	XMMATRIX mtxWorld2 = XMMatrixTranslation(3.0f, 0.5f, 2.0f);
-	Cube_Draw(mtxWorld2);
+	Cube_Draw(g_CubeTexId, mtxWorld2);
 
 	XMMATRIX mtxWorld3 = XMMatrixTranslation(2.0f, 1.5f, -2.0f);
-	Cube_Draw(mtxWorld3);
+	Cube_Draw(g_CubeTexId, mtxWorld3);
 
 	XMMATRIX mtxWorld4 = XMMatrixTranslation(10.0f, 3.0f, -10.0f);
-	Cube_Draw(mtxWorld4);
+	Cube_Draw(g_CubeTexId, mtxWorld4);
 
 	XMMATRIX mtxWorld5 = XMMatrixTranslation(-10.0f, 3.0f, 10.0f);
-	Cube_Draw(mtxWorld5);
+	Cube_Draw(g_CubeTexId, mtxWorld5);
 
 	//ModelDraw(g_pModelBottle, XMMatrixTranslation(-2.0f, 1.0f, 5.0f));
 	ModelDraw(g_pModelSpoon, XMMatrixTranslation(8.0f, 4.0f, 9.0f));

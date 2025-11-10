@@ -182,31 +182,27 @@ Hit Collision_IsHitAABB(const AABB& a, const AABB& b){
 
 	//ŠeŽ²‚Ì[“x‚ð’²‚×‚é
 	float xdepth = std::min(a.max.x, b.max.x) - std::max(a.min.x, b.min.x);
-	float ydepth = std::min(a.max.y, b.max.y) - std::max(a.min.x, b.min.y);
-	float zdepth = std::min(a.max.z, b.max.z) - std::max(a.min.x, b.min.z);
+	float ydepth = std::min(a.max.y, b.max.y) - std::max(a.min.y, b.min.y);
+	float zdepth = std::min(a.max.z, b.max.z) - std::max(a.min.z, b.min.z);
 
-	bool isShallowX = false;
-	bool isShallowY = false;
-	bool isShallowZ = false;
+	bool isShallowX = false;//x‚ÌŽ²
+	bool isShallowY = false;//y‚ÌŽ²
+	bool isShallowZ = false;//z‚ÌŽ²
 
 	//Å‚à[“x‚ªó‚¢Ž²‚Í‚Ç‚ê‚©
 	if (xdepth > ydepth) {
 		if (zdepth > ydepth) {
-			//z‚ÌŽ²
-			isShallowZ = true;
+			isShallowY = true;
 		}
 		else {
-			//y‚ÌŽ²
-			isShallowY = true;
+			isShallowZ = true;
 		}
 	}
 	else {
 		if (zdepth > xdepth) {
-			//x‚ÌŽ²
 			isShallowX = true;
 		}
 		else {
-			//z‚ÌŽ²
 			isShallowZ = true;
 		}
 	}

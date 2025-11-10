@@ -19,8 +19,6 @@ static constexpr int NUM_VERTEX = 4 * 6;
 static ID3D11Buffer* g_pVertexBuffer = nullptr; // 頂点バッファ
 static ID3D11Buffer* g_pIndexBuffer = nullptr; // インデックスバッファ
 
-static int g_CubeTexId = -1;
-
 // 注意！初期化で外部から設定されるもの。Release不要。
 static ID3D11Device* g_pDevice = nullptr;
 static ID3D11DeviceContext* g_pContext = nullptr;
@@ -125,10 +123,6 @@ void Cube_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 	sd.pSysMem = g_CubeIndex;
 
 	g_pDevice->CreateBuffer(&bd, &sd, &g_pIndexBuffer);
-
-
-
-	g_CubeTexId = Texture_Load(L"resource/texture/BoxTestTexture2.png");
 }
 
 void Cube_Finalize(void){
@@ -137,7 +131,7 @@ void Cube_Finalize(void){
 }
 
 
-void Cube_Draw(const DirectX::XMMATRIX mtxWorld) {
+void Cube_Draw(int texid, const DirectX::XMMATRIX mtxWorld) {
 	// シェーダーを描画パイプラインに設定
 	Shader3d_Begin();
 
@@ -145,7 +139,7 @@ void Cube_Draw(const DirectX::XMMATRIX mtxWorld) {
 	Shader3d_SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 	//テクスチャの設定
-	Texture_SetTexture(g_CubeTexId);
+	Texture_SetTexture(texid);
 
 
 	// 頂点バッファを描画パイプラインに設定
