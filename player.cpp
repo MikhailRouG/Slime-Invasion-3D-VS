@@ -98,7 +98,7 @@ void Player_Update(double elapsed_time){
 	}
 
 	//–€ŽC
-	velocity += -velocity * (float)(4.0 * elapsed_time);
+	velocity -= velocity * (float)(4.0 * elapsed_time);
 
 	XMStoreFloat3(&g_PlayerPosition, position);
 	XMStoreFloat3(&g_PlayerVelocity, velocity);
