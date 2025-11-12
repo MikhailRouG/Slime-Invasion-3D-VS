@@ -9,10 +9,20 @@
 #ifndef MAP_H
 #define MAP_H
 #include <DirectXMath.h>
+#include "collision.h"
+
+enum ObjectKind {
+	field,
+	cube1,
+	cube2,
+	tree,
+	rock
+};
 
 struct MapObject {
-	int KindId;
+	ObjectKind KindId;
 	DirectX::XMFLOAT3 Position;
+	AABB aabb;
 };
 
 void Map_Initialize();

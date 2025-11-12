@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="audio_manager.cpp" />
+    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="cube.cpp" />
@@ -177,6 +178,7 @@
   <ItemGroup>
     <ClInclude Include="Audio.h" />
     <ClInclude Include="audio_manager.h" />
+    <ClInclude Include="bullet.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="cube.h" />

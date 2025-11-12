@@ -15,6 +15,7 @@ using namespace DirectX;
 #include "player_camera.h"
 #include "cube.h"
 #include "map.h"
+#include "bullet.h"
 
 
 static XMFLOAT3 g_PlayerPosition{};
@@ -98,7 +99,8 @@ void Player_Update(double elapsed_time){
 	}
 
 	//摩擦
-	velocity -= velocity * (float)(4.0 * elapsed_time);
+	velocity -= velocity * (float)(5.0 * elapsed_time);
+	//position += velocity * (float)elapsed_time;
 
 	XMStoreFloat3(&g_PlayerPosition, position);
 	XMStoreFloat3(&g_PlayerVelocity, velocity);
@@ -117,15 +119,17 @@ void Player_Update(double elapsed_time){
 	XMStoreFloat3(&g_PlayerPosition, position);
 
 	AABB player = Player_GetAABB();
-	for (int i = 0;i < Map_GetObjectsCount();i++) {
-		AABB cube = Cube_GetAABB(Map_GetObject(i)->Position);
-		Hit hit = Collision_IsHitAABB(cube, player);
+	//AABB player = Player_ConvertPositionToAABB(position);
+	for (int i = 0;i < Map_GetObjectsCount();i++) {	
+		//AABB cube = Cube_GetAABB(Map_GetObject(i)->Position);
+		AABB object = Map_GetObject(i)->aabb;
+		Hit hit = Collision_IsHitAABB(object, player);
 
 		if (hit.isHit) {
 			if (hit.normal.y > 0.0f) {
 				//position = XMVectorSetY(position, cube.max.y + 1.0f);
 				position -= vertical_move;
-				velocity *= {1.0f, 0.0f, 1.0f};
+				velocity *= {1.0f, 0.0f, 1.0f}; //ジャンプ台等作れる
 				g_IsJump = false;
 			}
 			else if (hit.normal.y < 0.0f) {
@@ -138,14 +142,6 @@ void Player_Update(double elapsed_time){
 		
 	}
 
-	//地面より低かったら着地
-	if (XMVectorGetY(position) <= 0.0f) {
-		position -= vertical_move;
-		//position=XMVectorSetY(position,0.0f);
-		velocity *= {1.0f, 0.0f, 1.0f};
-		g_IsJump = false;
-	}	
-
 	XMStoreFloat3(&g_PlayerPosition, position);
 
 
@@ -156,25 +152,27 @@ void Player_Update(double elapsed_time){
 	XMStoreFloat3(&g_PlayerPosition, position);
 
 	player = Player_GetAABB();
+	//Player_ConvertPositionToAABB(position);
 	for (int i = 0;i < Map_GetObjectsCount();i++) {
-		AABB cube = Cube_GetAABB(Map_GetObject(i)->Position);
-		Hit hit = Collision_IsHitAABB(cube, player);
+		//AABB cube = Cube_GetAABB(Map_GetObject(i)->Position);
+		AABB object = Map_GetObject(i)->aabb;
+		Hit hit = Collision_IsHitAABB(object, player);
 
 		if (hit.isHit) {
 			if (hit.normal.x > 0.0f) {
-				position = XMVectorSetX(position, cube.max.x + 1.0f);
+				position = XMVectorSetX(position, object.max.x + 1.0f);
 				velocity *= {0.0f, 1.0f, 1.0f};
 			}
 			else if (hit.normal.x < 0.0f) {
-				position = XMVectorSetX(position, cube.min.x - 1.0f);
+				position = XMVectorSetX(position, object.min.x - 1.0f);
 				velocity *= {0.0f, 1.0f, 1.0f};
 			}
 			else if (hit.normal.z > 0.0f) {
-				position = XMVectorSetZ(position, cube.max.z + 1.0f);
+				position = XMVectorSetZ(position, object.max.z + 1.0f);
 				velocity *= {1.0f, 1.0f, 0.0f};
 			}
 			else if (hit.normal.z < 0.0f) {
-				position = XMVectorSetZ(position, cube.min.z - 1.0f);
+				position = XMVectorSetZ(position, object.min.z - 1.0f);
 				velocity *= {1.0f, 1.0f, 0.0f};
 			}
 			break;
@@ -183,6 +181,15 @@ void Player_Update(double elapsed_time){
 
 	XMStoreFloat3(&g_PlayerVelocity, velocity);
 	XMStoreFloat3(&g_PlayerPosition, position);
+
+	//弾発射
+	if (KeyLogger_IsTrigger(KK_J)) {
+		XMFLOAT3 shot_position = g_PlayerPosition;
+		XMFLOAT3 shot_velocity;
+		shot_position.y += 1.0f;
+		XMStoreFloat3(&shot_velocity, XMLoadFloat3(&g_PlayerFront) * 10.0f);
+		Bullet_Create(shot_position, shot_velocity);
+	}
 }
 
 void Player_Draw() {
@@ -211,4 +218,11 @@ AABB Player_GetAABB(){
 		{g_PlayerPosition.x - 1.0f,g_PlayerPosition.y,       g_PlayerPosition.z - 1.0f},
 		{g_PlayerPosition.x + 1.0f,g_PlayerPosition.y + 2.0f,g_PlayerPosition.z + 1.0f}
 	};
+}
+
+AABB Player_ConvertPositionToAABB(const DirectX::XMVECTOR& position){
+	AABB aabb{};
+	XMStoreFloat3(&aabb.min, position - XMVECTOR{ 1.0f,0.0f,1.0f });
+	XMStoreFloat3(&aabb.max, position + XMVECTOR{ 1.0f,2.0f,1.0f });
+	return aabb;
 }

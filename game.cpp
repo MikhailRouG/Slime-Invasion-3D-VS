@@ -22,6 +22,7 @@ using namespace DirectX;
 #include "player.h"
 #include "map.h"
 #include "texture.h"
+#include "bullet.h"
 
 static float g_x = 0.0f;
 static float g_angle = 0.0f;
@@ -51,6 +52,7 @@ void Game_Initialize(){
 	g_pModelTemple = ModelLoad("resource/model/temple.fbx", 1.0f);
 	Map_Initialize();
 	Player_Initialize({ 0.0f,0.0f,-5.0f }, { 0.0f,0.0f,1.0f });
+	Bullet_Initialize();
 
 	g_CubeTexId = Texture_Load(L"resource/texture/BoxTestTexture2.png");
 }
@@ -58,6 +60,7 @@ void Game_Initialize(){
 void Game_Finalize(){
 	PlayerCamera_Finalize();
 	Player_Finalize();
+	Bullet_Finalize();
 	Map_Finalize();
 	ModelRelease(g_pModelTemple);
 	ModelRelease(g_pModelCup);
@@ -70,6 +73,19 @@ void Game_Update(double elapsed_time){
 	Player_Update(elapsed_time);
 	PlayerCamera_Update(elapsed_time);
 	//Camera_Update(elapsed_time);
+
+	Bullet_Update(elapsed_time);
+
+	//マップに弾が当たったら消す
+	for (int j = 0;j < Map_GetObjectsCount();j++) {
+		for (int i = 0;i < Bullet_GetCount();i++) {
+			AABB bullet = Bullet_GetAABB(i);
+			AABB object = Map_GetObject(j)->aabb;
+			if (Collision_IsOverlapAABB(bullet, object)) {
+				Bullet_Destroy(i);
+			}
+		}
+	}
 
 	if (KeyLogger_IsTrigger(KK_ESCAPE)) {
 		SendMessage(GameWindow_GetHWND(), WM_CLOSE, 0, 0);
@@ -100,116 +116,18 @@ void Game_Draw(){
 	Light_SetDirectionalWorld(dir, { 0.2f,0.2f,0.2f,1.0f });
 
 	Light_SetPointLightcount(4);
-	//XMMATRIX rot = XMMatrixRotationY(g_angle);
-	//XMFLOAT3 pp0,pp1,pp2;
-	//XMStoreFloat3(&pp0, XMVector3Transform({ 0.0f,0.3f,-3.0f }, rot));
-	//XMStoreFloat3(&pp1, XMVector3Transform({ 0.0f,0.3f,3.0f }, rot));
-	//XMStoreFloat3(&pp2, XMVector3Transform({ 3.0f,0.3f,-3.0f }, rot));
 
-	//Light_SetPointLight(0, pp0, 5.0f, {1.0f,0.0f,0.0f});
-	//Light_SetPointLight(1, pp1, 5.0f, { 0.0f,1.0f,0.0f });
-	//Light_SetPointLight(2, pp2, 5.0f, { 0.0f,0.0f,1.0f });
-
-	//Light_SetPointLight(0, { 5.0f,10.0f,5.0f }, 3.0f, { 0.5f,0.5f,0.7f });
 	Light_SetPointLight(0, { 10.0f,5.0f,10.0f }, 5.0f, { 0.3f,0.3f,0.9f });
 	Light_SetPointLight(1, { -10.0f,5.0f,10.0f }, 5.0f, { 0.3f,0.9f,0.3f });
 	Light_SetPointLight(2, { 10.0f,5.0f,-10.0f }, 5.0f, { 0.9f,0.3f,0.3f });
 	Light_SetPointLight(3, { -10.0f,5.0f,-10.0f }, 5.0f, { 0.9f,0.9f,0.3f });
 
-	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 5.0f, { 0.2f,0.f,0.2f,1.0f });
-
-	Sampler_SetFilterAnisotropic();
-	
-	Meshfield_Draw();
 
 	Map_Draw();
 
 	Player_Draw();
 
-	XMMATRIX mtxWorld1 = XMMatrixTranslation(5.0f, 5.5f, 0.0f);
-	Cube_Draw(g_CubeTexId,mtxWorld1);
-
-	XMMATRIX mtxWorld2 = XMMatrixTranslation(3.0f, 0.5f, 2.0f);
-	Cube_Draw(g_CubeTexId, mtxWorld2);
-
-	XMMATRIX mtxWorld3 = XMMatrixTranslation(2.0f, 1.5f, -2.0f);
-	Cube_Draw(g_CubeTexId, mtxWorld3);
-
-	XMMATRIX mtxWorld4 = XMMatrixTranslation(10.0f, 3.0f, -10.0f);
-	Cube_Draw(g_CubeTexId, mtxWorld4);
-
-	XMMATRIX mtxWorld5 = XMMatrixTranslation(-10.0f, 3.0f, 10.0f);
-	Cube_Draw(g_CubeTexId, mtxWorld5);
-
-	//ModelDraw(g_pModelBottle, XMMatrixTranslation(-2.0f, 1.0f, 5.0f));
-	ModelDraw(g_pModelSpoon, XMMatrixTranslation(8.0f, 4.0f, 9.0f));
-	ModelDraw(g_pModelCup, XMMatrixTranslation(10.0f, 2.5f, 10.0f));
-	//ModelDraw(g_pModelTemple, XMMatrixTranslation(10.0f, 0.5f, 10.0f));
-	//ModelDraw(g_pModelTemple, XMMatrixTranslation(-10.0f, 0.5f, 10.0f));
-	//ModelDraw(g_pModelTemple, XMMatrixTranslation(10.0f, 0.5f, -10.0f));
-	//ModelDraw(g_pModelTemple, XMMatrixTranslation(-10.0f, 0.5f, -10.0f));
-
-
-	/*
-	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 0.3f,0.3f,0.3f,1.0f });
-	ModelDraw(g_pModelTest, XMMatrixTranslation(-2.0f, 1.0f, 0.0f));
-
-	Light_SetSpecularWorld(Camera_GetPosition(), 50.0f, { 1.0f,0.9f,0.7f,1.0f });
-	ModelDraw(g_pModelTest2, XMMatrixTranslation(-5.0f, 1.0f, 0.0f));
-	ModelDraw(g_pModelTest3, XMMatrixTranslation(-8.0f, 1.0f, 0.0f));
-	//ModelDraw(g_pModelTest4, XMMatrixTranslation(-11.0f, 1.0f, 0.0f));
-
-	//Grid_Draw();
-	
-	Sampler_SetFilterAnisotropic();
-	XMMATRIX mtxWorldShot = XMMatrixRotationY(g_angle*2.0f);
-	mtxWorldShot *= XMMatrixRotationX(g_angle * 2.0f);
-	mtxWorldShot *= XMMatrixTranslationFromVector(XMLoadFloat3(&g_CubePosition));
-	Cube_Draw(mtxWorldShot);
-
-	
-	Sampler_SetFilterAnisotropic();
-	XMMATRIX mtxWorld = XMMatrixIdentity();
-	Cube_Draw(mtxWorld);
-
-	Sampler_SetFilterLinear();
-	XMMATRIX mtxWorldLinear = XMMatrixIdentity();
-	mtxWorldLinear = XMMatrixTranslation(1.5f, 0.0f, 0.0f);
-	Cube_Draw(mtxWorldLinear);
-
-	Sampler_SetFilterPoint();
-	XMMATRIX mtxWorldPoint = XMMatrixIdentity();
-	mtxWorldPoint = XMMatrixTranslation(3.0f, 0.0f, 0.0f);
-	Cube_Draw(mtxWorldPoint);
-	
-	
-	/*float xtrans = 4.5f;
-	float ztrans = 4.5f;
-	XMMATRIX mtxRotate = XMMatrixRotationY(g_angle);*/
-
-	//for (int y = 0;y < 10;y++) {
-	//	for (int z = 0;z < 10 - y;z++) {
-	//		for (int x = 0;x < 10 - y;x++) {
-	//			//ワールド座標変換行列の作成
-	//			XMMATRIX mtxOffset = XMMatrixTranslation((float)x - xtrans, (float)y, (float)z - ztrans);
-	//			XMMATRIX mtxWorld = mtxOffset * mtxRotate;// *mtxTrans;
-
-	//			/*
-	//			XMMATRIX mtxTrans = XMMatrixTranslation(0.5f, 0.5f, 0.0f);//平行移動行列の作成
-	//			XMMATRIX mtxTransInv = XMMatrixTranslation(-0.5f, 0.0f, 0.0f);//平行移動行列の作成
-	//			XMMATRIX mtxRotate = XMMatrixRotationY(XMConvertToRadians(g_angle));//回転行列の作成
-	//			XMMATRIX mtxScale = XMMatrixScaling(4.0f,0.5f,0.5f);//拡大行列の作成
-	//			XMMATRIX mtxWorld = mtxTrans * mtxScale * mtxTransInv* mtxRotate;
-	//			*/
-
-	//			Cube_Draw(mtxWorld);
-	//		}
-
-	//	}
-	//	xtrans -= 0.5f;
-	//	ztrans -= 0.5f;
-	//}
-	
+	Bullet_Draw();
 
 	//Camera_DebugDraw();
 }

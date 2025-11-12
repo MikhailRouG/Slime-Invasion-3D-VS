@@ -21,5 +21,6 @@ const DirectX::XMFLOAT3& Player_GetPosition();
 const DirectX::XMFLOAT3& Player_GetFront();
 
 AABB Player_GetAABB();
+AABB Player_ConvertPositionToAABB(const DirectX::XMVECTOR& position);
 
 #endif //PLAYER_H

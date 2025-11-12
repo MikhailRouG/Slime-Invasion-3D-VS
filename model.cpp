@@ -54,6 +54,20 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 				}
 				vertex[v].color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 				vertex[v].texcoord = XMFLOAT2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
+
+				//aabbŽæ“¾
+				if (v == 0) {
+					model->local_aabb.min = vertex[v].position;
+					model->local_aabb.max = vertex[v].position;
+				}
+				else {
+					model->local_aabb.min.x = std::min(model->local_aabb.min.x, vertex[v].position.x);
+					model->local_aabb.min.y = std::min(model->local_aabb.min.y, vertex[v].position.y);
+					model->local_aabb.min.z = std::min(model->local_aabb.min.z, vertex[v].position.z);
+					model->local_aabb.max.x = std::max(model->local_aabb.max.x, vertex[v].position.x);
+					model->local_aabb.max.y = std::max(model->local_aabb.max.y, vertex[v].position.y);
+					model->local_aabb.max.z = std::max(model->local_aabb.max.z, vertex[v].position.z);
+				}
 			}
 
 			D3D11_BUFFER_DESC bd;
@@ -156,6 +170,7 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 		if (filename.length == 0) {
 			continue;
 		}
+
 		if (model->Texture.count(filename.C_Str())) {
 			continue;
 		}
@@ -266,6 +281,13 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
 		// ƒ|ƒŠƒSƒ“•`‰æ–½—ß”­s
 		Direct3D_GetContext()->DrawIndexed(model->AiScene->mMeshes[m]->mNumFaces * 3, 0, 0);
 	}
+}
+
+AABB Model_GetAABB(MODEL* model, const DirectX::XMFLOAT3& position){
+	return {
+		{position.x + model->local_aabb.min.x, position.y + model->local_aabb.min.y, position.z + model->local_aabb.min.z},
+		{position.x + model->local_aabb.max.x, position.y + model->local_aabb.max.y, position.z + model->local_aabb.max.z}
+	};
 }
 
 
