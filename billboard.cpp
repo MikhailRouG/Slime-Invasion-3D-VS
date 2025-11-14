@@ -60,7 +60,7 @@ void Billboard_Finalize()
 
 void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, float scale_x, float scale_y, const DirectX::XMFLOAT2& pivot)
 {
-	ShaderBillboard_SetUVParameter({ { 0.2f, 0.5f }, { 0.2f * 3, 0.5f } });
+	ShaderBillboard_SetUVParameter({ { 1.0f / 7.0f, 1.0f }, { 3.0f / 7.0f, 0.0f } });
 
 	// シェーダーを描画パイプラインに設定
 	ShaderBillboard_Begin();

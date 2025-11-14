@@ -59,7 +59,7 @@ void Game_Initialize(){
 	Billboard_Initialize();
 
 	g_CubeTexId = Texture_Load(L"resource/texture/BoxTestTexture2.png");
-	g_TestTexId = Texture_Load(L"resource/texture/explosion2.png");
+	g_TestTexId = Texture_Load(L"resource/texture/explosion.png");
 }
 
 void Game_Finalize(){
@@ -135,7 +135,7 @@ void Game_Draw(){
 
 	Bullet_Draw();
 
-	Billboard_Draw(g_TestTexId, { -10.0, 0.5f, -10.0f }, 6.0f, 8.0f, { 0.0f, 0.0f });
+	Billboard_Draw(g_TestTexId, { -10.0, 2.5f, -10.0f }, 6.0f, 8.0f, { 0.0f, 0.0f });
 
 	//Camera_DebugDraw();
 }

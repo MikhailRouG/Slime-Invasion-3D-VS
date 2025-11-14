@@ -27,7 +27,7 @@ static MapObject g_MapObjects[]{
 	{cube2,{1.0f,0.5f,2.0f}},
 	{cube2,{-1.0f,0.5f,2.0f}},
 	{cube2,{1.0f,1.5f,1.0f}},
-	{tree,{-10.0f,-3.5f,-10.0f}},
+	{tree,{-10.0f,-3.5f,-5.0f}},
 	{rock,{5.0f,0.5f,-5.0f}}
 };
 
@@ -84,7 +84,8 @@ void Map_Draw(){
 
 		case tree: //–Ø
 			mtxWorld = XMMatrixTranslation(mo.Position.x, mo.Position.y, mo.Position.z);
-			ModelDraw(g_pTree01,mtxWorld);
+			//ModelDraw(g_pTree01,mtxWorld);
+			ModelDraw(g_pCup01, mtxWorld);
 			break;
 
 		case rock: //Šâ
