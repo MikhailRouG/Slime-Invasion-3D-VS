@@ -28,7 +28,11 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 	MODEL* model = new MODEL;
 
 	model->AiScene = aiImportFile(FileName, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded);
-	assert(model->AiScene);
+	//assert(model->AiScene);
+	if (model->AiScene == nullptr) {
+		delete model;
+		return nullptr;
+	}
 
 	model->VertexBuffer = new ID3D11Buffer * [model->AiScene->mNumMeshes];
 	model->IndexBuffer = new ID3D11Buffer * [model->AiScene->mNumMeshes];
@@ -193,9 +197,16 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 
 		delete[] pWideFilename;
 
-		assert(texture);
+		//assert(texture);
+		if (texture == nullptr) {
+			model->Texture[filename.C_Str()] = nullptr;
+		}
+		else {
+			resource->Release();
+			model->Texture[filename.C_Str()] = texture;
+		}
 
-		resource->Release();
+		//resource->Release();
 
 		model->Texture[filename.C_Str()] = texture;
 	}
@@ -284,6 +295,11 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
 }
 
 AABB Model_GetAABB(MODEL* model, const DirectX::XMFLOAT3& position){
+	if (model == nullptr) {
+		// model‚ª‚Ü‚¾“Ç‚Ýž‚Ü‚ê‚Ä‚È‚¢‚È‚çA‚Æ‚è‚ ‚¦‚¸Œ´“_‚¾‚¯‚Ì¬‚³‚ÈAABB‚ð•Ô‚·
+		return { position, position };
+	}
+
 	return {
 		{position.x + model->local_aabb.min.x, position.y + model->local_aabb.min.y, position.z + model->local_aabb.min.z},
 		{position.x + model->local_aabb.max.x, position.y + model->local_aabb.max.y, position.z + model->local_aabb.max.z}
