@@ -23,6 +23,7 @@ using namespace DirectX;
 #include "map.h"
 #include "texture.h"
 #include "bullet.h"
+#include "billboard.h"
 
 static float g_x = 0.0f;
 static float g_angle = 0.0f;
@@ -32,6 +33,8 @@ static XMFLOAT3 g_CubePosition{};
 static XMFLOAT3 g_CubeVelocity{};
 
 static int g_CubeTexId = -1;
+static int g_TestTexId = -1;
+
 
 //static MODEL* g_pModelTest = nullptr;
 //static MODEL* g_pModelTest3 = nullptr;
@@ -53,11 +56,14 @@ void Game_Initialize(){
 	Map_Initialize();
 	Player_Initialize({ 0.0f,0.0f,-5.0f }, { 0.0f,0.0f,1.0f });
 	Bullet_Initialize();
+	Billboard_Initialize();
 
 	g_CubeTexId = Texture_Load(L"resource/texture/BoxTestTexture2.png");
+	g_TestTexId = Texture_Load(L"resource/texture/explosion2.png");
 }
 
 void Game_Finalize(){
+	Billboard_Finalize();
 	PlayerCamera_Finalize();
 	Player_Finalize();
 	Bullet_Finalize();
@@ -128,6 +134,8 @@ void Game_Draw(){
 	Player_Draw();
 
 	Bullet_Draw();
+
+	Billboard_Draw(g_TestTexId, { -10.0, 0.5f, -10.0f }, 6.0f, 8.0f, { 0.0f, 0.0f });
 
 	//Camera_DebugDraw();
 }

@@ -17,6 +17,7 @@ void PlayerCamera_Update(double elapsed_time);
 
 const DirectX::XMFLOAT3& PlayerCamera_GetFront();
 const DirectX::XMFLOAT3& PlayerCamera_GetPosition();
+const DirectX::XMFLOAT4X4& PlayerCamera_GetViewMatrix();
 
 
 #endif //PLAYER_CAMERA_H

@@ -11,12 +11,14 @@
 using namespace DirectX;
 #include "shader3d.h"
 #include "shader_field.h"
+#include "shader_billboard.h"
 #include "direct3d.h"
 #include "player.h"
 
 
 static XMFLOAT3 g_CameraFront = { 0.0f,0.0f,1.0f };
 static XMFLOAT3 g_CameraPosition{ 0.0f,0.0f,0.0f };
+static XMFLOAT4X4 g_CameraMatrix{};
 
 void PlayerCamera_Initialize(){
 
@@ -49,6 +51,11 @@ void PlayerCamera_Update(double elapsed_time) {
 	//頂点シェーダーにビュー変換行列を設定
 	Shader3d_SetViewMatrix(mtxView);
 	ShaderField_SetViewMatrix(mtxView);
+	ShaderBillboard_SetViewMatrix(mtxView);
+
+
+	// カメラ行列を保存
+	XMStoreFloat4x4(&g_CameraMatrix, mtxView);
 
 	// 頂点シェーダーに変換行列を設定
 	// パースペクティブ行列の作成
@@ -62,6 +69,8 @@ void PlayerCamera_Update(double elapsed_time) {
 	//頂点シェーダーにプロジェクション変換行列を設定
 	Shader3d_SetProjectionMatrix(mtxPerspective);
 	ShaderField_SetProjectionMatrix(mtxPerspective);
+	ShaderBillboard_SetProjectionMatrix(mtxPerspective);
+
 }
 
 const DirectX::XMFLOAT3& PlayerCamera_GetFront(){
@@ -70,4 +79,8 @@ const DirectX::XMFLOAT3& PlayerCamera_GetFront(){
 
 const DirectX::XMFLOAT3& PlayerCamera_GetPosition(){
 	return g_CameraPosition;
+}
+
+const DirectX::XMFLOAT4X4& PlayerCamera_GetViewMatrix(){
+	return g_CameraMatrix;
 }
