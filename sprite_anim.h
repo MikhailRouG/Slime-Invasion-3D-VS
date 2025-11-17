@@ -18,6 +18,7 @@ void SpriteAnim_Finalize();
 
 void SpriteAnim_Update(double elapsed_time);
 void SpriteAnim_Draw(int playid,float dx, float dy, float dw, float dh, bool IsFlipped = false,const DirectX::XMFLOAT4 color={1.0f,1.0f,1.0f,1.0f});
+void BillboardAnim_Draw(int playid, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT2& pivot = { 0.0f,0.0f });
 
 int SpriteAnim_RegisterPattern(int texid, int pattern_max, int h_pattern_max,
 	double m_seconds_per_pattern,

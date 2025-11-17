@@ -58,9 +58,10 @@ void Billboard_Finalize()
 	ShaderBillboard_Finalize();
 }
 
-void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, float scale_x, float scale_y, const DirectX::XMFLOAT2& pivot)
+void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT2& pivot)
 {
-	ShaderBillboard_SetUVParameter({ { 1.0f / 7.0f, 1.0f }, { 3.0f / 7.0f, 0.0f } });
+	//ShaderBillboard_SetUVParameter({ { 1.0f / 7.0f, 1.0f }, { 3.0f / 7.0f, 0.0f } });
+	ShaderBillboard_SetUVParameter({ { 1.0f , 1.0f }, { 0.0f, 0.0f } });
 
 	// シェーダーを描画パイプラインに設定
 	ShaderBillboard_Begin();
@@ -83,8 +84,7 @@ void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, float scale_x,
 	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);//POINTLIST //LINESTRIP //TRIANGLELIST //LINELIST
 
 	// 頂点シェーダーにワールド座標変換行列を設定
-	// 回転軸までのオフセット行列
-	XMMATRIX pivot_offset = XMMatrixTranslation(-pivot.x, -pivot.y, 1.0f);
+	
 	// カメラ行列の回転だけ逆行列を作る
 	XMFLOAT4X4 mtxCamera = PlayerCamera_GetViewMatrix();
 	mtxCamera._41 = mtxCamera._42 = mtxCamera._43 = 0.0f; // 平行移動行列を消す
@@ -92,9 +92,64 @@ void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, float scale_x,
 	// 直交行列の逆行列は転置行列に等しい
 	XMMATRIX iv = XMMatrixTranspose(XMLoadFloat4x4(&mtxCamera));
 
-	XMMATRIX s = XMMatrixScaling(scale_x, scale_y, 1.0f);
+	// 回転軸までのオフセット行列
+	XMMATRIX pivot_offset = XMMatrixTranslation(-pivot.x, -pivot.y, 0.0f);
+
+	XMMATRIX s = XMMatrixScaling(scale.x, scale.y, 1.0f);
 	XMMATRIX t = XMMatrixTranslation(position.x + pivot.x, position.y + pivot.y, position.z);
-	ShaderBillboard_SetWorldMatrix(pivot_offset * s * iv * t);
+	//拡大縮小→ピボットをずらす→カメラと逆向きに回転→平行移動
+	//この後シェーダー側でカメラが回転する
+	ShaderBillboard_SetWorldMatrix(s * pivot_offset * iv * t);
+
+	// ポリゴン描画命令発行
+	Direct3D_GetContext()->Draw(NUM_VERTEX, 0);
+}
+
+void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMUINT4& tex_cut, const DirectX::XMFLOAT2& pivot){
+	float uv_x = (float)tex_cut.x / Texture_Width(texId);
+	float uv_y = (float)tex_cut.y / Texture_Height(texId);
+	float uv_w = (float)tex_cut.z / Texture_Width(texId);
+	float uv_h = (float)tex_cut.w / Texture_Height(texId);
+
+	ShaderBillboard_SetUVParameter({ { uv_w , uv_h }, { uv_x, uv_y } });
+
+	// シェーダーを描画パイプラインに設定
+	ShaderBillboard_Begin();
+
+	// ピクセルシェーダーに色を設定
+	ShaderBillboard_SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+
+	//テクスチャの設定
+	Texture_SetTexture(texId);
+
+	// 頂点バッファを描画パイプラインに設定
+	UINT stride = sizeof(Vertex3d);
+	UINT offset = 0;
+	Direct3D_GetContext()->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+
+	// インデックスバッファを描画パイプラインに設定
+	//Direct3D_GetContext()->IASetIndexBuffer(nullptr, DXGI_FORMAT_R16_UINT, 0); // unsigned int _R32
+
+	// プリミティブトポロジ設定
+	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);//POINTLIST //LINESTRIP //TRIANGLELIST //LINELIST
+
+	// 頂点シェーダーにワールド座標変換行列を設定
+
+	// カメラ行列の回転だけ逆行列を作る
+	XMFLOAT4X4 mtxCamera = PlayerCamera_GetViewMatrix();
+	mtxCamera._41 = mtxCamera._42 = mtxCamera._43 = 0.0f; // 平行移動行列を消す
+	//XMMATRIX iv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&mtxCamera)); // 重い演算
+	// 直交行列の逆行列は転置行列に等しい
+	XMMATRIX iv = XMMatrixTranspose(XMLoadFloat4x4(&mtxCamera));
+
+	// 回転軸までのオフセット行列
+	XMMATRIX pivot_offset = XMMatrixTranslation(-pivot.x, -pivot.y, 0.0f);
+
+	XMMATRIX s = XMMatrixScaling(scale.x, scale.y, 1.0f);
+	XMMATRIX t = XMMatrixTranslation(position.x + pivot.x, position.y + pivot.y, position.z);
+	//拡大縮小→ピボットをずらす→カメラと逆向きに回転→平行移動
+	//この後シェーダー側でカメラが回転する
+	ShaderBillboard_SetWorldMatrix(s * pivot_offset * iv * t);
 
 	// ポリゴン描画命令発行
 	Direct3D_GetContext()->Draw(NUM_VERTEX, 0);

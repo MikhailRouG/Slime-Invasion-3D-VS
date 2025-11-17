@@ -12,6 +12,7 @@
 #include "texture.h"
 #include <DirectXMath.h>
 using namespace DirectX;
+#include "billboard.h"
 
 //アニメーションパターン
 struct AnimPatternData {
@@ -112,6 +113,25 @@ void SpriteAnim_Draw(int playid, float dx, float dy, float dw, float dh,bool IsF
 		color
 	);
 
+}
+
+void BillboardAnim_Draw(int playid, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT2& pivot) {
+	int anim_pattern_id = g_AnimPlay[playid].m_PatternId;
+	AnimPatternData* pAnimPatternData = &g_AnimPattern[anim_pattern_id];
+	Billboard_Draw(pAnimPatternData->m_TextureId,
+		position, scale,
+		{ pAnimPatternData->m_StartPosition.x
+		+ pAnimPatternData->m_PatternSize.x
+		* (g_AnimPlay[playid].m_PatternNum % pAnimPatternData->m_HPatternMax),
+
+		pAnimPatternData->m_StartPosition.y + pAnimPatternData->m_PatternSize.y
+		* (g_AnimPlay[playid].m_PatternNum / pAnimPatternData->m_HPatternMax),
+
+		pAnimPatternData->m_PatternSize.x,
+		pAnimPatternData->m_PatternSize.y
+		},
+		pivot
+		);
 }
 
 int SpriteAnim_RegisterPattern(int texid, int pattern_max, int h_pattern_max, double m_seconds_per_pattern,

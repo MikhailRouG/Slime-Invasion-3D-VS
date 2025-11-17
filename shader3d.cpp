@@ -19,8 +19,8 @@ using namespace DirectX;
 static ID3D11VertexShader* g_pVertexShader = nullptr;
 static ID3D11InputLayout* g_pInputLayout = nullptr;
 static ID3D11Buffer* g_pVSConstantBuffer0 = nullptr; //定数バッファb0(world転送用)
-static ID3D11Buffer* g_pVSConstantBuffer1 = nullptr; //定数バッファb1(view転送用)
-static ID3D11Buffer* g_pVSConstantBuffer2 = nullptr; //定数バッファb2(proj転送用)
+//static ID3D11Buffer* g_pVSConstantBuffer1 = nullptr; //定数バッファb1(view転送用)
+//static ID3D11Buffer* g_pVSConstantBuffer2 = nullptr; //定数バッファb2(proj転送用)
 static ID3D11Buffer* g_pPSConstantBuffer0 = nullptr;//ピクセルシェーダ用定数バッファb0
 static ID3D11PixelShader* g_pPixelShader = nullptr;
 
@@ -102,8 +102,8 @@ bool Shader3d_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // バインドフラグ
 
 	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer0);
-	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer1);
-	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer2);
+	//g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer1);
+	//g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer2);
 
 
 	// 事前コンパイル済みピクセルシェーダーの読み込み
@@ -145,8 +145,8 @@ bool Shader3d_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 void Shader3d_Finalize(){
 	SAFE_RELEASE(g_pPixelShader);
 	SAFE_RELEASE(g_pPSConstantBuffer0);
-	SAFE_RELEASE(g_pVSConstantBuffer2);
-	SAFE_RELEASE(g_pVSConstantBuffer1);
+	//SAFE_RELEASE(g_pVSConstantBuffer2);
+	//SAFE_RELEASE(g_pVSConstantBuffer1);
 	SAFE_RELEASE(g_pVSConstantBuffer0);
 	SAFE_RELEASE(g_pInputLayout);
 	SAFE_RELEASE(g_pVertexShader);

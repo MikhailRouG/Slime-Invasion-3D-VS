@@ -30,6 +30,9 @@ static float g_Fov = XMConvertToRadians(60.0f);
 
 static hal::DebugText* g_pDT = nullptr;
 
+static ID3D11Buffer* g_pVSConstantBuffer1 = nullptr; //定数バッファb1(view転送用)
+static ID3D11Buffer* g_pVSConstantBuffer2 = nullptr; //定数バッファb2(proj転送用)
+
 void Camera_Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& right){
 	Camera_Initialize();
 
@@ -44,6 +47,13 @@ void Camera_Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT
 
 	XMStoreFloat4x4(&g_CameraMatrix, XMMatrixIdentity());
 	XMStoreFloat4x4(&g_PerspectiveMatrix, XMMatrixIdentity());
+
+	// 頂点シェーダー用定数バッファの作成
+	D3D11_BUFFER_DESC buffer_desc{};
+	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4); // バッファのサイズ
+	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // バインドフラグ
+	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer1);
+	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer2);
 }
 
 void Camera_Initialize(){
@@ -68,6 +78,8 @@ void Camera_Initialize(){
 
 void Camera_Finalize(){
 	delete g_pDT;
+	SAFE_RELEASE(g_pVSConstantBuffer2);
+	SAFE_RELEASE(g_pVSConstantBuffer1);
 }
 
 void Camera_Update(double elapsed_time){
@@ -195,6 +207,14 @@ const DirectX::XMFLOAT3& Camera_GetFront(){
 
 float Camera_GetFov(){
 	return 0.0f;
+}
+
+void Camera_SetMatrix(const DirectX::XMMATRIX& view, const DirectX::XMMATRIX& projection){
+	// 定数バッファにビュー変換行列とプロジェクション変換行列を設定
+	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer1, 0, nullptr, &view, 0, 0);
+	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer2, 0, nullptr, &projection, 0, 0);
+	Direct3D_GetContext()->VSSetConstantBuffers(1, 1, &g_pVSConstantBuffer1);
+	Direct3D_GetContext()->VSSetConstantBuffers(2, 1, &g_pVSConstantBuffer2);
 }
 
 void Camera_DebugDraw(){

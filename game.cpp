@@ -24,6 +24,7 @@ using namespace DirectX;
 #include "texture.h"
 #include "bullet.h"
 #include "billboard.h"
+#include "sprite_anim.h"
 
 static float g_x = 0.0f;
 static float g_angle = 0.0f;
@@ -35,6 +36,8 @@ static XMFLOAT3 g_CubeVelocity{};
 static int g_CubeTexId = -1;
 static int g_TestTexId = -1;
 
+static int g_AnimPatternId = -1;
+static int g_AnimPlayId = -1;
 
 //static MODEL* g_pModelTest = nullptr;
 //static MODEL* g_pModelTest3 = nullptr;
@@ -57,9 +60,12 @@ void Game_Initialize(){
 	Player_Initialize({ 0.0f,0.0f,-5.0f }, { 0.0f,0.0f,1.0f });
 	Bullet_Initialize();
 	Billboard_Initialize();
-
+	
 	g_CubeTexId = Texture_Load(L"resource/texture/BoxTestTexture2.png");
 	g_TestTexId = Texture_Load(L"resource/texture/explosion.png");
+
+	g_AnimPatternId = SpriteAnim_RegisterPattern(g_TestTexId, 7, 7, 0.2, { 300,400 }, { 0,0 });
+	g_AnimPlayId = SpriteAnim_CreatePlayer(g_AnimPatternId);
 }
 
 void Game_Finalize(){
@@ -76,6 +82,8 @@ void Game_Finalize(){
 }
 
 void Game_Update(double elapsed_time){
+	SpriteAnim_Update(elapsed_time);
+
 	Player_Update(elapsed_time);
 	PlayerCamera_Update(elapsed_time);
 	//Camera_Update(elapsed_time);
@@ -89,6 +97,7 @@ void Game_Update(double elapsed_time){
 			AABB object = Map_GetObject(j)->aabb;
 			if (Collision_IsOverlapAABB(bullet, object)) {
 				Bullet_Destroy(i);
+				//BillboardAnim_Draw(g_AnimPlayId, , { 6.0f, 8.0f }, { 0.0f, 0.0f });
 			}
 		}
 	}
@@ -128,15 +137,14 @@ void Game_Draw(){
 	Light_SetPointLight(2, { 10.0f,5.0f,-10.0f }, 5.0f, { 0.9f,0.3f,0.3f });
 	Light_SetPointLight(3, { -10.0f,5.0f,-10.0f }, 5.0f, { 0.9f,0.9f,0.3f });
 
+	Player_Draw();
 
 	Map_Draw();
 
-	Player_Draw();
+	//àÍî‘ç≈å„Ç…èëÇ©Ç»Ç¢Ç∆îwåiÇ™å©Ç¶ÇÈ
+	BillboardAnim_Draw(g_AnimPlayId, { -10.0, 2.5f, -10.0f }, { 6.0f, 8.0f }, { 0.0f, 0.0f });
 
 	Bullet_Draw();
-
-	Billboard_Draw(g_TestTexId, { -10.0, 2.5f, -10.0f }, 6.0f, 8.0f, { 0.0f, 0.0f });
-
 	//Camera_DebugDraw();
 }
 
