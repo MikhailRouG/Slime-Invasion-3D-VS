@@ -19,7 +19,7 @@ void Camera_Initialize();
 void Camera_Finalize();
 void Camera_Update(double elapsed_time);
 
-const DirectX::XMFLOAT4X4& Camera_GetMatrix();
+const DirectX::XMFLOAT4X4& Camera_GetViewMatrix();
 const DirectX::XMFLOAT4X4& Camera_GetPerspectiveMatrix();
 
 const DirectX::XMFLOAT3& Camera_GetPosition();

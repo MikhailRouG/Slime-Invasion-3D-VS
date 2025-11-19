@@ -11,7 +11,7 @@
 #include "game_window.h"
 #include "cube.h"
 #include "shader3d.h"
-//#include "camera.h"
+#include "camera.h"
 #include "player_camera.h"
 #include <DirectXMath.h>
 using namespace DirectX;
@@ -46,9 +46,11 @@ static MODEL* g_pModelBottle = nullptr;
 static MODEL* g_pModelCup = nullptr;
 static MODEL* g_pModelTemple = nullptr;
 
+static bool g_IsDebug = false;
+
 void Game_Initialize(){
 	PlayerCamera_Initialize();
-	//Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f});
+	Camera_Initialize({10.0f,10.0f,-10.0f},{-0.6f,-0.4f,0.6f},{0.7f,0.0f,0.7f});
 	//Camera_Initialize();
 	//g_pModelTest = ModelLoad("resource/model/test.fbx", 0.1f);
 	g_pModelBottle = ModelLoad("resource/model/BOTTLE HIGH POLY.fbx", 0.01f);
@@ -66,11 +68,14 @@ void Game_Initialize(){
 
 	g_AnimPatternId = SpriteAnim_RegisterPattern(g_TestTexId, 7, 7, 0.2, { 300,400 }, { 0,0 });
 	g_AnimPlayId = SpriteAnim_CreatePlayer(g_AnimPatternId);
+
+	g_IsDebug = false;
 }
 
 void Game_Finalize(){
 	Billboard_Finalize();
 	PlayerCamera_Finalize();
+	Camera_Finalize();
 	Player_Finalize();
 	Bullet_Finalize();
 	Map_Finalize();
@@ -78,15 +83,19 @@ void Game_Finalize(){
 	ModelRelease(g_pModelCup);
 	ModelRelease(g_pModelBottle);
 	ModelRelease(g_pModelSpoon);
-	//Camera_Finalize();
 }
 
 void Game_Update(double elapsed_time){
 	SpriteAnim_Update(elapsed_time);
 
 	Player_Update(elapsed_time);
-	PlayerCamera_Update(elapsed_time);
-	//Camera_Update(elapsed_time);
+
+	if (g_IsDebug) {
+		Camera_Update(elapsed_time);
+	}
+	else {
+		PlayerCamera_Update(elapsed_time);
+	}
 
 	Bullet_Update(elapsed_time);
 
@@ -106,6 +115,10 @@ void Game_Update(double elapsed_time){
 		SendMessage(GameWindow_GetHWND(), WM_CLOSE, 0, 0);
 	}
 
+	if (KeyLogger_IsTrigger(KK_L)) {
+		g_IsDebug = !g_IsDebug;
+	}
+
 	g_AccumulatedTime += elapsed_time;
 	g_x = (float)sin(g_AccumulatedTime) * 4.5f; //-4.5~4.5
 	g_angle = (float)g_AccumulatedTime * 2.0f; //1秒間に90度
@@ -123,12 +136,28 @@ void Game_Update(double elapsed_time){
 }
 
 void Game_Draw(){
+	XMFLOAT4X4 mtxView = g_IsDebug ? Camera_GetViewMatrix() : PlayerCamera_GetViewMatrix();
+	XMMATRIX view = XMLoadFloat4x4(&mtxView);
+	XMMATRIX proj = g_IsDebug ? XMLoadFloat4x4(&Camera_GetPerspectiveMatrix()) : XMLoadFloat4x4(&PlayerCamera_GetPerspectiveMatrix());
+	XMFLOAT3 camera_position = g_IsDebug ? Camera_GetPosition() : PlayerCamera_GetPosition();
+	//カメラに関する行列をシェーダーに設定
+	Camera_SetMatrix(view, proj);
+
+	//ビルボードにカメラの行列を設定する
+	Billboard_SetViewMatrix(mtxView);
+
+	//サンプラー設定
+	Sampler_SetFilterAnisotropic();
+
+	//ライト設定
 	Light_SetAmbient({ 0.2f,0.2f,0.2f });
 	XMVECTOR v{ -1.0f,-1.0f,1.0f};
 	v = XMVector3Normalize(v);
 	XMFLOAT4 dir;
 	XMStoreFloat4(&dir, v);
 	Light_SetDirectionalWorld(dir, { 0.2f,0.2f,0.2f,1.0f });
+
+	Light_SetSpecularWorld(camera_position, 50.0f, { 0.8f,0.8f,0.8f,1.0f });
 
 	Light_SetPointLightcount(4);
 
@@ -145,6 +174,9 @@ void Game_Draw(){
 	BillboardAnim_Draw(g_AnimPlayId, { -10.0, 2.5f, -10.0f }, { 6.0f, 8.0f }, { 0.0f, 0.0f });
 
 	Bullet_Draw();
-	//Camera_DebugDraw();
+
+	if (g_IsDebug) {
+		Camera_DebugDraw();
+	}
 }
 

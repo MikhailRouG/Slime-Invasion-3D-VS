@@ -141,6 +141,7 @@
     <ClCompile Include="texture.cpp">
       <Filter>リソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="bullet_hit_effect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h">
@@ -255,6 +256,9 @@
       <Filter>ヘッダーファイル</Filter>
     </ClInclude>
     <ClInclude Include="WICTextureLoader11.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="bullet_hit_effect.h">
       <Filter>ヘッダーファイル</Filter>
     </ClInclude>
   </ItemGroup>

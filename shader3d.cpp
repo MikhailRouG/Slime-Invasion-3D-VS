@@ -145,8 +145,6 @@ bool Shader3d_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 void Shader3d_Finalize(){
 	SAFE_RELEASE(g_pPixelShader);
 	SAFE_RELEASE(g_pPSConstantBuffer0);
-	//SAFE_RELEASE(g_pVSConstantBuffer2);
-	//SAFE_RELEASE(g_pVSConstantBuffer1);
 	SAFE_RELEASE(g_pVSConstantBuffer0);
 	SAFE_RELEASE(g_pInputLayout);
 	SAFE_RELEASE(g_pVertexShader);
@@ -163,28 +161,6 @@ void Shader3d_SetWorldMatrix(const DirectX::XMMATRIX& matrix){
 	g_pContext->UpdateSubresource(g_pVSConstantBuffer0, 0, nullptr, &transpose, 0, 0);
 }
 
-void Shader3d_SetViewMatrix(const DirectX::XMMATRIX& matrix){
-	// 定数バッファ格納用行列の構造体を定義
-	XMFLOAT4X4 transpose;
-
-	// 行列を転置して定数バッファ格納用行列に変換
-	XMStoreFloat4x4(&transpose, XMMatrixTranspose(matrix));
-
-	// 定数バッファに行列をセット
-	g_pContext->UpdateSubresource(g_pVSConstantBuffer1, 0, nullptr, &transpose, 0, 0);
-}
-
-
-void Shader3d_SetProjectionMatrix(const DirectX::XMMATRIX& matrix){
-	// 定数バッファ格納用行列の構造体を定義
-	XMFLOAT4X4 transpose;
-
-	// 行列を転置して定数バッファ格納用行列に変換
-	XMStoreFloat4x4(&transpose, XMMatrixTranspose(matrix));
-
-	// 定数バッファに行列をセット
-	g_pContext->UpdateSubresource(g_pVSConstantBuffer2, 0, nullptr, &transpose, 0, 0);
-}
 
 void Shader3d_SetColor(const DirectX::XMFLOAT4 color) {
 	// 定数バッファに行列をセット
@@ -201,12 +177,5 @@ void Shader3d_Begin(){
 
 	// 定数バッファを描画パイプラインに設定
 	g_pContext->VSSetConstantBuffers(0, 1, &g_pVSConstantBuffer0);
-	g_pContext->VSSetConstantBuffers(1, 1, &g_pVSConstantBuffer1);
-	g_pContext->VSSetConstantBuffers(2, 1, &g_pVSConstantBuffer2);
 	g_pContext->PSSetConstantBuffers(0, 1, &g_pPSConstantBuffer0);
-
-
-	//サンプラーステートを描画パイプラインに設定
-	//デフォルトはAnisotropic
-	//Sampler_SetFilterAnisotropic();
 }

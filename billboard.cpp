@@ -18,6 +18,7 @@ static constexpr int NUM_VERTEX = 4; // 頂点数
 
 static ID3D11Buffer* g_pVertexBuffer = nullptr; // 頂点バッファ
 
+static XMFLOAT4X4 g_mtxView{}; //ビュー行列の平行移動成分をカットした行列
 
 // 3D頂点構造体
 struct Vertex3d
@@ -58,6 +59,12 @@ void Billboard_Finalize()
 	ShaderBillboard_Finalize();
 }
 
+void Billboard_SetViewMatrix(const DirectX::XMFLOAT4X4& view){
+	// カメラ行列の平行移動成分をカット
+	g_mtxView = view;
+	g_mtxView._41 = g_mtxView._42 = g_mtxView._43 = 0.0f; // 平行移動行列を消す
+}
+
 void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT2& pivot)
 {
 	//ShaderBillboard_SetUVParameter({ { 1.0f / 7.0f, 1.0f }, { 3.0f / 7.0f, 0.0f } });
@@ -86,11 +93,10 @@ void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX:
 	// 頂点シェーダーにワールド座標変換行列を設定
 	
 	// カメラ行列の回転だけ逆行列を作る
-	XMFLOAT4X4 mtxCamera = PlayerCamera_GetViewMatrix();
-	mtxCamera._41 = mtxCamera._42 = mtxCamera._43 = 0.0f; // 平行移動行列を消す
-	//XMMATRIX iv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&mtxCamera)); // 重い演算
+	
+	//XMMATRIX iv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&g_mtxView)); // 重い演算
 	// 直交行列の逆行列は転置行列に等しい
-	XMMATRIX iv = XMMatrixTranspose(XMLoadFloat4x4(&mtxCamera));
+	XMMATRIX iv = XMMatrixTranspose(XMLoadFloat4x4(&g_mtxView));
 
 	// 回転軸までのオフセット行列
 	XMMATRIX pivot_offset = XMMatrixTranslation(-pivot.x, -pivot.y, 0.0f);
@@ -136,11 +142,9 @@ void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX:
 	// 頂点シェーダーにワールド座標変換行列を設定
 
 	// カメラ行列の回転だけ逆行列を作る
-	XMFLOAT4X4 mtxCamera = PlayerCamera_GetViewMatrix();
-	mtxCamera._41 = mtxCamera._42 = mtxCamera._43 = 0.0f; // 平行移動行列を消す
-	//XMMATRIX iv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&mtxCamera)); // 重い演算
+	//XMMATRIX iv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&g_mtxView)); // 重い演算
 	// 直交行列の逆行列は転置行列に等しい
-	XMMATRIX iv = XMMatrixTranspose(XMLoadFloat4x4(&mtxCamera));
+	XMMATRIX iv = XMMatrixTranspose(XMLoadFloat4x4(&g_mtxView));
 
 	// 回転軸までのオフセット行列
 	XMMATRIX pivot_offset = XMMatrixTranslation(-pivot.x, -pivot.y, 0.0f);

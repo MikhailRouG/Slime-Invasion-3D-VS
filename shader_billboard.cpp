@@ -1,7 +1,7 @@
 /*==============================================================================
 
    ビルボードシェーダー [shader_billboard.cpp]
-														 Author :
+														 Author : Harada Ren
 														 Date   : 2025/11/14
 --------------------------------------------------------------------------------
 
@@ -18,8 +18,6 @@ using namespace DirectX;
 static ID3D11VertexShader* g_pVertexShader = nullptr;
 static ID3D11InputLayout* g_pInputLayout = nullptr;
 static ID3D11Buffer* g_pVSConstantBuffer0 = nullptr; //定数バッファb0(world転送用)
-static ID3D11Buffer* g_pVSConstantBuffer1 = nullptr; //定数バッファb1(view転送用)
-static ID3D11Buffer* g_pVSConstantBuffer2 = nullptr; //定数バッファb2(proj転送用)
 static ID3D11Buffer* g_pVSConstantBuffer3 = nullptr; //定数バッファb3
 static ID3D11Buffer* g_pPSConstantBuffer0 = nullptr; //定数バッファb0
 static ID3D11PixelShader* g_pPixelShader = nullptr;
@@ -85,8 +83,6 @@ bool ShaderBillboard_Initialize()
 	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // バインドフラグ
 
 	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer0);
-	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer1);
-	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer2);
 
 	buffer_desc.ByteWidth = sizeof(XMFLOAT4); // バッファのサイズ
 	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer3);
@@ -129,9 +125,8 @@ void ShaderBillboard_Finalize()
 {
 	SAFE_RELEASE(g_pPixelShader);
 	SAFE_RELEASE(g_pPSConstantBuffer0);
-	SAFE_RELEASE(g_pVSConstantBuffer2);
-	SAFE_RELEASE(g_pVSConstantBuffer1);
 	SAFE_RELEASE(g_pVSConstantBuffer0);
+	SAFE_RELEASE(g_pVSConstantBuffer3);
 	SAFE_RELEASE(g_pInputLayout);
 	SAFE_RELEASE(g_pVertexShader);
 }
@@ -146,30 +141,6 @@ void ShaderBillboard_SetWorldMatrix(const DirectX::XMMATRIX& matrix)
 
 	// 定数バッファに行列をセット
 	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer0, 0, nullptr, &transpose, 0, 0);
-}
-
-void ShaderBillboard_SetViewMatrix(const DirectX::XMMATRIX& matrix)
-{
-	// 定数バッファ格納用行列の構造体を定義
-	XMFLOAT4X4 transpose;
-
-	// 行列を転置して定数バッファ格納用行列に変換
-	XMStoreFloat4x4(&transpose, XMMatrixTranspose(matrix));
-
-	// 定数バッファに行列をセット
-	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer1, 0, nullptr, &transpose, 0, 0);
-}
-
-void ShaderBillboard_SetProjectionMatrix(const DirectX::XMMATRIX& matrix)
-{
-	// 定数バッファ格納用行列の構造体を定義
-	XMFLOAT4X4 transpose;
-
-	// 行列を転置して定数バッファ格納用行列に変換
-	XMStoreFloat4x4(&transpose, XMMatrixTranspose(matrix));
-
-	// 定数バッファに行列をセット
-	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer2, 0, nullptr, &transpose, 0, 0);
 }
 
 void ShaderBillboard_SetColor(const DirectX::XMFLOAT4& color)
@@ -195,8 +166,6 @@ void ShaderBillboard_Begin()
 
 	// 定数バッファを描画パイプラインに設定
 	Direct3D_GetContext()->VSSetConstantBuffers(0, 1, &g_pVSConstantBuffer0);
-	Direct3D_GetContext()->VSSetConstantBuffers(1, 1, &g_pVSConstantBuffer1);
-	Direct3D_GetContext()->VSSetConstantBuffers(2, 1, &g_pVSConstantBuffer2);
 	Direct3D_GetContext()->VSSetConstantBuffers(3, 1, &g_pVSConstantBuffer3);
 	Direct3D_GetContext()->PSSetConstantBuffers(0, 1, &g_pPSConstantBuffer0);
 }

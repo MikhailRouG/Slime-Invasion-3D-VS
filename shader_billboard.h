@@ -1,7 +1,7 @@
 /*==============================================================================
 
    ビルボードシェーダー [shader_billboard.h]
-														 Author :
+														 Author : Harada Ren
 														 Date   : 2025/11/14
 --------------------------------------------------------------------------------
 
@@ -16,8 +16,6 @@ bool ShaderBillboard_Initialize();
 void ShaderBillboard_Finalize();
 
 void ShaderBillboard_SetWorldMatrix(const DirectX::XMMATRIX& matrix);
-void ShaderBillboard_SetViewMatrix(const DirectX::XMMATRIX& matrix);
-void ShaderBillboard_SetProjectionMatrix(const DirectX::XMMATRIX& matrix);
 
 void ShaderBillboard_SetColor(const DirectX::XMFLOAT4& color);
 

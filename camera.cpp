@@ -10,7 +10,6 @@
 #include "direct3d.h"
 #include <DirectXMath.h>
 using namespace DirectX;
-#include "shader3d.h"
 #include "key_logger.h"
 #include "debug_text.h"
 #include <sstream>
@@ -24,8 +23,8 @@ static XMFLOAT3 g_CameraVecUp = { 0.0f,1.0f,0.0f };
 
 static constexpr float CAMERA_MOVE_SPEED = 10.0f;
 static constexpr float CAMERA_ROTATION_SPEED = XMConvertToRadians(60.0f);
-static XMFLOAT4X4 g_CameraMatrix{};
-static XMFLOAT4X4 g_PerspectiveMatrix{};
+static XMFLOAT4X4 g_CameraViewMatrix{};
+static XMFLOAT4X4 g_CameraPerspectiveMatrix{};
 static float g_Fov = XMConvertToRadians(60.0f);
 
 static hal::DebugText* g_pDT = nullptr;
@@ -45,8 +44,8 @@ void Camera_Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT
 	XMStoreFloat3(&g_CameraVecRight, r);
 	XMStoreFloat3(&g_CameraVecUp, u);
 
-	XMStoreFloat4x4(&g_CameraMatrix, XMMatrixIdentity());
-	XMStoreFloat4x4(&g_PerspectiveMatrix, XMMatrixIdentity());
+	XMStoreFloat4x4(&g_CameraViewMatrix, XMMatrixIdentity());
+	XMStoreFloat4x4(&g_CameraPerspectiveMatrix, XMMatrixIdentity());
 
 	// 頂点シェーダー用定数バッファの作成
 	D3D11_BUFFER_DESC buffer_desc{};
@@ -63,8 +62,8 @@ void Camera_Initialize(){
 	g_CameraVecUp = { 0.0f,1.0f,0.0f };
 	g_Fov = XMConvertToRadians(60.0f);
 
-	XMStoreFloat4x4(&g_CameraMatrix, XMMatrixIdentity());
-	XMStoreFloat4x4(&g_PerspectiveMatrix, XMMatrixIdentity());
+	XMStoreFloat4x4(&g_CameraViewMatrix, XMMatrixIdentity());
+	XMStoreFloat4x4(&g_CameraPerspectiveMatrix, XMMatrixIdentity());
 
 #if defined(DEBUG)||defined(_DEBUG)
 	g_pDT = new hal::DebugText(Direct3D_GetDevice(), Direct3D_GetContext(),
@@ -170,10 +169,8 @@ void Camera_Update(double elapsed_time){
 	//(カメラの座標、注視点、固定用の真上方向) LH...LeftHand
 	XMMATRIX mtxView = XMMatrixLookAtLH(position, position+front, up );
 
-	XMStoreFloat4x4(&g_CameraMatrix, mtxView);
-	//頂点シェーダーにビュー変換行列を設定
-	Shader3d_SetViewMatrix(mtxView);
-
+	//ビュー変換行列を保存
+	XMStoreFloat4x4(&g_CameraViewMatrix, mtxView);
 
 	// 頂点シェーダーに変換行列を設定
 	// パースペクティブ行列の作成
@@ -184,17 +181,16 @@ void Camera_Update(double elapsed_time){
 	float farz = 100.0f;
 	XMMATRIX mtxPerspective = XMMatrixPerspectiveFovLH(g_Fov, aspextRatio, nearz, farz);
 
-	XMStoreFloat4x4(&g_PerspectiveMatrix, mtxPerspective);
-	//頂点シェーダーにプロジェクション変換行列を設定
-	Shader3d_SetProjectionMatrix(mtxPerspective);
+	//パースペクティブ行列を保存
+	XMStoreFloat4x4(&g_CameraPerspectiveMatrix, mtxPerspective);
 }
 
-const DirectX::XMFLOAT4X4& Camera_GetMatrix(){
-	return g_CameraMatrix;
+const DirectX::XMFLOAT4X4& Camera_GetViewMatrix(){
+	return g_CameraViewMatrix;
 }
 
 const DirectX::XMFLOAT4X4& Camera_GetPerspectiveMatrix(){
-	return g_PerspectiveMatrix;
+	return g_CameraPerspectiveMatrix;
 }
 
 const DirectX::XMFLOAT3& Camera_GetPosition(){
@@ -206,13 +202,18 @@ const DirectX::XMFLOAT3& Camera_GetFront(){
 }
 
 float Camera_GetFov(){
-	return 0.0f;
+	return g_Fov;
 }
 
 void Camera_SetMatrix(const DirectX::XMMATRIX& view, const DirectX::XMMATRIX& projection){
 	// 定数バッファにビュー変換行列とプロジェクション変換行列を設定
-	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer1, 0, nullptr, &view, 0, 0);
-	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer2, 0, nullptr, &projection, 0, 0);
+	XMFLOAT4X4 v, p{};
+	// 行列を転置して定数バッファ格納用行列に変換
+	XMStoreFloat4x4(&v, XMMatrixTranspose(view));
+	XMStoreFloat4x4(&p, XMMatrixTranspose(projection));;
+
+	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer1, 0, nullptr, &v, 0, 0);
+	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer2, 0, nullptr, &p, 0, 0);
 	Direct3D_GetContext()->VSSetConstantBuffers(1, 1, &g_pVSConstantBuffer1);
 	Direct3D_GetContext()->VSSetConstantBuffers(2, 1, &g_pVSConstantBuffer2);
 }
