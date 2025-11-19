@@ -24,5 +24,6 @@ void Bullet_Destroy(int index);
 int Bullet_GetCount();
 
 AABB Bullet_GetAABB(int index);
+const DirectX::XMFLOAT3& Bullet_GetPosition(int index);
 
 #endif //BULLET_H

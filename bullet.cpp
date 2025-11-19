@@ -109,3 +109,7 @@ int Bullet_GetCount(){
 AABB Bullet_GetAABB(int index){
 	return Model_GetAABB(g_pBulletModel, g_pBullets[index]->GetPosition());
 }
+
+const DirectX::XMFLOAT3& Bullet_GetPosition(int index){
+	return  g_pBullets[index]->GetPosition();
+}
