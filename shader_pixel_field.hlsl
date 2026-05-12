@@ -1,13 +1,4 @@
-/*==============================================================================
 
-   ƒtƒB[ƒ‹ƒh•`‰æ—pƒsƒNƒZƒ‹ƒVƒF[ƒ_[ [shader_pixel_field.hlsl]
-														 Author : Harada Ren
-														 Date   : 2025/09/26
---------------------------------------------------------------------------------
-
-==============================================================================*/
-
-//’è”ƒoƒbƒtƒ@
 cbuffer PS_CONSTANT_BUFFER : register(b0)
 {
     float4 diffuse_color;
@@ -41,68 +32,69 @@ cbuffer PS_CONSTANT_BUFFER : register(b4)
 {
     PointLight point_light[4];
     int point_light_count;
-    float3 point_light_dummy; //float4‚Â•ª‚¸‚Â‘—‚é‚½‚ß‚Ìdummy
+    float3 point_light_dummy; //float4â€šĞ’â€¢Ğ„â€šÑ‘â€šĞ’â€˜â€”â€šĞ¹â€šĞ…â€šĞ¯â€šĞœdummy
 };
 
 
 struct PS_IN{
     float4 posH : SV_POSITION;
     float4 posW : POSITION0;
+    float4 posLightWVP : POSITION1;
     float4 normalW : NORMAL0;
     float4 blend : COLOR0;
     float2 texcoord : TEXCOORD0;
 };
 
-//”z—ñ‚Å‚à‚¢‚¢
-Texture2D tex0 : register(t0); //ƒeƒNƒXƒ`ƒƒ
-Texture2D tex1 : register(t1); //ƒeƒNƒXƒ`ƒƒ
-
-SamplerState samp; //ƒeƒNƒXƒ`ƒƒƒTƒ“ƒvƒ‰
+//â€zâ€”Ñâ€šĞ•â€šĞ°â€šÑâ€šÑ
+Texture2D tex0 : register(t0); //Ñ“eÑ“NÑ“XÑ“`Ñ“Ñ“
+Texture2D tex1 : register(t1); //Ñ“eÑ“NÑ“XÑ“`Ñ“Ñ“
+Texture2D tex2 : register(t2);
+SamplerState samp; //Ñ“eÑ“NÑ“XÑ“`Ñ“Ñ“Ñ“TÑ“â€œÑ“vÑ“â€°
 
 float4 main(PS_IN pi) : SV_TARGET{
-    //uv‚ğ‰ÁH‚µ‚ÄƒeƒNƒXƒ`ƒƒ‚ğ‰ñ“]‚·‚é
+    //uvâ€šÑ€â€°Ğ‘ĞŒHâ€šÂµâ€šĞ”Ñ“eÑ“NÑ“XÑ“`Ñ“Ñ“â€šÑ€â€°Ñâ€œ]â€šÂ·â€šĞ¹
     //float2 uv = pi.texcoord * 0.5f;
     float2 uv;
     float angle = 3.14159f / 180 * 45;
     uv.x = cos(angle) * pi.texcoord.x + sin(angle) * pi.texcoord.y;
     uv.y = cos(angle) * pi.texcoord.y - sin(angle) * pi.texcoord.x;
     
-    //2–‡‚ÌƒeƒNƒXƒ`ƒƒ‚ğƒuƒŒƒ“ƒhƒpƒ‰ƒ[ƒ^‚ğŠî‚ÉƒuƒŒƒ“ƒh‚·‚é
-    //‘å‚«‚ÈƒeƒNƒXƒ`ƒƒ‚Æ¬‚³‚ÈƒeƒNƒXƒ`ƒƒ‚ğd‚Ë‚é‚±‚Æ‚ÅŒJ‚è•Ô‚µŠ´‚ğ‚È‚­‚·
+    //2â€“â€¡â€šĞœÑ“eÑ“NÑ“XÑ“`Ñ“Ñ“â€šÑ€Ñ“uÑ“ĞŠÑ“â€œÑ“hÑ“pÑ“â€°Ñ“ĞƒĞƒ[Ñ“^â€šÑ€Ğ‰Ğ¾â€šĞ™Ñ“uÑ“ĞŠÑ“â€œÑ“hâ€šÂ·â€šĞ¹
+    //â€˜Ğµâ€šÂ«â€šĞ˜Ñ“eÑ“NÑ“XÑ“`Ñ“Ñ“â€šĞ–ĞÂ¬â€šÑ–â€šĞ˜Ñ“eÑ“NÑ“XÑ“`Ñ“Ñ“â€šÑ€Ğdâ€šĞ›â€šĞ¹â€šÂ±â€šĞ–â€šĞ•ĞŠJâ€šĞ¸â€¢Ğ¤â€šÂµĞ‰Ò‘â€šÑ€â€šĞ˜â€šÂ­â€šÂ·
     float4 tex_color = tex0.Sample(samp, pi.texcoord) * pi.blend.g + tex1.Sample(samp, pi.texcoord) * pi.blend.r;
  
-    //Ş¿‚ÌF
+    //ĞŒĞ®Ğ‹Ñ—â€šĞœÑ’F
     float3 material_color = tex_color.rgb * diffuse_color.rgb;
     
-    //•ÀsŒõŒ¹(ƒfƒBƒtƒ…[ƒYƒ‰ƒCƒg)
+    //â€¢ĞĞŒsĞŠÑ…ĞŠâ„–(Ñ“fÑ“BÑ“tÑ“â€¦Ğƒ[Ñ“YÑ“â€°Ñ“CÑ“g)
     float4 normalW = normalize(pi.normalW);
-    //float dl = max(0.0f, dot(-directional_world_vector, normalW)); //“àÏA0~1
+    //float dl = max(0.0f, dot(-directional_world_vector, normalW)); //â€œĞ°Ñ’ĞŸĞƒA0~1
     float dl = (dot(-directional_world_vector, normalW) + 1.0f) * 0.5f;
     float3 diffuse = material_color * directional_color.rgb * dl;
     
-    //ŠÂ‹«Œõ(ƒAƒ“ƒrƒGƒ“ƒgƒJƒ‰[(ƒ‰ƒCƒg))
+    //Ğ‰Ğ’â€¹Â«ĞŠÑ…(Ñ“AÑ“â€œÑ“rÑ“GÑ“â€œÑ“gÑ“JÑ“â€°Ğƒ[(Ñ“â€°Ñ“CÑ“g))
     float3 ambient = material_color * ambient_color.rgb;
     
-    //ƒXƒyƒLƒ…ƒ‰
+    //Ñ“XÑ“yÑ“LÑ“â€¦Ñ“â€°
     float3 toEye = normalize(eye_posW - pi.posW.xyz);
     float3 r = reflect(normalize(directional_world_vector), normalW).xyz;
     float t = pow(max(dot(r, toEye), 0.0f), specular_power);
     float3 specular = specular_color * t;
+
+    //ĞŒĞ•ĞIÑ“JÑ“â€°Ğƒ[
+    //float alpha = tex.Sample(samp, pi.texcoord).a * diffuse_color.a; //â€œÂ§â€“Ñ•â€šĞ˜â€™nâ€“Ğšâ€šÑ€Ğ‹gâ€šÂ¤â€šĞ˜â€šĞ·
+    float3 color = ambient + diffuse + specular; //ĞŒĞ•ĞIâ€œIâ€šĞ™â€°Ğ´ĞƒXâ€šĞœâ€“Ğªâ€šĞ™â€œĞâ€šÂ­Ñ’F
     
-    //ÅIƒJƒ‰[
-    //float alpha = tex.Sample(samp, pi.texcoord).a * diffuse_color.a; //“§–¾‚È’n–Ê‚ğg‚¤‚È‚ç
-    float3 color = ambient + diffuse + specular; //ÅI“I‚É‰äX‚Ì–Ú‚É“Í‚­F
-    
-     //“_ŒõŒ¹(ƒ|ƒCƒ“ƒgƒ‰ƒCƒg)
+     //â€œ_ĞŠÑ…ĞŠâ„–(Ñ“|Ñ“CÑ“â€œÑ“gÑ“â€°Ñ“CÑ“g)
     for (int i = 0; i < point_light_count; i++)
     {
        
-        //“_ŒõŒ¹‚©‚ç–Ê(ƒsƒNƒZƒ‹)‚Ö‚ÌƒxƒNƒgƒ‹Zo
+        //â€œ_ĞŠÑ…ĞŠâ„–â€šÂ©â€šĞ·â€“Ğš(Ñ“sÑ“NÑ“ZÑ“â€¹)â€šĞ¦â€šĞœÑ“xÑ“NÑ“gÑ“â€¹Ğ‹ZĞo
         float3 lightToPixel = pi.posW.xyz - point_light[i].posW;
-        //–Ê(ƒsƒNƒZƒ‹)‚Æƒ‰ƒCƒg‚Æ‚Ì‹——£‚ğ‘ª‚é
+        //â€“Ğš(Ñ“sÑ“NÑ“ZÑ“â€¹)â€šĞ–Ñ“â€°Ñ“CÑ“gâ€šĞ–â€šĞœâ€¹â€”â€”Ğˆâ€šÑ€â€˜Ğ„â€šĞ¹
         float D = length(lightToPixel);
     
-        //‰e‹¿—Í‚ÌŒvZ
+        //â€°eâ€¹Ñ—â€”Ğâ€šĞœĞŠvĞ‹Z
         float A = pow(max(1.0f - 1.0f / point_light[i].range * D, 0.0f), 2.0f);
         // range = 400 length=0,    A*A=1;
         //                   =100,  A*A=0.75
@@ -110,23 +102,35 @@ float4 main(PS_IN pi) : SV_TARGET{
         //                   =300,  A*A=0.25
         //                   =400,  A*A=0;
         
-        //“_ŒõŒ¹‚Æ–Ê(ƒsƒNƒZƒ‹)‚Æ‚ÌŒü‚«‚ğl—¶‚É“ü‚ê‚é
-        float dl = max(0.0f, dot(-normalize(lightToPixel), normalW.xyz)); //“àÏA0~1
+        //â€œ_ĞŠÑ…ĞŠâ„–â€šĞ–â€“Ğš(Ñ“sÑ“NÑ“ZÑ“â€¹)â€šĞ–â€šĞœĞŠÑŒâ€šÂ«â€šÑ€ĞŒlâ€”Â¶â€šĞ™â€œÑŒâ€šĞºâ€šĞ¹
+        float dl = max(0.0f, dot(-normalize(lightToPixel), normalW.xyz)); //â€œĞ°Ñ’ĞŸĞƒA0~1
         //float dl = (dot(-directional_world_vector, normalW) + 1.0f) * 0.5f;
         
-        //“_ŒõŒ¹‚Ì‰e‹¿‚ğ‰ÁZ
+        //â€œ_ĞŠÑ…ĞŠâ„–â€šĞœâ€°eâ€¹Ñ—â€šÑ€â€°Ğ‘Ğ‹Z
         color += material_color * point_light[i].color.rgb * A * dl;
         
-        //“_ŒõŒ¹‚ÌƒXƒyƒLƒ…ƒ‰
+        //â€œ_ĞŠÑ…ĞŠâ„–â€šĞœÑ“XÑ“yÑ“LÑ“â€¦Ñ“â€°
         float3 r = reflect(normalize(lightToPixel), normalW.xyz).xyz;
         float t = pow(max(dot(r, toEye), 0.0f), specular_power);
         float3 point_light_specular = point_light[i].color.rgb * t;
 
-        //“_ŒõŒ¹‚ÌƒXƒyƒLƒ…ƒ‰‚ğ‰ÁZ
+        //â€œ_ĞŠÑ…ĞŠâ„–â€šĞœÑ“XÑ“yÑ“LÑ“â€¦Ñ“â€°â€šÑ€â€°Ğ‘Ğ‹Z
         color += point_light_specular;
     }
-    
+    float2 shadowmap_uv = pi.posLightWVP.xy / pi.posLightWVP.w;
+    shadowmap_uv = shadowmap_uv * float2(0.5f, -0.5f) + 0.5f;
+
+    float depthmap_z = tex2.Sample(samp, shadowmap_uv).r;
+
+    float shadowmap_z = pi.posLightWVP.z / pi.posLightWVP.w;
+
+    if (shadowmap_z > depthmap_z + 0.001f)
+    {
+        color *= 0.5f;
+    }
+
     return float4(color, 1.0f);
-    //return tex0.Sample(samp, pi.texcoord) * 0.5f + tex1.Sample(samp, uv) * 0.5f; //* pi.color; //uv‚ÌÀ•W‚ÌƒTƒ“ƒvƒ‰[‚ÌƒeƒNƒXƒ`ƒƒ‚ÌF‚ğ•Ô‚·
+
+    //return tex0.Sample(samp, pi.texcoord) * 0.5f + tex1.Sample(samp, uv) * 0.5f; //* pi.color; //uvâ€šĞœĞŒĞâ€¢Wâ€šĞœÑ“TÑ“â€œÑ“vÑ“â€°Ğƒ[â€šĞœÑ“eÑ“NÑ“XÑ“`Ñ“Ñ“â€šĞœÑ’Fâ€šÑ€â€¢Ğ¤â€šÂ·
 
 }

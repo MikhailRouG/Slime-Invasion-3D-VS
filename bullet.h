@@ -1,11 +1,3 @@
-/*==============================================================================
-
-   íeä€ÇÃä«óù [bullet.h]
-														 Author : Harada Ren
-														 Date   : 2025/11/12
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #ifndef BULLET_H
 #define BULLET_H
 
@@ -24,6 +16,7 @@ void Bullet_Destroy(int index);
 int Bullet_GetCount();
 
 AABB Bullet_GetAABB(int index);
+Sphere Bullet_GetSphere(int index);
 const DirectX::XMFLOAT3& Bullet_GetPosition(int index);
 
 #endif //BULLET_H

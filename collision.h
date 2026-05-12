@@ -1,27 +1,24 @@
-/*==============================================================================
-
-   コリジョン判定 [collision.h]
-														 Author : Harada Ren
-														 Date   : 2025/07/03
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #ifndef COLLISION_H
 #define COLLISION_H
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 
+struct Sphere {
+	DirectX::XMFLOAT3 center;
+	float radius;
+};
+
 
 struct Circle {
-	DirectX::XMFLOAT2 center; //中心座標
-	float radius; //半径
+	DirectX::XMFLOAT2 center; 
+	float radius;
 };
 
 struct Box {
-	DirectX::XMFLOAT2 center; //中心座標
-	float half_width; //半分の幅
-	float half_height; //半分の高さ
+	DirectX::XMFLOAT2 center;
+	float half_width; 
+	float half_height;
 };
 
 struct AABB {
@@ -29,11 +26,22 @@ struct AABB {
 	DirectX::XMFLOAT3 max;
 
 	DirectX::XMFLOAT3 GetCenter() const {
-		DirectX::XMFLOAT3 center;
-		center.x = min.x + (max.x - min.x) * 0.5f;
-		center.y = min.y + (max.y - min.y) * 0.5f;
-		center.z = min.z + (max.z - min.z) * 0.5f;
-		return center;
+		return {
+			(min.x + max.x) * 0.5f,
+			(min.y + max.y) * 0.5f,
+			(min.z + max.z) * 0.5f
+		};
+	}
+	DirectX::XMFLOAT3 GetHalf() const {
+		DirectX::XMFLOAT3 half;
+		if (this == nullptr) {
+			return half;
+		}
+
+		half.x = (max.x - min.x) *0.5f;
+		half.y = (max.y - min.y) * 0.5f;
+		half.z = (max.z - min.z) * 0.5f;
+		return half;
 	}
 };
 
@@ -43,30 +51,24 @@ struct Hit {
 };
 
 struct OBB {
-	DirectX::XMFLOAT2 center; //中心座標
-	DirectX::XMFLOAT2 half_extent; //各軸方向の半分の長さ
-	DirectX::XMFLOAT2 axis[2]; //回転を表す2つの軸ベクトル
+	DirectX::XMFLOAT2 center;
+	DirectX::XMFLOAT2 half_extent; 
+	DirectX::XMFLOAT2 axis[2]; 
 };
-
-//円どうしの当たり判定
+bool Collision_IsOverlapSphere(const Sphere& a, const Sphere& b);
+bool Collision_SphereContact(const Sphere& a, const Sphere& b, DirectX::XMFLOAT3& outPoint, DirectX::XMFLOAT3& outNormal, float& outPenetration);
+bool Collision_IsOverlapSphere(const Sphere& a, const DirectX::XMFLOAT3& point);
 bool Collision_IsOverlapCircle(const Circle& a, const Circle& b);
-//四角どうしの当たり判定
 bool Collision_IsOverlapBox(const Box& a, const Box& b);
-//円と四角のあたり判定
 bool Collision_IsOverlapCircleVSBox(const Box& box, const Circle& circle);
-// OBBと円の当たり判定
 bool Collision_IsOverlapOBBVSCircle(const OBB& obb, const Circle& circle);
-//OBBと四角の当たり判定
 bool Collision_IsOverlapOBBVSBox(const OBB& obb, const Box& box);
-//OBBどうしの当たり判定
 bool Collision_IsOverlapOBB(const OBB& a, const OBB& b);
 
-//分離軸の定理で使用する
 static void ProjectOBB(float* min, float* max, const OBB& obb, const DirectX::XMFLOAT2& axis);
 
 bool Collision_IsOverlapAABB(const AABB& a, const AABB& b);
 
-//aのどの面にbが衝突したか
 Hit Collision_IsHitAABB(const AABB& a, const AABB& b);
 
 void Collision_DebugInitialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

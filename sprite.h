@@ -1,12 +1,3 @@
-/*====================================================================================
-
-スプライト表示(動くポリゴン)[sprite.h]
-
-																Author	: Harada Ren
-																Date	: 2025/06/06
---------------------------------------------------------------------------------------
-
-======================================================================================*/
 #ifndef SPRITE_H
 #define SPRITE_H
 
@@ -38,4 +29,5 @@ void Sprite_Draw(int texid, float dx, float dy, float dw, float dh, int px, int 
 //UVカット(表示サイズ変更)・回転
 void Sprite_Draw(int texid, float dx, float dy, float dw, float dh, int px, int py, int pw, int ph, float angle, const DirectX::XMFLOAT4& color = { 1.0f,1.0f,1.0f,1.0f });
 
+void Sprite_Draw(float dx, float dy, float dw, float dh, const DirectX::XMFLOAT4& color = { 1.0f,1.0f,1.0f,1.0f });
 #endif //SPRETE_H

@@ -1,15 +1,7 @@
-/*==============================================================================
-
-   íeä€ÇÃä«óù [bullet.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/11/12
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "bullet.h"
 using namespace DirectX;
 #include "model.h"
-
+#include "trajectory3d.h"
 class Bullet {
 private:
 	XMFLOAT3 m_position{};
@@ -24,6 +16,7 @@ public:
 	void Update(double elapsed_time) {
 		m_accumulated_time += elapsed_time;
 		XMStoreFloat3(&m_position, XMLoadFloat3(&m_position) + XMLoadFloat3(&m_velocity) * (float)elapsed_time);
+		Trajectory3d_Create(m_position, { 0.8f,0.1f,0.1f,1.0f }, 1.0f, 1.0f);
 	}
 
 	const XMFLOAT3& GetPosition() const {
@@ -80,7 +73,6 @@ void Bullet_Update(double elapsed_time){
 
 void Bullet_Draw(){
 	XMMATRIX mtxWorld;
-	//ÉâÉCÉgê›íË
 	for (int i = 0;i < g_BulletsCount;i++) {
 		XMVECTOR position = XMLoadFloat3(&g_pBullets[i]->GetPosition());
 		mtxWorld = XMMatrixTranslationFromVector(position);
@@ -108,6 +100,11 @@ int Bullet_GetCount(){
 
 AABB Bullet_GetAABB(int index){
 	return Model_GetAABB(g_pBulletModel, g_pBullets[index]->GetPosition());
+}
+
+Sphere Bullet_GetSphere(int index)
+{
+	return {g_pBullets[index]->GetPosition(),g_pBulletModel->local_aabb.GetHalf().x};
 }
 
 const DirectX::XMFLOAT3& Bullet_GetPosition(int index){

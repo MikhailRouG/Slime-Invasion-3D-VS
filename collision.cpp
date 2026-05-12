@@ -1,11 +1,3 @@
-/*==============================================================================
-
-   コリジョン判定 [collision.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/07/03
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "collision.h"
 #include "direct3d.h"
 #include "texture.h"
@@ -36,7 +28,45 @@ struct Vertex
 
 	XMFLOAT2 texcoord;//テクスチャ座標(UV)
 };
+bool Collision_IsOverlapSphere(const Sphere& a, const Sphere& b)
+{
+	XMVECTOR ac = XMLoadFloat3(&a.center);
+	XMVECTOR bc = XMLoadFloat3(&b.center);
+	XMVECTOR lsq = XMVector3LengthSq(bc - ac);
 
+	return (a.radius + b.radius) * (a.radius + b.radius) > XMVectorGetX(lsq);
+}
+
+bool Collision_SphereContact(const Sphere& a, const Sphere& b, DirectX::XMFLOAT3& outPoint, DirectX::XMFLOAT3& outNormal, float& outPenetration)
+{
+	XMVECTOR ac = XMLoadFloat3(&a.center);
+	XMVECTOR bc = XMLoadFloat3(&b.center);
+
+	XMVECTOR d = bc - ac;
+	float dist = XMVectorGetX(XMVector3Length(d));
+	float r = a.radius + b.radius;
+
+	if (dist >= r) return false;
+
+	XMVECTOR n = XMVector3Normalize(d);
+
+	XMVECTOR p = ac + n * a.radius;
+
+	XMStoreFloat3(&outPoint, p);
+	XMStoreFloat3(&outNormal, n);
+	outPenetration = r - dist;
+
+	return true;
+}
+
+bool Collision_IsOverlapSphere(const Sphere& a, const DirectX::XMFLOAT3& point)
+{
+	XMVECTOR ac = XMLoadFloat3(&a.center);
+	XMVECTOR bc = XMLoadFloat3(&point);
+	XMVECTOR lsq = XMVector3LengthSq(bc - ac);
+
+	return a.radius *a.radius > XMVectorGetX(lsq);
+}
 
 //円の当たり判定
 bool Collision_IsOverlapCircle(const Circle& a, const Circle& b){
@@ -64,16 +94,12 @@ bool Collision_IsOverlapBox(const Box& a, const Box& b){
 }
 
 bool Collision_IsOverlapCircleVSBox(const Box& box, const Circle& circle){
-	// 1. 円の中心に最も近い、四角形上の点を求める
 	float closest_x = std::max(box.center.x - box.half_width, std::min(circle.center.x, box.center.x + box.half_width));
 	float closest_y = std::max(box.center.y - box.half_height, std::min(circle.center.y, box.center.y + box.half_height));
 
-	// 2. 「最も近い点」と「円の中心」との距離を計算
 	float distance_x = circle.center.x - closest_x;
 	float distance_y = circle.center.y - closest_y;
-	float distance_sq = (distance_x * distance_x) + (distance_y * distance_y); // 距離の2乗
-
-	// 3. 距離の2乗が、円の半径の2乗より小さければ衝突している
+	float distance_sq = (distance_x * distance_x) + (distance_y * distance_y); 
 	return distance_sq < (circle.radius * circle.radius);
 }
 
@@ -82,49 +108,38 @@ bool Collision_IsOverlapOBBVSCircle(const OBB& obb, const Circle& circle)
 	// 円の中心をOBBのローカル座標系に変換する
 	XMVECTOR obb_center = XMLoadFloat2(&obb.center);
 	XMVECTOR circle_center = XMLoadFloat2(&circle.center);
-	XMVECTOR vec_to_circle = circle_center - obb_center; // OBBの中心から円の中心へのベクトル
+	XMVECTOR vec_to_circle = circle_center - obb_center;
 
 	XMVECTOR obb_axis0 = XMLoadFloat2(&obb.axis[0]);
 	XMVECTOR obb_axis1 = XMLoadFloat2(&obb.axis[1]);
 
-	// ドット積を使って、OBBのローカル座標系での円の中心座標を計算
 	XMFLOAT2 circle_center_local{};
 	circle_center_local.x = XMVectorGetX(XMVector2Dot(vec_to_circle, obb_axis0));
 	circle_center_local.y = XMVectorGetY(XMVector2Dot(vec_to_circle, obb_axis1));
 
 
-	// OBBの辺上で、円の中心に最も近い点を求める
-	// ローカル座標系ではOBBは原点中心のAABBとして扱える
 	float closest_x = std::max(-obb.half_extent.x, std::min(circle_center_local.x, obb.half_extent.x));
 	float closest_y = std::max(-obb.half_extent.y, std::min(circle_center_local.y, obb.half_extent.y));
 
 
-	//「最も近い点」と「円の中心」との距離を計算
 	float distance_x = circle_center_local.x - closest_x;
 	float distance_y = circle_center_local.y - closest_y;
-	float distance_sq = (distance_x * distance_x) + (distance_y * distance_y); // 距離の2乗
+	float distance_sq = (distance_x * distance_x) + (distance_y * distance_y);
 
-
-	// 距離の2乗が、円の半径の2乗より小さければ衝突している
 	return distance_sq < (circle.radius * circle.radius);
 }
 
 bool Collision_IsOverlapOBBVSBox(const OBB& obb, const Box& box){
-	//BoxをOBBとみなしてOBBどうしの当たり判定を見る
-	//BoxをOBBに変換する
 	OBB box_as_obb{};
 	box_as_obb.center = box.center;
 	box_as_obb.half_extent = { box.half_width, box.half_height };
-	//回転していないので、軸ベクトルは標準の(1,0)と(0,1)
 	box_as_obb.axis[0] = { 1.0f, 0.0f };
 	box_as_obb.axis[1] = { 0.0f, 1.0f };
 
-	//OBB vs OBB の当たり判定関数を呼び出して、その結果を返す
 	return Collision_IsOverlapOBB(obb, box_as_obb);
 }
 
 bool Collision_IsOverlapOBB(const OBB& a, const OBB& b){
-	//チェックする必要がある4つの軸（お互いのX軸とY軸）
 	DirectX::XMFLOAT2 axes[4] = {
 		a.axis[0], a.axis[1],
 		b.axis[0], b.axis[1]
@@ -132,31 +147,21 @@ bool Collision_IsOverlapOBB(const OBB& a, const OBB& b){
 
 	for (int i = 0; i < 4; ++i) {
 		float a_min, a_max, b_min, b_max;
-		//各軸に対して、それぞれのOBBの影の範囲を計算
 		ProjectOBB(&a_min, &a_max, a, axes[i]);
 		ProjectOBB(&b_min, &b_max, b, axes[i]);
 
-		//影が完全に離れている（重なっていない）軸が一つでも見つかれば
 		if (a_max < b_min || b_max < a_min) {
-			//その時点で「衝突していない」ことが確定するので、falseを返して処理を終了
 			return false;
 		}
 	}
 
-	// 4つの軸すべてで影が重なっていた場合、「衝突している」と判断
 	return true;
 }
 
 static void ProjectOBB(float* min, float* max, const OBB& obb, const DirectX::XMFLOAT2& axis){
-	//OBBの中心点を軸に射影する
 	float p = obb.center.x * axis.x + obb.center.y * axis.y;
-
-	//OBBの2つの軸ベクトルを、判定軸にそれぞれ射影し、半分の長さを掛ける
-	//これにより、中心点から影の端までの最大距離がわかる
 	float r = obb.half_extent.x * (float)fabs(obb.axis[0].x * axis.x + obb.axis[0].y * axis.y) +
 		obb.half_extent.y * (float)fabs(obb.axis[1].x * axis.x + obb.axis[1].y * axis.y);
-
-	//中心の射影から、影の端までの距離を足し引きして、影の最小値と最大値を求める
 	*min = p - r;
 	*max = p + r;
 }
@@ -174,22 +179,18 @@ bool Collision_IsOverlapAABB(const AABB& a, const AABB& b) {
 Hit Collision_IsHitAABB(const AABB& a, const AABB& b){
 	Hit hit;
 
-	//重なったか
 	hit.isHit = Collision_IsOverlapAABB(a,b);
 
-	//当たっていなかった
 	if (!hit.isHit) return hit;
 
-	//各軸の深度を調べる
 	float xdepth = std::min(a.max.x, b.max.x) - std::max(a.min.x, b.min.x);
 	float ydepth = std::min(a.max.y, b.max.y) - std::max(a.min.y, b.min.y);
 	float zdepth = std::min(a.max.z, b.max.z) - std::max(a.min.z, b.min.z);
 
-	bool isShallowX = false;//xの軸
-	bool isShallowY = false;//yの軸
-	bool isShallowZ = false;//zの軸
+	bool isShallowX = false;
+	bool isShallowY = false;
+	bool isShallowZ = false;
 
-	//最も深度が浅い軸はどれか
 	if (xdepth > ydepth) {
 		if (zdepth > ydepth) {
 			isShallowY = true;
@@ -207,31 +208,27 @@ Hit Collision_IsHitAABB(const AABB& a, const AABB& b){
 		}
 	}
 
-	//+or-どっちから当たったか
 	XMFLOAT3 a_center = a.GetCenter();
 	XMFLOAT3 b_center = b.GetCenter();
-	XMVECTOR normal = XMLoadFloat3(&b_center) - XMLoadFloat3(&a_center);
+
+	hit.normal = { 0,0,0 };
+
 	if (isShallowX) {
-		normal = XMVector3Normalize(normal* XMVECTOR{ 1.0f,0.0f,0.0f });
+		hit.normal.x = (b_center.x > a_center.x) ? 1.0f : -1.0f;
 	}
 	else if (isShallowY) {
-		normal = XMVector3Normalize(normal * XMVECTOR{ 0.0f,1.0f,0.0f });
+		hit.normal.y = (b_center.y > a_center.y) ? 1.0f : -1.0f;
 	}
-	else if (isShallowZ) {
-		normal = XMVector3Normalize(normal * XMVECTOR{ 0.0f,0.0f,1.0f });
+	else {
+		hit.normal.z = (b_center.z > a_center.z) ? 1.0f : -1.0f;
 	}
-
-	XMStoreFloat3(&hit.normal, normal);
 	return hit;
 }
 
 void Collision_DebugInitialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
-	//デバイスとデバイスコンテキストの保存
 	g_pDevice = pDevice;
 	g_pContext = pContext;
 	
-
-	//頂点バッファ生成
 	D3D11_BUFFER_DESC bd = {};
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.ByteWidth = sizeof(Vertex) * NUM_VERTEX;
@@ -250,21 +247,16 @@ void Collision_DebugFinalize(){
 }
 
 void Collision_DebugDraw(const Circle& circle, const DirectX::XMFLOAT4& color){
-	//点の数を算出
 	int NumVertex = (int)(circle.radius * 2.0f + XM_PI + 1);
 
-	//シェーダーを描画パイプラインに設定
 	Shader2d_Begin();
 
-	//ワールド座標であるboxの中心から、カメラの座標を引いてスクリーン座標に変換
 	float screen_x = circle.center.x;
 	float screen_y = circle.center.y;
 
-	//頂点バッファをロックする
 	D3D11_MAPPED_SUBRESOURCE msr;
 	g_pContext->Map(g_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
 
-	//頂点バッファへの仮想ポインタを取得
 	Vertex* v = (Vertex*)msr.pData;
 
 	const float rad = XM_2PI / NumVertex;
@@ -277,42 +269,31 @@ void Collision_DebugDraw(const Circle& circle, const DirectX::XMFLOAT4& color){
 		v[i].texcoord = { 0.0f,0.0f };
 	}
 
-
-	//頂点バッファのロックを解除
 	g_pContext->Unmap(g_pVertexBuffer, 0);
 
-	//ワールドマトリクスにセット
-	Shader2d_SetWorldMatrix(XMMatrixIdentity()); //単位行列
+	Shader2d_SetWorldMatrix(XMMatrixIdentity()); 
 
-	//頂点バッファを描画パイプラインに設定
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 
-	//プリミティブトポロジ設定
 	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-	//テクスチャセット
 	Texture_SetTexture(g_WhiteTex);
 
-	//ポリゴン描画命令発行
 	g_pContext->Draw(NumVertex, 0);
 
 }
 
 void Collision_DebugDraw(const Box& box, const DirectX::XMFLOAT4& color){
-	//シェーダーを描画パイプラインに設定
 	Shader2d_Begin();
 
-	//ワールド座標であるboxの中心から、カメラの座標を引いてスクリーン座標に変換
 	float screen_x = box.center.x;
 	float screen_y = box.center.y;
 
-	//頂点バッファをロックする
 	D3D11_MAPPED_SUBRESOURCE msr;
 	g_pContext->Map(g_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
 
-	//頂点バッファへの仮想ポインタを取得
 	Vertex* v = (Vertex*)msr.pData;
 
 	v[0].position = { screen_x - box.half_width , screen_y - box.half_height, 0.0f };
@@ -327,19 +308,14 @@ void Collision_DebugDraw(const Box& box, const DirectX::XMFLOAT4& color){
 		v[i].texcoord = { 0.0f,0.0f };
 	}
 
-
-	//頂点バッファのロックを解除
 	g_pContext->Unmap(g_pVertexBuffer, 0);
 
-	//ワールドマトリクスにセット
-	Shader2d_SetWorldMatrix(XMMatrixIdentity()); //単位行列
+	Shader2d_SetWorldMatrix(XMMatrixIdentity());
 
-	//頂点バッファを描画パイプラインに設定
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 
-	//プリミティブトポロジ設定
 	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	//テクスチャセット

@@ -1,11 +1,3 @@
-/*==============================================================================
-
-   メッシュフィールド表示 [meshfield.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/09/19
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "meshfield.h"
 #include "direct3d.h"
 #include "shader_field.h"
@@ -16,9 +8,9 @@ using namespace DirectX;
 #include "cube.h"
 #include "camera.h"
 
-static constexpr float FIELD_SIZE = 1.0f;//メッシュ1枚分のサイズ
-static constexpr int FIELD_H_COUNT = 50; //横のメッシュ数
-static constexpr int FIELD_V_COUNT = 50; //縦のメッシュ数
+static constexpr float FIELD_SIZE = 3.0f;//メッシュ1枚分のサイズ
+static constexpr int FIELD_H_COUNT = 300; //横のメッシュ数
+static constexpr int FIELD_V_COUNT = 300; //縦のメッシュ数
 static constexpr int FIELD_H_VERTEX_COUNT = FIELD_H_COUNT + 1; //横の頂点数
 static constexpr int FIELD_V_VERTEX_COUNT = FIELD_V_COUNT + 1; //縦の頂点数
 
@@ -125,8 +117,8 @@ void Meshfield_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 
 
 
-	g_CubeTexId0 = Texture_Load(L"resource/texture/blockground2.png");
-	g_CubeTexId1 = Texture_Load(L"resource/texture/blockground.png");
+	g_CubeTexId0 = Texture_Load(L"resource/texture/grass.png");
+	g_CubeTexId1 = Texture_Load(L"resource/texture/grass2.png");
 
 	ShaderField_Initialize(pDevice, pContext);
 }

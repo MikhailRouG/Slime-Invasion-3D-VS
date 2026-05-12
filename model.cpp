@@ -1,11 +1,3 @@
-/*==============================================================================
-
-   モデル表示 [model.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/10/20
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include <assert.h>
 #include "direct3d.h"
 #include "texture.h"
@@ -14,6 +6,8 @@
 using namespace DirectX;
 #include "WICTextureLoader11.h"
 #include "shader3d.h"
+#include "shader3d_unlit.h"
+#include "shader_depth.h"
 
 struct Vertex3d {
 	XMFLOAT3 position; // 頂点座標
@@ -60,7 +54,7 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 				vertex[v].texcoord = XMFLOAT2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
 
 				//aabb取得
-				if (v == 0) {
+				if (v == 0 && m ==0) {
 					model->local_aabb.min = vertex[v].position;
 					model->local_aabb.max = vertex[v].position;
 				}
@@ -246,14 +240,117 @@ void ModelRelease(MODEL* model)
 }
 
 void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
-	// シェーダーを描画パイプラインに設定
 	Shader3d_Begin();
 
-	// プリミティブトポロジ設定
 	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//頂点シェーダーにワールド座標変換行列を設定
 	Shader3d_SetWorldMatrix(mtxWorld);
+
+	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++) {
+		aiString texture;
+		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
+		aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
+
+		if (texture.length != 0) {
+			Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
+			Shader3d_SetColor({ 1.0f,1.0f,1.0f, 1.0f });
+		}
+		else {
+			Texture_SetTexture(g_TextureWhite);
+			aiColor3D diffuse;
+			aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+			Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
+		}
+		UINT stride = sizeof(Vertex3d);
+		UINT offset = 0;
+		Direct3D_GetContext()->IASetVertexBuffers(0, 1, &model->VertexBuffer[m], &stride, &offset);
+
+		Direct3D_GetContext()->IASetIndexBuffer(model->IndexBuffer[m], DXGI_FORMAT_R32_UINT, 0);
+
+		Direct3D_GetContext()->DrawIndexed(model->AiScene->mMeshes[m]->mNumFaces * 3, 0, 0);
+	}
+}
+void ModelDraw(MODEL* model, const XMMATRIX& world, const XMFLOAT4& color)
+{
+	Shader3d_Begin();
+	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Shader3d_SetWorldMatrix(world);
+
+	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++)
+	{
+		aiString texture;
+		aiMaterial* aimaterial =
+			model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
+
+		aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
+
+		XMFLOAT4 finalColor = color;
+
+		if (texture.length != 0) {
+			Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
+		}
+		else {
+			Texture_SetTexture(g_TextureWhite);
+			aiColor3D diffuse;
+			aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+			finalColor.x *= diffuse.r;
+			finalColor.y *= diffuse.g;
+			finalColor.z *= diffuse.b;
+		}
+
+		Shader3d_SetColor(finalColor);
+
+		UINT stride = sizeof(Vertex3d);
+		UINT offset = 0;
+		Direct3D_GetContext()->IASetVertexBuffers(0, 1, &model->VertexBuffer[m], &stride, &offset);
+		Direct3D_GetContext()->IASetIndexBuffer(model->IndexBuffer[m], DXGI_FORMAT_R32_UINT, 0);
+
+		Direct3D_GetContext()->DrawIndexed(
+			model->AiScene->mMeshes[m]->mNumFaces * 3, 0, 0
+		);
+	}
+}
+void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld, int texid) {
+	Shader3DUnlit_Begin();
+
+	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	Shader3DUnlit_SetWorldMatrix(mtxWorld);
+	Shader3DUnlit_SetColor({ 1,1,1,1 });
+	if (texid >= 0)
+		Texture_SetTexture(texid, 0);   // t0
+	else
+		Texture_SetTexture(g_TextureWhite, 0);
+
+	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++)
+	{
+		UINT stride = sizeof(Vertex3d);
+		UINT offset = 0;
+
+		Direct3D_GetContext()->IASetVertexBuffers(
+			0, 1, &model->VertexBuffer[m], &stride, &offset
+		);
+
+		Direct3D_GetContext()->IASetIndexBuffer(
+			model->IndexBuffer[m],
+			DXGI_FORMAT_R32_UINT,
+			0
+		);
+
+		Direct3D_GetContext()->DrawIndexed(
+			model->AiScene->mMeshes[m]->mNumFaces * 3,
+			0, 0
+		);
+	}
+}
+
+void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld, const DirectX::XMFLOAT4& color)
+{
+	Shader3DUnlit_Begin();
+
+	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	Shader3DUnlit_SetWorldMatrix(mtxWorld);
 
 	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++) {
 		//テクスチャの設定
@@ -264,7 +361,7 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
 		if (texture.length != 0) {
 			//if (texture != aiString("")) {
 			Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
-			Shader3d_SetColor({ 1.0f,1.0f,1.0f, 1.0f });
+			Shader3DUnlit_SetColor(color);
 		}
 		else {
 			Texture_SetTexture(g_TextureWhite);
@@ -275,13 +372,6 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
 			Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
 		}
 
-		//マテリアル設定
-		//aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
-		//aiColor3D diffuse;
-		//aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
-		//Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
-
-		// 頂点バッファを描画パイプラインに設定
 		UINT stride = sizeof(Vertex3d);
 		UINT offset = 0;
 		Direct3D_GetContext()->IASetVertexBuffers(0, 1, &model->VertexBuffer[m], &stride, &offset);
@@ -290,6 +380,26 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld) {
 		Direct3D_GetContext()->IASetIndexBuffer(model->IndexBuffer[m], DXGI_FORMAT_R32_UINT, 0);
 
 		// ポリゴン描画命令発行
+		Direct3D_GetContext()->DrawIndexed(model->AiScene->mMeshes[m]->mNumFaces * 3, 0, 0);
+	}
+}
+
+void ModelDepthDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld)
+{
+	ShaderDepth_Begin();
+
+	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	ShaderDepth_SetWorldMatrix(mtxWorld);
+
+	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++) {
+		
+		UINT stride = sizeof(Vertex3d);
+		UINT offset = 0;
+		Direct3D_GetContext()->IASetVertexBuffers(0, 1, &model->VertexBuffer[m], &stride, &offset);
+
+		Direct3D_GetContext()->IASetIndexBuffer(model->IndexBuffer[m], DXGI_FORMAT_R32_UINT, 0);
+
 		Direct3D_GetContext()->DrawIndexed(model->AiScene->mMeshes[m]->mNumFaces * 3, 0, 0);
 	}
 }
@@ -305,8 +415,3 @@ AABB Model_GetAABB(MODEL* model, const DirectX::XMFLOAT3& position){
 		{position.x + model->local_aabb.max.x, position.y + model->local_aabb.max.y, position.z + model->local_aabb.max.z}
 	};
 }
-
-
-
-
-

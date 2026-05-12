@@ -1,10 +1,3 @@
-/*==============================================================
-debug ostream‚ğì‚Á‚Äg‚¤[debug_ostream.h]
-											Author	:Harada Ren
-											Date	:2025/6/4
-
-
-================================================================*/
 
 #ifndef DEBUG_OSTREAM_H
 #define DEBUG_OSTREAM_H

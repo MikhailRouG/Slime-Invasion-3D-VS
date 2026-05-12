@@ -1,11 +1,3 @@
-/*==============================================================================
-
-   カメラ制御 [camera.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/09/11
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "camera.h"
 #include "direct3d.h"
 #include <DirectXMath.h>
@@ -65,14 +57,14 @@ void Camera_Initialize(){
 	XMStoreFloat4x4(&g_CameraViewMatrix, XMMatrixIdentity());
 	XMStoreFloat4x4(&g_CameraPerspectiveMatrix, XMMatrixIdentity());
 
-#if defined(DEBUG)||defined(_DEBUG)
-	g_pDT = new hal::DebugText(Direct3D_GetDevice(), Direct3D_GetContext(),
-		L"resource/texture/consolab_ascii_512.png",
-		Direct3D_GetBackBufferWidth(), Direct3D_GetBackBufferHeight(),
-		0.0f, 28.0f, //調整
-		0, 0,
-		0.0f, 14.0f); //調整
-#endif
+//#if defined(DEBUG)||defined(_DEBUG)
+//	g_pDT = new hal::DebugText(Direct3D_GetDevice(), Direct3D_GetContext(),
+//		L"resource/texture/consolab_ascii_512.png",
+//		Direct3D_GetBackBufferWidth(), Direct3D_GetBackBufferHeight(),
+//		0.0f, 28.0f, //調整
+//		0, 0,
+//		0.0f, 14.0f); //調整
+//#endif
 }
 
 void Camera_Finalize(){
@@ -219,30 +211,30 @@ void Camera_SetMatrix(const DirectX::XMMATRIX& view, const DirectX::XMMATRIX& pr
 }
 
 void Camera_DebugDraw(){
-#if defined(DEBUG)||defined(_DEBUG)//デバッグの時だけ有効
-	std::stringstream ss;
-	ss << "Camera Position: x=" << g_CameraPosition.x;
-	ss << " y=" << g_CameraPosition.y;
-	ss << " z=" << g_CameraPosition.z << std::endl;
-
-	ss << "Camera Front   : x=" << g_CameraVecFront.x;
-	ss << " y=" << g_CameraVecFront.y;
-	ss << " z=" << g_CameraVecFront.z << std::endl;
-
-	ss << "Camera Right   : x=" << g_CameraVecRight.x;
-	ss << " y=" << g_CameraVecRight.y;
-	ss << " z=" << g_CameraVecRight.z << std::endl;
-
-	ss << "Camera Up      : x=" << g_CameraVecUp.x;
-	ss << " y=" << g_CameraVecUp.y;
-	ss << " z=" << g_CameraVecUp.z << std::endl;
-
-	ss << "Camera Fov     : " << g_Fov << std::endl;
-
-
-	g_pDT->SetText(ss.str().c_str(),{0.0f,1.0f,0.0f,1.0f});
-
-	g_pDT->Draw();
-	g_pDT->Clear();
-#endif
+//#if defined(DEBUG)||defined(_DEBUG)//デバッグの時だけ有効
+//	std::stringstream ss;
+//	ss << "Camera Position: x=" << g_CameraPosition.x;
+//	ss << " y=" << g_CameraPosition.y;
+//	ss << " z=" << g_CameraPosition.z << std::endl;
+//
+//	ss << "Camera Front   : x=" << g_CameraVecFront.x;
+//	ss << " y=" << g_CameraVecFront.y;
+//	ss << " z=" << g_CameraVecFront.z << std::endl;
+//
+//	ss << "Camera Right   : x=" << g_CameraVecRight.x;
+//	ss << " y=" << g_CameraVecRight.y;
+//	ss << " z=" << g_CameraVecRight.z << std::endl;
+//
+//	ss << "Camera Up      : x=" << g_CameraVecUp.x;
+//	ss << " y=" << g_CameraVecUp.y;
+//	ss << " z=" << g_CameraVecUp.z << std::endl;
+//
+//	ss << "Camera Fov     : " << g_Fov << std::endl;
+//
+//
+//	g_pDT->SetText(ss.str().c_str(),{0.0f,1.0f,0.0f,1.0f});
+//
+//	g_pDT->Draw();
+//	g_pDT->Clear();
+//#endif
 }

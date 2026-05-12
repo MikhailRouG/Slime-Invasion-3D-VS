@@ -1,18 +1,10 @@
-/*==============================================================================
-
-   3Dキューブ表示[cube.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/09/09
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "cube.h"
 #include "direct3d.h"
 #include "shader3d.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "texture.h"
-
+#include "shader_depth.h"
 static constexpr int NUM_INDEX = 2 * 3 * 6; // 頂点数(一面に三角形2個=6個 * 6面分)
 static constexpr int NUM_VERTEX = 4 * 6;
 
@@ -158,6 +150,65 @@ void Cube_Draw(int texid, const DirectX::XMMATRIX mtxWorld) {
 
 	//頂点シェーダーにワールド座標変換行列を設定
 	Shader3d_SetWorldMatrix(mtxWorld);
+
+	// ポリゴン描画命令発行
+	//g_pContext->Draw(NUM_VERTEX, 0);
+	g_pContext->DrawIndexed(NUM_INDEX, 0, 0);
+
+}
+
+void Cube_Draw(int texid, const DirectX::XMMATRIX mtxWorld, const DirectX::XMFLOAT4& color)
+{
+	Shader3d_Begin();
+
+	//ピクセルシェーダーに色を設定
+	Shader3d_SetColor(color);
+
+	//テクスチャの設定
+	Texture_SetTexture(texid);
+
+
+	// 頂点バッファを描画パイプラインに設定
+	UINT stride = sizeof(Vertex3d);
+	UINT offset = 0;
+	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+
+	// インデックスバッファを描画パイプラインに設定
+	g_pContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	// プリミティブトポロジ設定
+	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//ワールド座標変換行列の作成
+	//XMMATRIX mtxWorld = XMMatrixIdentity(); //単位行列の作成(データに対して何もしない)
+
+	//頂点シェーダーにワールド座標変換行列を設定
+	Shader3d_SetWorldMatrix(mtxWorld);
+
+	// ポリゴン描画命令発行
+	//g_pContext->Draw(NUM_VERTEX, 0);
+	g_pContext->DrawIndexed(NUM_INDEX, 0, 0);
+}
+
+void Cube_DepthDraw(int texid, const DirectX::XMMATRIX mtxWorld)
+{
+	ShaderDepth_Begin();
+
+	UINT stride = sizeof(Vertex3d);
+	UINT offset = 0;
+	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+
+	// インデックスバッファを描画パイプラインに設定
+	g_pContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	// プリミティブトポロジ設定
+	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//ワールド座標変換行列の作成
+	//XMMATRIX mtxWorld = XMMatrixIdentity(); //単位行列の作成(データに対して何もしない)
+
+	//頂点シェーダーにワールド座標変換行列を設定
+	ShaderDepth_SetWorldMatrix(mtxWorld);
 
 	// ポリゴン描画命令発行
 	//g_pContext->Draw(NUM_VERTEX, 0);

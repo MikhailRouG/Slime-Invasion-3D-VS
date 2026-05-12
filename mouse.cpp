@@ -16,7 +16,7 @@
 
 #include <windowsx.h>
 #include <assert.h>
-
+#include "scene.h"
 
 #define SAFE_CLOSEHANDLE(h) if(h){CloseHandle(h); h = NULL;}
 
@@ -280,12 +280,21 @@ void Mouse_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
 
     case WM_MOUSEMOVE:
+        if (gMode == MOUSE_POSITION_MODE_ABSOLUTE) {
+            int mx = GET_X_LPARAM(lParam);
+            int my = GET_Y_LPARAM(lParam);
+            OnClick(mx, my,false);
+        }
         break;
 
     case WM_LBUTTONDOWN:
         gState.leftButton = true;
+        if (gMode == MOUSE_POSITION_MODE_ABSOLUTE) {
+            int mx = GET_X_LPARAM(lParam);
+            int my = GET_Y_LPARAM(lParam);
+            OnClick(mx, my,true);
+        }
         break;
-
     case WM_LBUTTONUP:
         gState.leftButton = false;
         break;

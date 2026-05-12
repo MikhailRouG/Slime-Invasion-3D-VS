@@ -1,11 +1,3 @@
-/*==============================================================================
-
-   プレイヤー制御 [player.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/10/31
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "player.h"
 #include <DirectXMath.h>
 using namespace DirectX;
@@ -15,194 +7,236 @@ using namespace DirectX;
 #include "player_camera.h"
 #include "cube.h"
 #include "map.h"
-#include "bullet.h"
+#include "shader_depth.h"
+#include <iostream>
+#include <algorithm>
+#include "circle_shadow.h"
+#include "scene.h"
+#include "score.h"
+#include "game_Ui.h"
+#include "SkinnedModel.h"
 
-
+static ID3D11Device* device;
+static ID3D11DeviceContext* context;
 static XMFLOAT3 g_PlayerPosition{};
 static XMFLOAT3 g_PlayerFront{0.0f,0.0f,1.0f};
 static XMFLOAT3 g_PlayerVelocity{};
 static MODEL* g_pPlayerModel{ nullptr };
 static bool g_IsJump = false;
+static bool g_IsGrounded = false;
+constexpr int g_PlayerMaxHealth = 100;
+int g_PlayerHealth;
+float g_PlayerScale;
+const float MOVE_SPEED = 2.0f;
+const float ROTATE_SPEED = XM_PIDIV2* 2;
+float m_HitColorTimer{ 0.0f };
+SkinnedModel player;
+
+void Player_SetDevice(ID3D11Device* div, ID3D11DeviceContext* con)
+{
+	device = div;
+	context = con;
+}
 
 void Player_Initialize(const XMFLOAT3& position,const XMFLOAT3& front){
+	g_PlayerHealth = g_PlayerMaxHealth;
 	g_PlayerPosition = position;
 	g_PlayerVelocity = { 0.0f,0.0f,0.0f };
 	XMStoreFloat3(&g_PlayerFront, XMVector3Normalize(XMLoadFloat3(&front)));
-
-	g_pPlayerModel = ModelLoad("resource/model/slime.fbx", 1.0f);
+	g_PlayerScale = 1;
+	g_pPlayerModel = ModelLoad("resource/model/slime.fbx", 1);
+	//player.Init(device);
+	//player.Load("resource/model/slime.fbx");
+	//player.Play(0);
 }
 
 void Player_Finalize(){
 	ModelRelease(g_pPlayerModel);
+	CircleShadow_Finalize();
 }
 
 void Player_Update(double elapsed_time){
+	if(m_HitColorTimer > 0.0f)
+{
+	m_HitColorTimer -= (float)elapsed_time;
+}
+	player.Update(elapsed_time);
+	g_IsGrounded = false;
 	XMVECTOR position = XMLoadFloat3(&g_PlayerPosition);
 	XMVECTOR velocity = XMLoadFloat3(&g_PlayerVelocity);
+	XMVECTOR front = XMLoadFloat3(&g_PlayerFront);
 	XMVECTOR gvelocity{};
 
-	//ジャンプ
 	if (KeyLogger_IsTrigger(KK_SPACE) && !g_IsJump) {
-		// Y方向の速度をジャンプ力で上書き
 		velocity += { 0.0f,50.0f,0.0f };
 		g_IsJump = true;
 	}
 
-	//-----移動処理-----
-	XMVECTOR direction{};
-	XMVECTOR front = XMLoadFloat3(&PlayerCamera_GetFront()) * XMVECTOR { 1.0f, 0.0f, 1.0f };
-	if (KeyLogger_IsPressed(KK_W)) {
-		direction += front;
+	XMVECTOR moveDir = XMVectorZero();
+	if (KeyLogger_IsPressed(KK_W)) moveDir += front;
+	if (KeyLogger_IsPressed(KK_S)) moveDir -= front;
+	moveDir = XMVectorSetY(moveDir, 0.0f);
+	moveDir = XMVector3Normalize(moveDir);
+
+	float acceleration = 0.5f;
+	if (!XMVector3Equal(moveDir, XMVectorZero())) {
+		velocity += moveDir * acceleration * MOVE_SPEED;
 	}
-	if (KeyLogger_IsPressed(KK_S)) {
-		direction -= front;
-	}
+	float rotate = 0.0f;
+
 	if (KeyLogger_IsPressed(KK_D)) {
-		direction += XMVector3Cross({ 0.0f,1.0f,0.0f }, front);
+		rotate += ROTATE_SPEED * (float)elapsed_time;
 	}
 	if (KeyLogger_IsPressed(KK_A)) {
-		direction -= XMVector3Cross({ 0.0f,1.0f,0.0f }, front);
+		rotate -= ROTATE_SPEED * (float)elapsed_time;
 	}
 
-	//-----回転処理-----
-	if (XMVectorGetX(XMVector3LengthSq(direction)) > 0.0f) {
-		direction = XMVector3Normalize(direction);
-		//XMStoreFloat3(&g_PlayerFront, direction);
-
-		//2つのベクトルのなす角
-		float dot = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&g_PlayerFront), direction));
-		float angle = acosf(dot);
-
-		//回転速度
-		const float ROTATION_SPEED = XM_2PI * 1.5f * (float)elapsed_time;
-
-		//frontを通り過ぎるならそのまま
-		if (angle < ROTATION_SPEED) {
-			front = direction;
-		}
-		//frontを通り過ぎないなら回転
-		else {
-			//向きたい方向が右回りか、左回りか調べる
-			XMMATRIX r = XMMatrixIdentity();
-			if (XMVectorGetY(XMVector3Cross(XMLoadFloat3(&g_PlayerFront), direction)) < 0.0f) {
-				r = XMMatrixRotationY(-ROTATION_SPEED);
-			}
-			else {
-				r = XMMatrixRotationY(ROTATION_SPEED);
-			}
-
-			front = XMVector3TransformNormal(XMLoadFloat3(&g_PlayerFront), r);
-		}
-
-		velocity += XMLoadFloat3(&g_PlayerFront) * (float)(2000.0 / 50.0 * elapsed_time);
-		XMStoreFloat3(&g_PlayerFront, front);
+	if (rotate != 0.0f) {
+		XMMATRIX rotY = XMMatrixRotationY(rotate);
+		front = XMVector3Normalize(
+			XMVector3TransformNormal(front, rotY)
+		);
 	}
-
-	//摩擦
-	velocity -= velocity * (float)(5.0 * elapsed_time);
-	//position += velocity * (float)elapsed_time;
-
-	XMStoreFloat3(&g_PlayerPosition, position);
+	XMStoreFloat3(&g_PlayerFront, front);
 	XMStoreFloat3(&g_PlayerVelocity, velocity);
 
+	float friction = 5.0f;
+	XMVECTOR horizontalVel = XMVectorSetY(velocity, 0.0f); 
+	horizontalVel -= horizontalVel * friction * (float)elapsed_time;
+	velocity = XMVectorSetY(horizontalVel, XMVectorGetY(velocity));
 
-	// 重力
 	XMFLOAT3 gdir{ 0.0f, 1.0f , 0.0f};
 	float gravity = -9.8f * 15.0f * (float)elapsed_time;
-	velocity += XMLoadFloat3(&gdir) * gravity;
-
-
-	// -----当たり判定-----
-	// 縦方向に移動して地面/天井との当たり判定
-	XMVECTOR vertical_move = XMVectorSet(0.0f, XMVectorGetY(velocity) * (float)elapsed_time, 0.0f, 0.0f);
-	position += vertical_move;
-	XMStoreFloat3(&g_PlayerPosition, position);
-
-	AABB player = Player_GetAABB();
-	//AABB player = Player_ConvertPositionToAABB(position);
-	for (int i = 0;i < Map_GetObjectsCount();i++) {	
-		//AABB cube = Cube_GetAABB(Map_GetObject(i)->Position);
-		AABB object = Map_GetObject(i)->aabb;
-		Hit hit = Collision_IsHitAABB(object, player);
-
-		if (hit.isHit) {
-			if (hit.normal.y > 0.0f) {
-				//position = XMVectorSetY(position, cube.max.y + 1.0f);
-				position -= vertical_move;
-				velocity *= {1.0f, 0.0f, 1.0f}; //ジャンプ台等作れる
-				g_IsJump = false;
-			}
-			else if (hit.normal.y < 0.0f) {
-				//position = XMVectorSetY(position, cube.min.y - 1.0f);
-				position -= vertical_move;
-				velocity *= {1.0f, 0.0f, 1.0f};
-			}
-			break;
-		}
-		
+	if (!g_IsGrounded)
+	{
+		velocity += XMLoadFloat3(&gdir) * gravity;
 	}
 
-	XMStoreFloat3(&g_PlayerPosition, position);
+	XMVECTOR vertical_move = XMVectorSet(0.0f, XMVectorGetY(velocity) * (float)elapsed_time, 0.0f, 0.0f);
+	position += vertical_move;
 
+	AABB player = Player_ConvertPositionToAABB(position);
 
+	float highestY = -FLT_MAX;
+	bool landed = false;
+	int objCount = Map_GetObjectsCount();
 
-	// 横方向に移動して壁との当たり判定
+		for (int i = 0; i < Map_GetObjectsCount(); i++)
+		{
+			AABB object = Map_GetObject(i)->aabb;
+			Hit hit = Collision_IsHitAABB(object, player);
+
+			if (hit.isHit && hit.normal.y > 0.0f)
+			{
+				highestY = std::max(highestY, object.max.y);
+				landed = true;
+			}
+		}
+
+		if (landed)
+		{
+			position = XMVectorSetY(position, highestY + 0.001f);
+			velocity = XMVectorSetY(velocity, 0.0f);
+			g_IsGrounded = true;
+			g_IsJump = false;
+		}
+
 	XMVECTOR horizontal_move = XMVectorSet(XMVectorGetX(velocity) * (float)elapsed_time, 0.0f, XMVectorGetZ(velocity) * (float)elapsed_time, 0.0f);
 	position += horizontal_move;
-	XMStoreFloat3(&g_PlayerPosition, position);
 
-	player = Player_GetAABB();
-	//Player_ConvertPositionToAABB(position);
+	player =
+	Player_ConvertPositionToAABB(position);
+	XMFLOAT3 half = g_pPlayerModel->local_aabb.GetHalf();
 	for (int i = 0;i < Map_GetObjectsCount();i++) {
-		//AABB cube = Cube_GetAABB(Map_GetObject(i)->Position);
 		AABB object = Map_GetObject(i)->aabb;
 		Hit hit = Collision_IsHitAABB(object, player);
 
 		if (hit.isHit) {
 			if (hit.normal.x > 0.0f) {
-				position = XMVectorSetX(position, object.max.x + 1.0f);
-				velocity *= {0.0f, 1.0f, 1.0f};
+				position = XMVectorSetX(position, object.max.x + half.x);
+				velocity *= { 0.0f, 1.0f, 1.0f };
 			}
 			else if (hit.normal.x < 0.0f) {
-				position = XMVectorSetX(position, object.min.x - 1.0f);
-				velocity *= {0.0f, 1.0f, 1.0f};
+				position = XMVectorSetX(position, object.min.x - half.x);
+				velocity *= { 0.0f, 1.0f, 1.0f };
 			}
 			else if (hit.normal.z > 0.0f) {
-				position = XMVectorSetZ(position, object.max.z + 1.0f);
-				velocity *= {1.0f, 1.0f, 0.0f};
+				position = XMVectorSetZ(position, object.max.z + half.z);
+				velocity *= { 1.0f, 1.0f, 0.0f };
 			}
 			else if (hit.normal.z < 0.0f) {
-				position = XMVectorSetZ(position, object.min.z - 1.0f);
-				velocity *= {1.0f, 1.0f, 0.0f};
+				position = XMVectorSetZ(position, object.min.z - half.z);
+				velocity *= { 1.0f, 1.0f, 0.0f };
 			}
-			break;
+
 		}
 	}
+	//if (KeyLogger_IsTrigger(KK_J)) {
+	//	XMFLOAT3 shot_position = g_PlayerPosition;
+	//	XMFLOAT3 shot_velocity;
+	//	shot_position.y += 1.0f;
+	//	XMStoreFloat3(&shot_velocity, XMLoadFloat3(&g_PlayerFront) * 10.0f);
+	//	Bullet_Create(shot_position, shot_velocity);
+	//}
+	if (XMVectorGetY(position) < 0.0f)
+	{
+		position = XMVectorSetY(position, 0.0f);
+		velocity = XMVectorSetY(velocity, 0.0f);
 
+		g_IsGrounded = true;
+		g_IsJump = false;
+	}
 	XMStoreFloat3(&g_PlayerVelocity, velocity);
 	XMStoreFloat3(&g_PlayerPosition, position);
 
-	//弾発射
-	if (KeyLogger_IsTrigger(KK_J)) {
-		XMFLOAT3 shot_position = g_PlayerPosition;
-		XMFLOAT3 shot_velocity;
-		shot_position.y += 1.0f;
-		XMStoreFloat3(&shot_velocity, XMLoadFloat3(&g_PlayerFront) * 10.0f);
-		Bullet_Create(shot_position, shot_velocity);
-	}
 }
 
 void Player_Draw() {
-	//float dot = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&g_PlayerFront), XMVECTOR{ 1.0f,0.0f,0.0f }));
 	float angle = -atan2f(g_PlayerFront.z,g_PlayerFront.x) + XMConvertToRadians(270);
+	XMMATRIX s = XMMatrixScaling(g_PlayerScale, g_PlayerScale, g_PlayerScale);
+	XMMATRIX r = XMMatrixRotationY(angle);
+	XMMATRIX t = XMMatrixTranslation(g_PlayerPosition.x, g_PlayerPosition.y, g_PlayerPosition.z);
+	XMMATRIX world= s *r * t;
+	XMFLOAT4 color;
+	if (m_HitColorTimer > 0.0f)
+		color = { 1,0,0,0.75f };
+	else
+		color = { 1.0f, 0.84f, 0.0f, 0.80f };
+	ModelDraw(g_pPlayerModel, world, color);
+	//player.Draw(context);
+	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
+	CircleShadow_Draw(g_PlayerPosition);
+}
+
+void Player_DepthDraw()
+{
+	float angle = -atan2f(g_PlayerFront.z, g_PlayerFront.x) + XMConvertToRadians(270);
 
 	XMMATRIX r = XMMatrixRotationY(angle);
-	XMMATRIX t = XMMatrixTranslation(g_PlayerPosition.x, g_PlayerPosition.y+1.0f, g_PlayerPosition.z);
-	XMMATRIX world=r * t;
-	ModelDraw(g_pPlayerModel, world);
+	XMMATRIX t = XMMatrixTranslation(g_PlayerPosition.x, g_PlayerPosition.y, g_PlayerPosition.z);
+	XMMATRIX world = r * t;
+	ModelDepthDraw(g_pPlayerModel, world);
 
 	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
 
+}
+
+void Player_TakeDamage(int damage)
+{
+
+	g_PlayerHealth -= damage;
+	m_HitColorTimer = 0.25f;
+	if (g_PlayerHealth <= 0) Scene_Change(SCENE_RESULT);
+}
+
+int Player_GetHp()
+{
+	return g_PlayerHealth;
+}
+
+int Player_GetMaxHp()
+{
+	return g_PlayerMaxHealth;
 }
 
 const DirectX::XMFLOAT3& Player_GetPosition(){
@@ -214,15 +248,27 @@ const DirectX::XMFLOAT3& Player_GetFront(){
 }
 
 AABB Player_GetAABB(){
+	XMFLOAT3 half = g_pPlayerModel->local_aabb.GetHalf();
 	return {
-		{g_PlayerPosition.x - 1.0f,g_PlayerPosition.y,       g_PlayerPosition.z - 1.0f},
-		{g_PlayerPosition.x + 1.0f,g_PlayerPosition.y + 2.0f,g_PlayerPosition.z + 1.0f}
+		{g_PlayerPosition.x - half.x,g_PlayerPosition.y,       g_PlayerPosition.z - half.z},
+		{g_PlayerPosition.x + half.x,g_PlayerPosition.y + half.y,g_PlayerPosition.z + half.z}
 	};
 }
 
-AABB Player_ConvertPositionToAABB(const DirectX::XMVECTOR& position){
-	AABB aabb{};
-	XMStoreFloat3(&aabb.min, position - XMVECTOR{ 1.0f,0.0f,1.0f });
-	XMStoreFloat3(&aabb.max, position + XMVECTOR{ 1.0f,2.0f,1.0f });
-	return aabb;
+AABB Player_ConvertPositionToAABB(const XMVECTOR& position)
+{
+	XMFLOAT3 half = g_pPlayerModel->local_aabb.GetHalf();
+	XMFLOAT3 p;
+	XMStoreFloat3(&p, position);
+
+	return {
+		{ p.x - half.x, p.y,          p.z - half.z },
+		{ p.x + half.x, p.y + half.y, p.z + half.z }
+	};
+}
+
+void Player_SetScaling(float scale)
+{
+	g_PlayerScale = scale;
+	PlayerCamera_SetScale(scale);
 }

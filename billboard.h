@@ -1,27 +1,19 @@
-/*==============================================================================
-
-   ÉrÉãÉ{Å[Éhï`âÊ [billboard.h]
-														 Author : Harada Ren
-														 Date   : 2025/11/14
---------------------------------------------------------------------------------
-
-==============================================================================*/
-#ifndef BILLBOARD_H
+Ôªø#ifndef BILLBOARD_H
 #define BILLBOARD_H
 
 #include <DirectXMath.h>
-#include "collision.h"
+#include <d3d11.h>
+
+struct Vertex3d {
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT4 color;
+    DirectX::XMFLOAT2 texcoord;
+};
 
 void Billboard_Initialize();
 void Billboard_Finalize();
-
-void Billboard_SetViewMatrix(const DirectX::XMFLOAT4X4& view);
-
-void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT2& pivot = {0.0f, 0.0f});
-//ÉeÉNÉXÉ`ÉÉÉJÉbÉg
+void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT4& color, const DirectX::XMFLOAT2& pivot = { 0.0f, 0.0f });
 void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale,
-	const DirectX::XMUINT4& tex_cut,
-	const DirectX::XMFLOAT2& pivot = { 0.0f, 0.0f });//êÿÇËéÊÇËÇÃç¿ïWÅAïùçÇÇ≥ );
-
-
-#endif // BILLBOARD_H
+    const DirectX::XMFLOAT4& color, const DirectX::XMFLOAT2& pivot,
+    const DirectX::XMFLOAT2& uvScale, const DirectX::XMFLOAT2& uvOffset);
+#endif

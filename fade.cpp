@@ -1,11 +1,3 @@
-/*==============================================================================
-
-  フェードイン・アウト制御[fade.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/07/10
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "fade.h"
 using namespace DirectX;
 #include <algorithm>
@@ -37,15 +29,12 @@ void Fade_Finalize(){
 }
 
 void Fade_Update(double elapsed_time){
-	//終了
 	if (g_State <= FADE_STATE_FINISHED_OUT) return;
 
 	g_AccumulatedTime += elapsed_time;
 	
-	//1より大きい値にならないように
 	double ratio = std::min((g_AccumulatedTime - g_FadeStartTime) / g_FadeTime, 1.0);
 
-	//終了判定
 	if (ratio >= 1.0) {
 		g_State = g_State == FADE_STATE_IN ? FADE_STATE_FINISHED_IN : FADE_STATE_FINISHED_OUT;
 	}

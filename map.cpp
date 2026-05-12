@@ -1,11 +1,3 @@
-/*==============================================================================
-
-   É}ÉbÉvÇÃä«óù [map.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/11/10
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "map.h"
 #include <DirectXMath.h>
 using namespace DirectX;
@@ -17,30 +9,30 @@ using namespace DirectX;
 #include "model.h"
 
 static MapObject g_MapObjects[]{
-	{field,{0.0f,0.0f,0.0f},{{ -25.0f,-1.0f,-25.0f},{25.0f,0.0f,25.0f}}},
-	{cube1,{0.0f,0.5f,0.0f}},
-	{cube1,{0.0f,0.5f,1.0f}},
-	{cube1,{0.0f,0.5f,2.0f}},
-	{cube1,{0.0f,0.5f,3.0f}},
-	{cube1,{1.0f,0.5f,0.0f}},
-	{cube1,{1.0f,0.5f,1.0f}},
-	{cube1,{1.0f,0.5f,2.0f}},
-	{cube1,{1.0f,0.5f,3.0f}},
-	{cube1,{2.0f,0.5f,0.0f}},
-	{cube1,{2.0f,0.5f,1.0f}},
-	{cube1,{2.0f,0.5f,2.0f}},
-	{cube1,{2.0f,0.5f,3.0f}},
-	{cube1,{3.0f,0.5f,0.0f}},
-	{cube1,{3.0f,0.5f,1.0f}},
-	{cube1,{3.0f,0.5f,2.0f}},
-	{cube1,{3.0f,0.5f,3.0f}},
+	{field,{0.0f,0.0f,0.0f},{{ -200.0f,-1.0f,-200.0f},{200.0f,0.0f,200.0f}}},
+	//{cube1,{0.0f,0.5f,0.0f}},
+	//{cube1,{0.0f,0.5f,1.0f}},
+	//{cube1,{0.0f,0.5f,2.0f}},
+	//{cube1,{0.0f,0.5f,3.0f}},
+	//{cube1,{1.0f,0.5f,0.0f}},
+	//{cube1,{1.0f,0.5f,1.0f}},
+	//{cube1,{1.0f,0.5f,2.0f}},
+	//{cube1,{1.0f,0.5f,3.0f}},
+	//{cube1,{2.0f,0.5f,0.0f}},
+	//{cube1,{2.0f,0.5f,1.0f}},
+	//{cube1,{2.0f,0.5f,2.0f}},
+	//{cube1,{2.0f,0.5f,3.0f}},
+	//{cube1,{3.0f,0.5f,0.0f}},
+	//{cube1,{3.0f,0.5f,1.0f}},
+	//{cube1,{3.0f,0.5f,2.0f}},
+	//{cube1,{3.0f,0.5f,3.0f}},
 
-	{cube1,{-1.0f,0.5f,0.0f}},
-	{cube2,{-1.0f,0.5f,1.0f}},
-	{cube2,{-1.0f,0.5f,2.0f}},
-	{cube2,{1.0f,1.5f,1.0f}},
-	{tree,{-10.0f,-3.5f,-5.0f}},
-	{rock,{5.0f,0.5f,-5.0f}}
+	//{cube1,{-1.0f,0.5f,0.0f}},
+	//{cube2,{-1.0f,0.5f,1.0f}},
+	//{cube2,{-1.0f,0.5f,2.0f}},
+	//{cube2,{1.0f,1.5f,1.0f}},
+	//{tree,{-10.0f,-3.5f,-5.0f}},
+	//{rock,{5.0f,0.5f,-5.0f}}
 };
 
 static int g_Cube1TexId = -1;
@@ -50,11 +42,10 @@ static MODEL* g_pTree01{};
 static MODEL* g_pRock01{};
 
 void Map_Initialize(){
-	g_Cube1TexId = Texture_Load(L"resource/texture/BoxTestTexture.png");
-	g_Cube2TexId = Texture_Load(L"resource/texture/BoxTestTexture2.png");
-	g_pCup01 = ModelLoad("resource/model/cup.fbx", 1.0f);
-	g_pTree01 = ModelLoad("resource/model/lowpolytree.fbx", 3.0f);
-	//g_pRock01 = ModelLoad("resource/model/Rock1.fbx", 1.0f);
+	g_Cube1TexId = Texture_Load(L"resource/texture/test.png");
+	g_Cube2TexId = Texture_Load(L"resource/texture/test.png");
+	g_pCup01 = ModelLoad("resource/model/test.fbx", 0.10f);
+	g_pTree01 = ModelLoad("resource/model/test.fbx", 0.10f);
 
 	for (MapObject& o : g_MapObjects) {
 		if (o.KindId == cube1 || o.KindId == cube2) {
@@ -72,8 +63,6 @@ void Map_Initialize(){
 void Map_Finalize(){
 	ModelRelease(g_pCup01);
 	ModelRelease(g_pTree01);
-	//ModelRelease(g_pRock01);
-
 }
 
 void Map_Draw(){

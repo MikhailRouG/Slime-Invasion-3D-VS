@@ -1,19 +1,11 @@
-/*====================================================================================
-
-スプライトアニメーション描画[sprite_anim.h]
-
-																Author	: Harada Ren
-																Date	: 2025/06/17
---------------------------------------------------------------------------------------
-
-======================================================================================*/
 #include "sprite_anim.h"
 #include "sprite.h"
 #include "texture.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "billboard.h"
-
+#include <cstring>
+#include <stdio.h>
 //アニメーションパターン
 struct AnimPatternData {
 	int m_TextureId = -1; //テクスチャID
@@ -51,6 +43,7 @@ void SpriteAnim_Initialize() {
 		data.m_PatternId = -1;
 		data.m_IsStopped = false;
 	}
+
 }
 
 void SpriteAnim_Finalize() {
@@ -117,21 +110,28 @@ void SpriteAnim_Draw(int playid, float dx, float dy, float dw, float dh,bool IsF
 
 void BillboardAnim_Draw(int playid, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT2& pivot) {
 	int anim_pattern_id = g_AnimPlay[playid].m_PatternId;
-	AnimPatternData* pAnimPatternData = &g_AnimPattern[anim_pattern_id];
-	Billboard_Draw(pAnimPatternData->m_TextureId,
-		position, scale,
-		{ pAnimPatternData->m_StartPosition.x
-		+ pAnimPatternData->m_PatternSize.x
-		* (g_AnimPlay[playid].m_PatternNum % pAnimPatternData->m_HPatternMax),
+	if (anim_pattern_id < 0) return;
 
-		pAnimPatternData->m_StartPosition.y + pAnimPatternData->m_PatternSize.y
-		* (g_AnimPlay[playid].m_PatternNum / pAnimPatternData->m_HPatternMax),
+	AnimPatternData* p = &g_AnimPattern[anim_pattern_id];
+	int frame = g_AnimPlay[playid].m_PatternNum;
 
-		pAnimPatternData->m_PatternSize.x,
-		pAnimPatternData->m_PatternSize.y
-		},
-		pivot
-		);
+	int col = frame % p->m_HPatternMax;
+	int row = frame / p->m_HPatternMax;
+
+	float uw = (float)p->m_PatternSize.x / Texture_Width(p->m_TextureId);
+	float vh = (float)p->m_PatternSize.y / Texture_Height(p->m_TextureId);
+	float u = (float)(p->m_StartPosition.x + col * p->m_PatternSize.x) / Texture_Width(p->m_TextureId);
+	float v = (float)(p->m_StartPosition.y + row * p->m_PatternSize.y) / Texture_Height(p->m_TextureId);
+
+	Billboard_Draw(
+		p->m_TextureId,
+		position,
+		scale,
+		{ 1, 1, 1, 1 },
+		pivot,
+		{ uw, vh }, 
+		{ u, v }    
+	);
 }
 
 int SpriteAnim_RegisterPattern(int texid, int pattern_max, int h_pattern_max, double m_seconds_per_pattern,

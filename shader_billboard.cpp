@@ -1,171 +1,117 @@
-/*==============================================================================
-
-   ƒrƒ‹ƒ{[ƒhƒVƒF[ƒ_[ [shader_billboard.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/11/14
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "shader_billboard.h"
-#include <d3d11.h>
-#include <DirectXMath.h>
-using namespace DirectX;
 #include "direct3d.h"
-#include "debug_ostream.h"
 #include <fstream>
-#include "sampler.h"
-
+#include <Windows.h>
+#include <vector>
 static ID3D11VertexShader* g_pVertexShader = nullptr;
 static ID3D11InputLayout* g_pInputLayout = nullptr;
-static ID3D11Buffer* g_pVSConstantBuffer0 = nullptr; //’è”ƒoƒbƒtƒ@b0(world“]‘——p)
-static ID3D11Buffer* g_pVSConstantBuffer3 = nullptr; //’è”ƒoƒbƒtƒ@b3
-static ID3D11Buffer* g_pPSConstantBuffer0 = nullptr; //’è”ƒoƒbƒtƒ@b0
+static ID3D11Buffer* g_pVSConstantBuffer0 = nullptr;
+static ID3D11Buffer* g_pPSConstantBuffer0 = nullptr;
 static ID3D11PixelShader* g_pPixelShader = nullptr;
 
+bool ShaderBillboard_Initialize() {
+    HRESULT hr;
+    ID3D11Device* dev = Direct3D_GetDevice();
+    auto ReadCSO = [](const char* filename) -> std::vector<unsigned char> {
+        std::ifstream ifs(filename, std::ios::binary | std::ios::ate);
+        if (!ifs.is_open()) return {};
+        std::vector<unsigned char> buffer(ifs.tellg());
+        ifs.seekg(0, std::ios::beg);
+        ifs.read((char*)buffer.data(), buffer.size());
+        return buffer;
+        };
+    // 1. Çàãğóçêà VS
+    std::ifstream ifs_vs("shader_vertex_billboard.cso", std::ios::binary);
+    if (!ifs_vs.is_open()) {
+        MessageBox(nullptr, "Íå íàéäåí VS øåéäåğ!", "Error", MB_OK);
+        return false;
+    }
+    ifs_vs.seekg(0, std::ios::end);
+    size_t vs_size = (size_t)ifs_vs.tellg();
+    ifs_vs.seekg(0, std::ios::beg);
+    std::vector<unsigned char> vs_data(vs_size);
+    ifs_vs.read((char*)vs_data.data(), vs_size);
+    ifs_vs.close();
 
-bool ShaderBillboard_Initialize()
-{
-	HRESULT hr; // –ß‚è’lŠi”[—p
+    hr = dev->CreateVertexShader(vs_data.data(), vs_size, nullptr, &g_pVertexShader);
+    if (FAILED(hr)) return false;
 
-	// –‘OƒRƒ“ƒpƒCƒ‹Ï‚İ’¸“_ƒVƒF[ƒ_[‚Ì“Ç‚İ‚İ
-	std::ifstream ifs_vs("resource/shader/shader_vertex_billboard.cso", std::ios::binary);
+    // 2. Input Layout
+    D3D11_INPUT_ELEMENT_DESC layout[] = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+    hr = dev->CreateInputLayout(layout, 3, vs_data.data(), vs_size, &g_pInputLayout);
+    if (FAILED(hr)) return false;
 
-	if (!ifs_vs) {
-		MessageBox(nullptr, "’¸“_ƒVƒF[ƒ_[‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½\n\nshader_vertex_billboard.cso", "ƒGƒ‰[", MB_OK);
-		return false;
-	}
+    // 3. Ñîçäàíèå Êîíñòàíòíûõ Áóôåğîâ
+    D3D11_BUFFER_DESC bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	// ƒtƒ@ƒCƒ‹ƒTƒCƒY‚ğæ“¾
-	ifs_vs.seekg(0, std::ios::end); // ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^‚ğ––”ö‚ÉˆÚ“®
-	std::streamsize filesize = ifs_vs.tellg(); // ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^‚ÌˆÊ’u‚ğæ“¾i‚Â‚Ü‚èƒtƒ@ƒCƒ‹ƒTƒCƒYj
-	ifs_vs.seekg(0, std::ios::beg); // ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^‚ğæ“ª‚É–ß‚·
+    // Áóôåğ VS (BillboardVSConstant) - ïğîâåğêà ğàçìåğà
+    bd.ByteWidth = sizeof(BillboardVSConstant);
+    // Ğàçìåğ ÄÎËÆÅÍ áûòü êğàòåí 16. Åñëè íåò - îêğóãëÿåì ââåğõ.
+    if (bd.ByteWidth % 16 != 0) bd.ByteWidth += 16 - (bd.ByteWidth % 16);
 
-	// ƒoƒCƒiƒŠƒf[ƒ^‚ğŠi”[‚·‚é‚½‚ß‚Ìƒoƒbƒtƒ@‚ğŠm•Û
-	unsigned char* vsbinary_pointer = new unsigned char[filesize];
+    hr = dev->CreateBuffer(&bd, nullptr, &g_pVSConstantBuffer0);
+    if (FAILED(hr)) {
+        OutputDebugStringA("!!! Îøèáêà ñîçäàíèÿ VS Constant Buffer !!!\n");
+        return false;
+    }
 
-	ifs_vs.read((char*)vsbinary_pointer, filesize); // ƒoƒCƒiƒŠƒf[ƒ^‚ğ“Ç‚İ‚Ş
-	ifs_vs.close(); // ƒtƒ@ƒCƒ‹‚ğ•Â‚¶‚é
+    // Áóôåğ PS (Color)
+    bd.ByteWidth = sizeof(DirectX::XMFLOAT4); // 16 áàéò, êğàòíî 16.
+    hr = dev->CreateBuffer(&bd, nullptr, &g_pPSConstantBuffer0);
+    if (FAILED(hr)) return false;
 
-	// ’¸“_ƒVƒF[ƒ_[‚Ìì¬
-	hr = Direct3D_GetDevice()->CreateVertexShader(vsbinary_pointer, filesize, nullptr, &g_pVertexShader);
+    // 4. Çàãğóçêà PS
+    std::ifstream ifs_ps("shader_pixel_billboard.cso", std::ios::binary);
+    if (!ifs_ps) return false;
+    ifs_ps.seekg(0, std::ios::end);
+    size_t ps_size = (size_t)ifs_ps.tellg();
+    ifs_ps.seekg(0, std::ios::beg);
+    std::vector<unsigned char> ps_data(ps_size);
+    ifs_ps.read((char*)ps_data.data(), ps_size);
+    ifs_ps.close();
 
-	if (FAILED(hr)) {
-		hal::dout << "ShaderBillboard_Initialize() : ’¸“_ƒVƒF[ƒ_[‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½" << std::endl;
-		delete[] vsbinary_pointer; // ƒƒ‚ƒŠƒŠ[ƒN‚µ‚È‚¢‚æ‚¤‚ÉƒoƒCƒiƒŠƒf[ƒ^‚Ìƒoƒbƒtƒ@‚ğ‰ğ•ú
-		return false;
-	}
-
-
-	// ’¸“_ƒŒƒCƒAƒEƒg‚Ì’è‹`!!
-	D3D11_INPUT_ELEMENT_DESC layout[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",	  0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }, //32cfloat4‚Â•ª
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-
-	UINT num_elements = ARRAYSIZE(layout); // ”z—ñ‚Ì—v‘f”‚ğæ“¾
-
-	// ’¸“_ƒŒƒCƒAƒEƒg‚Ìì¬
-	hr = Direct3D_GetDevice()->CreateInputLayout(layout, num_elements, vsbinary_pointer, filesize, &g_pInputLayout);
-
-	delete[] vsbinary_pointer; // ƒoƒCƒiƒŠƒf[ƒ^‚Ìƒoƒbƒtƒ@‚ğ‰ğ•ú
-
-	if (FAILED(hr)) {
-		hal::dout << "ShaderBillboard_Initialize() : ’¸“_ƒŒƒCƒAƒEƒg‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½" << std::endl;
-		return false;
-	}
-
-
-	// ’¸“_ƒVƒF[ƒ_[—p’è”ƒoƒbƒtƒ@‚Ìì¬
-	D3D11_BUFFER_DESC buffer_desc{};
-	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4); // ƒoƒbƒtƒ@‚ÌƒTƒCƒY
-	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // ƒoƒCƒ“ƒhƒtƒ‰ƒO
-
-	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer0);
-
-	buffer_desc.ByteWidth = sizeof(XMFLOAT4); // ƒoƒbƒtƒ@‚ÌƒTƒCƒY
-	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer3);
-
-
-	// –‘OƒRƒ“ƒpƒCƒ‹Ï‚İƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚Ì“Ç‚İ‚İ
-	std::ifstream ifs_ps("resource/shader/shader_pixel_billboard.cso", std::ios::binary);
-	if (!ifs_ps) {
-		MessageBox(nullptr, "ƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½\n\nshader_pixel_billboard.cso", "ƒGƒ‰[", MB_OK);
-		return false;
-	}
-
-	ifs_ps.seekg(0, std::ios::end);
-	filesize = ifs_ps.tellg();
-	ifs_ps.seekg(0, std::ios::beg);
-
-	unsigned char* psbinary_pointer = new unsigned char[filesize];
-	ifs_ps.read((char*)psbinary_pointer, filesize);
-	ifs_ps.close();
-
-	// ƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚Ìì¬
-	hr = Direct3D_GetDevice()->CreatePixelShader(psbinary_pointer, filesize, nullptr, &g_pPixelShader);
-
-	delete[] psbinary_pointer; // ƒoƒCƒiƒŠƒf[ƒ^‚Ìƒoƒbƒtƒ@‚ğ‰ğ•ú
-
-	if (FAILED(hr)) {
-		hal::dout << "Shader_Initialize() : ƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½" << std::endl;
-		return false;
-	}
-
-	// ƒsƒNƒZƒ‹ƒVƒF[ƒ_[—p’è”ƒoƒbƒtƒ@‚Ìì¬
-	buffer_desc.ByteWidth = sizeof(XMFLOAT4); // ƒoƒbƒtƒ@‚ÌƒTƒCƒY
-
-	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pPSConstantBuffer0);
-
-	return true;
+    hr = dev->CreatePixelShader(ps_data.data(), ps_size, nullptr, &g_pPixelShader);
+    return SUCCEEDED(hr);
 }
 
-void ShaderBillboard_Finalize()
-{
-	SAFE_RELEASE(g_pPixelShader);
-	SAFE_RELEASE(g_pPSConstantBuffer0);
-	SAFE_RELEASE(g_pVSConstantBuffer0);
-	SAFE_RELEASE(g_pVSConstantBuffer3);
-	SAFE_RELEASE(g_pInputLayout);
-	SAFE_RELEASE(g_pVertexShader);
+void ShaderBillboard_Begin() {
+    auto ctx = Direct3D_GetContext();
+
+    // ÄÎÁÀÂÜÒÅ İÒÓ ÏĞÎÂÅĞÊÓ
+    if (g_pVertexShader == nullptr) OutputDebugStringA("VS NULL\n");
+    if (g_pPixelShader == nullptr) OutputDebugStringA("PS NULL\n");
+
+    if (!g_pVertexShader || !g_pPixelShader) return;
+
+    ctx->VSSetShader(g_pVertexShader, nullptr, 0);
+    ctx->PSSetShader(g_pPixelShader, nullptr, 0); // ÏĞÈÂßÇÊÀ ÏÈÊÑÅËÜÍÎÃÎ ØÅÉÄÅĞÀ
+    ctx->IASetInputLayout(g_pInputLayout);
+
+    // Îáÿçàòåëüíî ïåğåäàåì áóôåğû
+    ctx->VSSetConstantBuffers(0, 1, &g_pVSConstantBuffer0);
+    ctx->PSSetConstantBuffers(0, 1, &g_pPSConstantBuffer0);
 }
 
-void ShaderBillboard_SetWorldMatrix(const DirectX::XMMATRIX& matrix)
-{
-	// ’è”ƒoƒbƒtƒ@Ši”[—ps—ñ‚Ì\‘¢‘Ì‚ğ’è‹`
-	XMFLOAT4X4 transpose;
-
-	// s—ñ‚ğ“]’u‚µ‚Ä’è”ƒoƒbƒtƒ@Ši”[—ps—ñ‚É•ÏŠ·
-	XMStoreFloat4x4(&transpose, XMMatrixTranspose(matrix));
-
-	// ’è”ƒoƒbƒtƒ@‚És—ñ‚ğƒZƒbƒg
-	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer0, 0, nullptr, &transpose, 0, 0);
+void ShaderBillboard_SetVSConstant(const BillboardVSConstant& cb) {
+    if (g_pVSConstantBuffer0 == nullptr) return;
+    Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer0, 0, nullptr, &cb, 0, 0);
 }
 
-void ShaderBillboard_SetColor(const DirectX::XMFLOAT4& color)
-{
-	// ’è”ƒoƒbƒtƒ@‚És—ñ‚ğƒZƒbƒg
-	Direct3D_GetContext()->UpdateSubresource(g_pPSConstantBuffer0, 0, nullptr, &color, 0, 0);
+void ShaderBillboard_SetColor(const DirectX::XMFLOAT4& color) {
+    if (g_pPSConstantBuffer0 == nullptr) return;
+    Direct3D_GetContext()->UpdateSubresource(g_pPSConstantBuffer0, 0, nullptr, &color, 0, 0);
 }
 
-void ShaderBillboard_SetUVParameter(const UVParameter& parameter)
-{
-	// ’è”ƒoƒbƒtƒ@‚És—ñ‚ğƒZƒbƒg
-	Direct3D_GetContext()->UpdateSubresource(g_pVSConstantBuffer3, 0, nullptr, &parameter, 0, 0);
-}
-
-void ShaderBillboard_Begin()
-{
-	// ’¸“_ƒVƒF[ƒ_[‚ÆƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚ğ•`‰æƒpƒCƒvƒ‰ƒCƒ“‚Éİ’è
-	Direct3D_GetContext()->VSSetShader(g_pVertexShader, nullptr, 0);
-	Direct3D_GetContext()->PSSetShader(g_pPixelShader, nullptr, 0);
-
-	// ’¸“_ƒŒƒCƒAƒEƒg‚ğ•`‰æƒpƒCƒvƒ‰ƒCƒ“‚Éİ’è
-	Direct3D_GetContext()->IASetInputLayout(g_pInputLayout);
-
-	// ’è”ƒoƒbƒtƒ@‚ğ•`‰æƒpƒCƒvƒ‰ƒCƒ“‚Éİ’è
-	Direct3D_GetContext()->VSSetConstantBuffers(0, 1, &g_pVSConstantBuffer0);
-	Direct3D_GetContext()->VSSetConstantBuffers(3, 1, &g_pVSConstantBuffer3);
-	Direct3D_GetContext()->PSSetConstantBuffers(0, 1, &g_pPSConstantBuffer0);
+void ShaderBillboard_Finalize() {
+    if (g_pVertexShader) g_pVertexShader->Release();
+    if (g_pPixelShader) g_pPixelShader->Release();
+    if (g_pInputLayout) g_pInputLayout->Release();
+    if (g_pVSConstantBuffer0) g_pVSConstantBuffer0->Release();
+    if (g_pPSConstantBuffer0) g_pPSConstantBuffer0->Release();
 }

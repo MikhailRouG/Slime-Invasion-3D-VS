@@ -1,160 +1,119 @@
-/*==============================================================================
-
-   ÉrÉãÉ{Å[Éhï`âÊ [billboard.cpp]
-														 Author :
-														 Date   : 2025/11/14
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "billboard.h"
 #include "shader_billboard.h"
 #include "direct3d.h"
-#include <DirectXMath.h>
-using namespace DirectX;
-#include "texture.h"
 #include "player_camera.h"
+#include "texture.h"
+#include "sampler.h"
 
-static constexpr int NUM_VERTEX = 4; // í∏ì_êî
+using namespace DirectX;
 
-static ID3D11Buffer* g_pVertexBuffer = nullptr; // í∏ì_ÉoÉbÉtÉ@
+static ID3D11Buffer* g_pVertexBuffer = nullptr;
 
-static XMFLOAT4X4 g_mtxView{}; //ÉrÉÖÅ[çsóÒÇÃïΩçsà⁄ìÆê¨ï™ÇÉJÉbÉgÇµÇΩçsóÒ
+void Billboard_Initialize() {
+    ShaderBillboard_Initialize();
 
-// 3Dí∏ì_ç\ë¢ëÃ
-struct Vertex3d
-{
-	XMFLOAT3 position; // í∏ì_ç¿ïW
-	XMFLOAT4 color;    // êF
-	XMFLOAT2 texcoord; // UV
-};
+    Vertex3d vertex[] = {
+        { {-0.5f,  0.5f, 0.0f}, {1.0f,1.0f,1.0f,1.0f}, {0.0f, 0.0f} },
+        { { 0.5f,  0.5f, 0.0f}, {1.0f,1.0f,1.0f,1.0f}, {1.0f, 0.0f} },
+        { {-0.5f, -0.5f, 0.0f}, {1.0f,1.0f,1.0f,1.0f}, {0.0f, 1.0f} },
+        { { 0.5f, -0.5f, 0.0f}, {1.0f,1.0f,1.0f,1.0f}, {1.0f, 1.0f} }
+    };
 
-void Billboard_Initialize()
-{
-	ShaderBillboard_Initialize();
+    D3D11_BUFFER_DESC bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(Vertex3d) * 4;
+    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
-	Vertex3d vertex[]{
-		{ {-0.5f, 0.5f, 0.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0.0f, 0.0f } },
-		{ { 0.5f, 0.5f, 0.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 1.0f, 0.0f } },
-		{ {-0.5f,-0.5f, 0.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0.0f, 1.0f } },
-		{ { 0.5f,-0.5f, 0.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 1.0f, 1.0f } }
-	};
-
-	// í∏ì_ÉoÉbÉtÉ@ê∂ê¨
-	D3D11_BUFFER_DESC bd = {};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(Vertex3d) * NUM_VERTEX; // sizeof(vertex);
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA sd{};
-	sd.pSysMem = vertex;
-
-	Direct3D_GetDevice()->CreateBuffer(&bd, &sd, &g_pVertexBuffer);
-
+    D3D11_SUBRESOURCE_DATA sd = { vertex };
+    Direct3D_GetDevice()->CreateBuffer(&bd, &sd, &g_pVertexBuffer);
 }
 
-void Billboard_Finalize()
+void Billboard_Draw(int texId, const XMFLOAT3& position, const XMFLOAT2& scale, const XMFLOAT4& color, const XMFLOAT2& pivot) {
+    if (g_pVertexBuffer == nullptr) return;
+
+    auto ctx = Direct3D_GetContext();
+
+    // 1. œŒÀ”◊≈Õ»≈ Ã¿“–»÷  ¿Ã≈–€
+    XMMATRIX view = XMLoadFloat4x4(&PlayerCamera_GetViewMatrix());
+    XMMATRIX proj = XMLoadFloat4x4(&PlayerCamera_GetPerspectiveMatrix());
+
+    // 2. –¿—◊≈“ Ã¿“–»÷€ ¡»À¡Œ–ƒ¿ (Face to Camera)
+    // »Ì‚ÂÚËÛÂÏ Ï‡ÚËˆÛ ‚Ë‰‡, ˜ÚÓ·˚ ÔÓÎÛ˜ËÚ¸ ÓËÂÌÚ‡ˆË˛ Í‡ÏÂ˚
+    XMMATRIX invView = XMMatrixInverse(nullptr, view);
+    // Œ·ÌÛÎˇÂÏ ÔÓÁËˆË˛ Í‡ÏÂ˚ ‚ Ï‡ÚËˆÂ, ÓÒÚ‡‚Îˇˇ ÚÓÎ¸ÍÓ ‚‡˘ÂÌËÂ
+    invView.r[3] = XMVectorSet(0, 0, 0, 1);
+
+    // »ÚÓ„Ó‚‡ˇ ÏËÓ‚‡ˇ Ï‡ÚËˆ‡: Ã‡Ò¯Ú‡· -> —‰‚Ë„ ÔË‚ÓÚ‡ -> ¬‡˘ÂÌËÂ Í‡ÏÂ˚ -> œÓÁËˆËˇ ‚ ÏËÂ
+    XMMATRIX mWorld = XMMatrixScaling(scale.x, scale.y, 1.0f) * XMMatrixTranslation(-pivot.x, -pivot.y, 0.0f) * invView * XMMatrixTranslation(position.x, position.y, position.z);
+
+    // 3. œŒƒ√Œ“Œ¬ ¿  ŒÕ—“¿Õ“ÕŒ√Œ ¡”‘≈–¿
+    BillboardVSConstant cb;
+    XMStoreFloat4x4(&cb.world, XMMatrixTranspose(mWorld));
+    XMStoreFloat4x4(&cb.view, XMMatrixTranspose(view));
+    XMStoreFloat4x4(&cb.proj, XMMatrixTranspose(proj));
+    cb.scale = { 1.0f, 1.0f };
+    cb.translation = { 0.0f, 0.0f };
+    // œÓÎˇ padding Ë dummy Á‡ÔÓÎÌˇ˛ÚÒˇ ÌÛÎˇÏË ‡‚ÚÓÏ‡ÚË˜ÂÒÍË ËÎË Ë„ÌÓËÛ˛ÚÒˇ
+
+    // 4. ”—“¿ÕŒ¬ ¿ —Œ—“ŒﬂÕ»… » Œ“–»—Œ¬ ¿
+    ShaderBillboard_Begin();
+    ShaderBillboard_SetVSConstant(cb); // «‰ÂÒ¸ ÚÂÔÂ¸ ÂÒÚ¸ ÔÓ‚ÂÍ‡ Ì‡ NULL ‚ÌÛÚË
+    ShaderBillboard_SetColor(color);   // ”ÒÚ‡ÌÓ‚Í‡ ˆ‚ÂÚ‡ ‰Îˇ PS
+
+    Texture_SetTexture(texId);
+    Sampler_SetFilterLinear();
+
+    // Õ‡ÒÚÓÈÍ‡ ÍÓÌ‚ÂÈÂ‡
+    UINT stride = sizeof(Vertex3d);
+    UINT offset = 0;
+    ctx->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+    ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+    // –ËÒÛÂÏ 4 ‚Â¯ËÌ˚
+    ctx->Draw(4, 0);
+}
+
+void Billboard_Draw(int texId, const XMFLOAT3& position, const XMFLOAT2& scale, const XMFLOAT4& color, const XMFLOAT2& pivot, const XMFLOAT2& uvScale, const XMFLOAT2& uvOffset)
 {
-	SAFE_RELEASE(g_pVertexBuffer);
-	ShaderBillboard_Finalize();
+    if (g_pVertexBuffer == nullptr) return;
+
+    auto ctx = Direct3D_GetContext();
+
+    // 1. œÓÎÛ˜‡ÂÏ Ï‡ÚËˆ˚ Í‡ÏÂ˚
+    XMMATRIX view = XMLoadFloat4x4(&PlayerCamera_GetViewMatrix());
+    XMMATRIX proj = XMLoadFloat4x4(&PlayerCamera_GetPerspectiveMatrix());
+
+    // 2. –‡Ò˜ÂÚ Ï‡ÚËˆ˚ ÏË‡ (Face to Camera)
+    XMMATRIX invView = XMMatrixInverse(nullptr, view);
+    invView.r[3] = XMVectorSet(0, 0, 0, 1); // ”·Ë‡ÂÏ ÔÓÁËˆË˛ Í‡ÏÂ˚ ËÁ ËÌ‚ÂÚËÓ‚‡ÌÌÓÈ Ï‡ÚËˆ˚
+
+    // Ã‡Ò¯Ú‡· -> œË‚ÓÚ -> œÓ‚ÓÓÚ Í Í‡ÏÂÂ -> œÓÁËˆËˇ ‚ ÏËÂ
+    XMMATRIX mWorld = XMMatrixScaling(scale.x, scale.y, 1.0f) * XMMatrixTranslation(-pivot.x, -pivot.y, 0.0f) * invView * XMMatrixTranslation(position.x, position.y, position.z);
+
+    BillboardVSConstant cb;
+    XMStoreFloat4x4(&cb.world, XMMatrixTranspose(mWorld)); 
+    XMStoreFloat4x4(&cb.view, XMMatrixTranspose(view));
+    XMStoreFloat4x4(&cb.proj, XMMatrixTranspose(proj));
+
+    cb.scale = uvScale;   // Ã‡Ò¯Ú‡· Í‡‰‡ (uw, vh)
+    cb.translation = uvOffset; // —ÏÂ˘ÂÌËÂ Í‡‰‡ (u, v)
+
+    ShaderBillboard_Begin();
+    ShaderBillboard_SetVSConstant(cb);
+    ShaderBillboard_SetColor(color);
+
+    Texture_SetTexture(texId);
+    Sampler_SetFilterLinear();
+
+    UINT stride = sizeof(Vertex3d);
+    UINT offset = 0;
+    ctx->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+    ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+    ctx->Draw(4, 0);
 }
 
-void Billboard_SetViewMatrix(const DirectX::XMFLOAT4X4& view){
-	// ÉJÉÅÉâçsóÒÇÃïΩçsà⁄ìÆê¨ï™ÇÉJÉbÉg
-	g_mtxView = view;
-	g_mtxView._41 = g_mtxView._42 = g_mtxView._43 = 0.0f; // ïΩçsà⁄ìÆçsóÒÇè¡Ç∑
-}
-
-void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT2& pivot)
-{
-	//ShaderBillboard_SetUVParameter({ { 1.0f / 7.0f, 1.0f }, { 3.0f / 7.0f, 0.0f } });
-	ShaderBillboard_SetUVParameter({ { 1.0f , 1.0f }, { 0.0f, 0.0f } });
-
-	// ÉVÉFÅ[É_Å[Çï`âÊÉpÉCÉvÉâÉCÉìÇ…ê›íË
-	ShaderBillboard_Begin();
-
-	// ÉsÉNÉZÉãÉVÉFÅ[É_Å[Ç…êFÇê›íË
-	ShaderBillboard_SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-
-	//ÉeÉNÉXÉ`ÉÉÇÃê›íË
-	Texture_SetTexture(texId);
-
-	// í∏ì_ÉoÉbÉtÉ@Çï`âÊÉpÉCÉvÉâÉCÉìÇ…ê›íË
-	UINT stride = sizeof(Vertex3d);
-	UINT offset = 0;
-	Direct3D_GetContext()->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-
-	// ÉCÉìÉfÉbÉNÉXÉoÉbÉtÉ@Çï`âÊÉpÉCÉvÉâÉCÉìÇ…ê›íË
-	//Direct3D_GetContext()->IASetIndexBuffer(nullptr, DXGI_FORMAT_R16_UINT, 0); // unsigned int _R32
-
-	// ÉvÉäÉ~ÉeÉBÉuÉgÉ|ÉçÉWê›íË
-	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);//POINTLIST //LINESTRIP //TRIANGLELIST //LINELIST
-
-	// í∏ì_ÉVÉFÅ[É_Å[Ç…ÉèÅ[ÉãÉhç¿ïWïœä∑çsóÒÇê›íË
-	
-	// ÉJÉÅÉâçsóÒÇÃâÒì]ÇæÇØãtçsóÒÇçÏÇÈ
-	
-	//XMMATRIX iv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&g_mtxView)); // èdÇ¢ââéZ
-	// íºåçsóÒÇÃãtçsóÒÇÕì]íuçsóÒÇ…ìôÇµÇ¢
-	XMMATRIX iv = XMMatrixTranspose(XMLoadFloat4x4(&g_mtxView));
-
-	// âÒì]é≤Ç‹Ç≈ÇÃÉIÉtÉZÉbÉgçsóÒ
-	XMMATRIX pivot_offset = XMMatrixTranslation(-pivot.x, -pivot.y, 0.0f);
-
-	XMMATRIX s = XMMatrixScaling(scale.x, scale.y, 1.0f);
-	XMMATRIX t = XMMatrixTranslation(position.x + pivot.x, position.y + pivot.y, position.z);
-	//ägëÂèkè¨Å®ÉsÉ{ÉbÉgÇÇ∏ÇÁÇ∑Å®ÉJÉÅÉâÇ∆ãtå¸Ç´Ç…âÒì]Å®ïΩçsà⁄ìÆ
-	//Ç±ÇÃå„ÉVÉFÅ[É_Å[ë§Ç≈ÉJÉÅÉâÇ™âÒì]Ç∑ÇÈ
-	ShaderBillboard_SetWorldMatrix(s * pivot_offset * iv * t);
-
-	// É|ÉäÉSÉìï`âÊñΩóﬂî≠çs
-	Direct3D_GetContext()->Draw(NUM_VERTEX, 0);
-}
-
-void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale, const DirectX::XMUINT4& tex_cut, const DirectX::XMFLOAT2& pivot){
-	float uv_x = (float)tex_cut.x / Texture_Width(texId);
-	float uv_y = (float)tex_cut.y / Texture_Height(texId);
-	float uv_w = (float)tex_cut.z / Texture_Width(texId);
-	float uv_h = (float)tex_cut.w / Texture_Height(texId);
-
-	ShaderBillboard_SetUVParameter({ { uv_w , uv_h }, { uv_x, uv_y } });
-
-	// ÉVÉFÅ[É_Å[Çï`âÊÉpÉCÉvÉâÉCÉìÇ…ê›íË
-	ShaderBillboard_Begin();
-
-	// ÉsÉNÉZÉãÉVÉFÅ[É_Å[Ç…êFÇê›íË
-	ShaderBillboard_SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-
-	//ÉeÉNÉXÉ`ÉÉÇÃê›íË
-	Texture_SetTexture(texId);
-
-	// í∏ì_ÉoÉbÉtÉ@Çï`âÊÉpÉCÉvÉâÉCÉìÇ…ê›íË
-	UINT stride = sizeof(Vertex3d);
-	UINT offset = 0;
-	Direct3D_GetContext()->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-
-	// ÉCÉìÉfÉbÉNÉXÉoÉbÉtÉ@Çï`âÊÉpÉCÉvÉâÉCÉìÇ…ê›íË
-	//Direct3D_GetContext()->IASetIndexBuffer(nullptr, DXGI_FORMAT_R16_UINT, 0); // unsigned int _R32
-
-	// ÉvÉäÉ~ÉeÉBÉuÉgÉ|ÉçÉWê›íË
-	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);//POINTLIST //LINESTRIP //TRIANGLELIST //LINELIST
-
-	// í∏ì_ÉVÉFÅ[É_Å[Ç…ÉèÅ[ÉãÉhç¿ïWïœä∑çsóÒÇê›íË
-
-	// ÉJÉÅÉâçsóÒÇÃâÒì]ÇæÇØãtçsóÒÇçÏÇÈ
-	//XMMATRIX iv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&g_mtxView)); // èdÇ¢ââéZ
-	// íºåçsóÒÇÃãtçsóÒÇÕì]íuçsóÒÇ…ìôÇµÇ¢
-	XMMATRIX iv = XMMatrixTranspose(XMLoadFloat4x4(&g_mtxView));
-
-	// âÒì]é≤Ç‹Ç≈ÇÃÉIÉtÉZÉbÉgçsóÒ
-	XMMATRIX pivot_offset = XMMatrixTranslation(-pivot.x, -pivot.y, 0.0f);
-
-	XMMATRIX s = XMMatrixScaling(scale.x, scale.y, 1.0f);
-	XMMATRIX t = XMMatrixTranslation(position.x + pivot.x, position.y + pivot.y, position.z);
-	//ägëÂèkè¨Å®ÉsÉ{ÉbÉgÇÇ∏ÇÁÇ∑Å®ÉJÉÅÉâÇ∆ãtå¸Ç´Ç…âÒì]Å®ïΩçsà⁄ìÆ
-	//Ç±ÇÃå„ÉVÉFÅ[É_Å[ë§Ç≈ÉJÉÅÉâÇ™âÒì]Ç∑ÇÈ
-	ShaderBillboard_SetWorldMatrix(s * pivot_offset * iv * t);
-
-	// É|ÉäÉSÉìï`âÊñΩóﬂî≠çs
-	Direct3D_GetContext()->Draw(NUM_VERTEX, 0);
+void Billboard_Finalize() {
+    if (g_pVertexBuffer) g_pVertexBuffer->Release();
+    ShaderBillboard_Finalize();
 }

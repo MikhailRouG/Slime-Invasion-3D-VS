@@ -1,11 +1,3 @@
-/*==============================================================================
-
-   ƒ‚ƒfƒ‹•\Ž¦ [model.h]
-														 Author : Harada Ren
-														 Date   : 2025/10/20
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #ifndef MODEL_H
 #define MODEL_H
 
@@ -38,7 +30,10 @@ MODEL* ModelLoad(const char* FileName, float scale = 1.0f, bool bBlender = false
 void ModelRelease(MODEL* model);
 
 void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld);
-
+void ModelDraw(MODEL* model, const DirectX::XMMATRIX& world, const DirectX::XMFLOAT4& color);
+void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld, int texid = 0);
+void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld, const  DirectX::XMFLOAT4& color);
+void ModelDepthDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld);
 AABB Model_GetAABB(MODEL* model, const DirectX::XMFLOAT3& position);
 
 #endif //MODEL_H

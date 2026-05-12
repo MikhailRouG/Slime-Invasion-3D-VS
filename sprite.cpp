@@ -1,12 +1,3 @@
-/*==============================================================================
-
-   スプライト描画 [sprite.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/05/15
---------------------------------------------------------------------------------
-
-==============================================================================*/
-
 #include <d3d11.h>
 #include <DirectXMath.h>
 using namespace DirectX;
@@ -397,6 +388,56 @@ void Sprite_Draw(int texid, float dx, float dy, float dw, float dh, int px, int 
 
 	//テクスチャセット
 	Texture_SetTexture(texid);
+
+	// ポリゴン描画命令発行
+	g_pContext->Draw(NUM_VERTEX, 0);
+}
+
+void Sprite_Draw(float dx, float dy, float dw, float dh, const DirectX::XMFLOAT4& color)
+{
+	Shader2d_Begin();
+
+	// 頂点バッファをロックする
+	D3D11_MAPPED_SUBRESOURCE msr;
+	g_pContext->Map(g_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+
+	// 頂点バッファへの仮想ポインタを取得
+	Vertex* v = (Vertex*)msr.pData;
+
+
+	//画面左上から
+	v[0].position = { dx		, dy		, 0.0f }; //z軸の値が同じ以下だと描画しない
+	v[1].position = { dx + dw	, dy		, 0.0f };
+	v[2].position = { dx		, dy + dh	, 0.0f };
+	v[3].position = { dx + dw	, dy + dh	, 0.0f };
+
+	//r,g,b,a
+	v[0].color = color; //左上
+	v[1].color = color; //右上
+	v[2].color = color; //左下
+	v[3].color = color; //右下
+
+	v[0].texcoord = { 0.0f,0.0f };
+	v[1].texcoord = { 1.0f,0.0f };
+	v[2].texcoord = { 0.0f,1.0f };
+	v[3].texcoord = { 1.0f,1.0f };
+
+
+
+	// 頂点バッファのロックを解除
+	g_pContext->Unmap(g_pVertexBuffer, 0);
+
+	Shader2d_SetWorldMatrix(XMMatrixIdentity()); //単位行列
+
+	// 頂点バッファを描画パイプラインに設定
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+
+
+	// プリミティブトポロジ設定
+	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
 
 	// ポリゴン描画命令発行
 	g_pContext->Draw(NUM_VERTEX, 0);

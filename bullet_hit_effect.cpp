@@ -1,20 +1,12 @@
-/*==============================================================================
-
-   弾衝突エフェクト [bullet_hit_effect.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/11/19
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "bullet_hit_effect.h"
 #include "texture.h"
 #include "sprite_anim.h"
 #include "billboard.h"
+#include "particle_test.h"
 using namespace DirectX;
 
-static int g_TexId = -1;
+static int g_TexExpId = -1;
 static int g_AnimPatternId = -1;
-
 class BulletHitEffect {
 private:
 	XMFLOAT3 m_position{};
@@ -24,6 +16,7 @@ private:
 public:
 	BulletHitEffect(const XMFLOAT3& position)
 		: m_position(position),m_anim_play_id (SpriteAnim_CreatePlayer(g_AnimPatternId)){
+
 	}
 	~BulletHitEffect() {
 		SpriteAnim_DestroyPlayer(m_anim_play_id);
@@ -42,9 +35,8 @@ static BulletHitEffect* g_pEffects[EFFECT_MAX]{};
 static int g_EffectCount{ 0 };
 
 void BulletHitEffect_Initialize(){
-	g_TexId = Texture_Load(L"resource/texture/explosion.png");
-	g_AnimPatternId = SpriteAnim_RegisterPattern(g_TexId, 7, 7, 0.2, { 300,400 }, { 0,0 }, false);
-
+	g_TexExpId = Texture_Load(L"resource/texture/explosion.png");
+	g_AnimPatternId = SpriteAnim_RegisterPattern(g_TexExpId, 7, 7, 0.1, { 300,400 }, { 0,0 }, false);
 	g_EffectCount = 0;
 }
 
@@ -75,7 +67,7 @@ void BulletHitEffect_Draw(){
 	}
 }
 
-void BukketHitEffect_Create(const DirectX::XMFLOAT3& position){
+void BulletHitEffect_Create(const DirectX::XMFLOAT3& position){
 	g_pEffects[g_EffectCount++] = new BulletHitEffect(position);
 }
 
@@ -86,6 +78,6 @@ void BulletHitEffect::Update(){
 }
 
 void BulletHitEffect::Draw() const{
-	BillboardAnim_Draw(m_anim_play_id,m_position, { 3.0f, 4.0f });
+	BillboardAnim_Draw(m_anim_play_id, m_position, { 3,4 });
 
 }

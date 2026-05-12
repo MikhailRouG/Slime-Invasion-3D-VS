@@ -1,28 +1,21 @@
-/*==============================================================================
-
-  画面遷移制御[scene.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/07/11
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #include "scene.h"
 #include "game.h"
 #include "pause.h"
 #include <vector>
-
+#include "title.h"
+#include "EndScene.h"
+#include "game_Ui.h"
 static std::vector<Scene> g_SceneStack;
 
 void Scene_Initialize(){
 	g_SceneStack.clear();
-	g_SceneStack.push_back(SCENE_GAME);
-	Game_Initialize();
+	Scene_Push(SCENE_TITLE);
 }
 
 void Scene_Finalize(){
 	switch (GetCurrentScene()) {
 	case SCENE_TITLE:
-		//Title_Finalize();
+		Title_Finalize();
 		break;
 
 	case SCENE_VOLUME:
@@ -38,7 +31,7 @@ void Scene_Finalize(){
 		break;
 
 	case SCENE_RESULT:
-		//Result_Finalize();
+		EndScene_Finalize();
 		break;
 
 	case SCENE_CLEAR:
@@ -53,7 +46,7 @@ void Scene_Finalize(){
 void Scene_Update(double elapsed_time){
 	switch (GetCurrentScene()) {
 	case SCENE_TITLE:
-		//Title_Update();
+		Title_Update(elapsed_time);
 		break;
 
 	case SCENE_VOLUME:
@@ -69,7 +62,7 @@ void Scene_Update(double elapsed_time){
 		break;
 
 	case SCENE_RESULT:
-		//Result_Update();
+		EndScene_Update(elapsed_time);
 		break;
 
 	case SCENE_CLEAR:
@@ -85,7 +78,7 @@ void Scene_Draw(){
 	for (Scene scene : g_SceneStack) {
 		switch (scene) {
 		case SCENE_TITLE:
-			//Title_Draw();
+			Title_Draw();
 			break;
 
 		case SCENE_VOLUME:
@@ -101,7 +94,7 @@ void Scene_Draw(){
 			break;
 
 		case SCENE_RESULT:
-			//Result_Draw();
+			EndScene_Draw();
 			break;
 
 		case SCENE_CLEAR:
@@ -114,13 +107,43 @@ void Scene_Draw(){
 	}
 }
 
+void OnClick(int mx, int my,bool isClick)
+{
+	switch (GetCurrentScene()) {
+	case SCENE_TITLE:
+		TitleUI_HandleClick(mx,my,isClick);
+		break;
+
+	case SCENE_VOLUME:
+		//Volume_Update(elapsed_time);
+		break;
+
+	case SCENE_GAME:
+		 GameUi_Button(mx, my, isClick);
+		break;
+
+	case SCENE_PAUSE:
+		//Pause_Update();
+		break;
+
+	case SCENE_RESULT:
+		EndUI_HandleClick(mx, my, isClick);
+		break;
+
+	case SCENE_CLEAR:
+		break;
+
+	default:
+		break;
+	}
+}
+
 //現在のシーンを返す
 Scene GetCurrentScene() {
 	return g_SceneStack.back(); //vectorの末尾
 }
 
 void Scene_Change(Scene scene){
-	//スタックをすべてクリアして新しいシーンを追加
 	while (!g_SceneStack.empty()) {
 		Scene_Pop();
 	}
@@ -132,7 +155,7 @@ void Scene_Push(Scene scene){
 
 	switch (GetCurrentScene()){
 	case SCENE_TITLE:
-		//Title_Initialize();
+		Title_Initialize();
 		break;
 
 	case SCENE_VOLUME:
@@ -148,7 +171,7 @@ void Scene_Push(Scene scene){
 		break;
 
 	case SCENE_RESULT:
-		//Result_Initialize();
+		EndScene_Initialize();
 		break;
 
 	case SCENE_CLEAR:

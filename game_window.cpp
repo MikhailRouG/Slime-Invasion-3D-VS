@@ -1,19 +1,11 @@
-/*====================================================================================
 
-ウィンドウプロシージャ[game_window.cpp]
-
-																Author	: Harada Ren
-																Date	: 2025/06/06
---------------------------------------------------------------------------------------
-
-======================================================================================*/
 
 #include "game_window.h"
 #include <algorithm> //std::maxを使う
 #include "keyboard.h"
 #include "mouse.h"
 #include "game.h"
-
+#include "system_timer.h"
 
 //ウィンドウ情報
 static constexpr char WINDOW_CLASS[] = "GameWindow"; //メインウィンドウクラス名
@@ -94,9 +86,16 @@ HWND GameWindow_GetHWND(){
 //マウス移動・クリック・ウィンドウ操作などあらゆる操作
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
+	case WM_ACTIVATE:
+		if (wParam != WA_INACTIVE)
+		{
+			SystemTimer_Start();
+		}
+		break;
 	case WM_ACTIVATEAPP:
 		Keyboard_ProcessMessage(message, wParam, lParam);
 		Mouse_ProcessMessage(message, wParam, lParam);
+		SystemTimer_Stop();
 		break;
     case WM_INPUT:
     case WM_MOUSEMOVE:
@@ -120,7 +119,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	    break;
 
 	case WM_CLOSE: //×ボタンもしくはウィンドウを閉じるときに警告を出すなど(そのあとに閉じるようにして2段階方式に)
-		if (MessageBox(hWnd, "本当に終了してよろしいですか?", "確認", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
+		if (MessageBox(hWnd, "Exit the Game", "Exit", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
 			DestroyWindow(hWnd);
 		}
 		break;

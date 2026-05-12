@@ -1,12 +1,4 @@
-/*==============================================================================
-
-   ƒvƒŒƒCƒ„[—p‚ÌƒJƒƒ‰§Œä [player_camera.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/10/31
---------------------------------------------------------------------------------
-
-==============================================================================*/
-#include "player_camera.h"
+ï»¿#include "player_camera.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "direct3d.h"
@@ -18,49 +10,66 @@ static XMFLOAT3 g_CameraPosition{ 0.0f,0.0f,0.0f };
 static XMFLOAT4X4 g_CameraViewMatrix{};
 static XMFLOAT4X4 g_CameraPerspectiveMatrix{};
 
+XMVECTOR g_currentCameraPosition;
+float g_CameraScale;
 void PlayerCamera_Initialize(){
-
+    g_CameraScale = 1;
+    g_currentCameraPosition = XMVectorSet(0.0f, 4.0f, -8.0f, 1.0f);
 }
 
 void PlayerCamera_Finalize()
 {
 }
+void PlayerCamera_Update(double elapsed_time)
+{
+    XMVECTOR pos = XMLoadFloat3(&Player_GetPosition());
+    XMVECTOR playerFront = XMLoadFloat3(&Player_GetFront());
+    playerFront = XMVector3Normalize(playerFront);
 
-void PlayerCamera_Update(double elapsed_time) {
-	elapsed_time = elapsed_time;
-	//XMVECTOR position = XMLoadFloat3(&Player_GetPosition()) - XMLoadFloat3(&Player_GetFront()) * 5.0f;
-	XMVECTOR position = XMLoadFloat3(&Player_GetPosition());
-	position *= {1.0f, 0.0f, 1.0f};
-	XMVECTOR target = position;
-	position += {-12.0f, 10.0f, -12.0f};
-	target += {0.0f, 5.0f, 0.0f};
-	XMVECTOR front = XMVector3Normalize(target - position);
-	XMStoreFloat3(&g_CameraPosition, position);
-	XMStoreFloat3(&g_CameraFront, front);
+    const float DIST_BACK = 8.0f * g_CameraScale;
+    const float HEIGHT = 4.0f * g_CameraScale;
 
-	//ƒrƒ…[•ÏŠ·s—ñ‚Ìì¬
-	//(ƒJƒƒ‰‚ÌÀ•WA’‹“_AŒÅ’è—p‚Ì^ã•ûŒü) LH...LeftHand
-	XMMATRIX mtxView = XMMatrixLookAtLH(
-		position, 
-		target,
-		{ 0.0f,1.0f,0.0f }
-	);
+    XMVECTOR cameraPos =
+        pos
+        - playerFront * DIST_BACK
+        + XMVectorSet(0, HEIGHT, 0, 0);
 
-	// ƒJƒƒ‰s—ñ‚ğ•Û‘¶
-	XMStoreFloat4x4(&g_CameraViewMatrix, mtxView);
+    XMVECTOR target = pos + XMVectorSet(0, 2, 0, 0);
 
-	// ’¸“_ƒVƒF[ƒ_[‚É•ÏŠ·s—ñ‚ğİ’è
-	// ƒp[ƒXƒyƒNƒeƒBƒus—ñ‚Ìì¬
-	//(ƒJƒƒ‰ƒAƒ“ƒOƒ‹‚ğƒ‰ƒWƒAƒ“Šp‚ÅA‰æ–Ê‚Ì•/‚‚³AƒJƒƒ‰‚©‚çƒXƒNƒŠ[ƒ“‚Ü‚Å‚Ì‹——£AƒJƒƒ‰‚©‚ç‹‘ä‚Ì’[‚Ü‚Å)
-	//constexpr float fovAnglerY = XMConvertToRadians(60.0f);
-	float aspextRatio = (float)Direct3D_GetBackBufferWidth() / (float)Direct3D_GetBackBufferHeight();
-	float nearz = 0.1f;
-	float farz = 100.0f;
-	XMMATRIX mtxPerspective = XMMatrixPerspectiveFovLH(1.0f, aspextRatio, nearz, farz);
+    g_currentCameraPosition =
+        XMVectorLerp(g_currentCameraPosition, cameraPos, 5.0f * elapsed_time);
 
-	//ƒp[ƒXƒyƒNƒeƒBƒus—ñ‚Ì•Û‘¶
-	XMStoreFloat4x4(&g_CameraPerspectiveMatrix, mtxPerspective);
+    g_currentCameraPosition = XMVectorSetW(g_currentCameraPosition, 1.0f);
+
+    XMStoreFloat3(&g_CameraPosition, g_currentCameraPosition);
+
+    XMMATRIX view = XMMatrixLookAtLH(
+        g_currentCameraPosition,
+        target,
+        XMVectorSet(0, 1, 0, 0)
+    );
+
+    XMStoreFloat4x4(&g_CameraViewMatrix, view);
+
+    float aspect =
+        (float)Direct3D_GetBackBufferWidth() /
+        (float)Direct3D_GetBackBufferHeight();
+
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(
+        XM_PIDIV4,
+        aspect,
+        0.1f,
+        200.0f
+    );
+
+    XMStoreFloat4x4(&g_CameraPerspectiveMatrix, proj);
 }
+
+void PlayerCamera_SetScale(float scale)
+{
+    g_CameraScale = scale;
+}
+
 
 const DirectX::XMFLOAT3& PlayerCamera_GetFront(){
 	return g_CameraFront;

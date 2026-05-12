@@ -1,13 +1,3 @@
-/*====================================================================================
-
-テクスチャ管理[texture.cpp]
-
-																Author	: Harada Ren
-																Date	: 2025/06/13
---------------------------------------------------------------------------------------
-
-======================================================================================*/
-
 #include "texture.h"
 #include "direct3d.h"
 #include <string>
@@ -72,6 +62,11 @@ int Texture_Load(const wchar_t* pFilename){
 
 		ID3D11Texture2D* pTexture = (ID3D11Texture2D*)g_Textures[i].pTexture;
 		D3D11_TEXTURE2D_DESC t2desc;
+		if (!pTexture)
+		{
+			//MessageBoxA(nullptr, "Texture is null!", "Texture Error", MB_OK);
+			return -1; 
+		}
 		pTexture->GetDesc(&t2desc);
 		g_Textures[i].width = t2desc.Width;
 		g_Textures[i].height = t2desc.Height;

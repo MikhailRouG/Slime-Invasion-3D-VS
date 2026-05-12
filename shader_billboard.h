@@ -1,32 +1,22 @@
-/*==============================================================================
-
-   ГrГЛГ{Б[ГhГVГFБ[Г_Б[ [shader_billboard.h]
-														 Author : Harada Ren
-														 Date   : 2025/11/14
---------------------------------------------------------------------------------
-
-==============================================================================*/
 #ifndef SHADER_BILLBOARD_H
-#define	SHADER_BILLBOARD_H
+#define SHADER_BILLBOARD_H
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-bool ShaderBillboard_Initialize();
-void ShaderBillboard_Finalize();
-
-void ShaderBillboard_SetWorldMatrix(const DirectX::XMMATRIX& matrix);
-
-void ShaderBillboard_SetColor(const DirectX::XMFLOAT4& color);
-
-struct UVParameter
-{
-	DirectX::XMFLOAT2 scale;
-	DirectX::XMFLOAT2 translation;
+struct BillboardVSConstant {
+    DirectX::XMFLOAT4X4 world;
+    DirectX::XMFLOAT4X4 view;
+    DirectX::XMFLOAT4X4 proj;
+    DirectX::XMFLOAT2   scale;
+    DirectX::XMFLOAT2   translation;
+    float padding[2]; // ¬ыравнивание до 16 байт
 };
 
-void ShaderBillboard_SetUVParameter(const UVParameter& parameter);
-
+bool ShaderBillboard_Initialize();
+void ShaderBillboard_Finalize();
+void ShaderBillboard_SetVSConstant(const BillboardVSConstant& cb);
+void ShaderBillboard_SetColor(const DirectX::XMFLOAT4& color);
 void ShaderBillboard_Begin();
 
-#endif // SHADER_BILLBOARD_H
+#endif

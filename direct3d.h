@@ -1,43 +1,59 @@
-/*==============================================================================
-
-   Direct3D‚Ì‰Šú‰»ŠÖ˜A [direct3d.cpp]
-														 Author : Harada Ren
-														 Date   : 2025/05/12
---------------------------------------------------------------------------------
-
-==============================================================================*/
-#ifndef DIRECT3D_H
+ï»¿#ifndef DIRECT3D_H
 #define DIRECT3D_H
 
 
 #include <Windows.h>
 #include <d3d11.h>
+#include <DirectXMath.h>
 
-
-// ƒZ[ƒtƒŠƒŠ[ƒXƒ}ƒNƒ
+// Ñ“ZĞƒ[Ñ“tÑ“Ğ‰Ñ“Ğ‰Ğƒ[Ñ“XÑ“}Ñ“NÑ“ĞŒ
 #define SAFE_RELEASE(o) if (o) { (o)->Release(); o = NULL; }
 
 
-bool Direct3D_Initialize(HWND hWnd); // Direct3D‚Ì‰Šú‰»
-void Direct3D_Finalize(); // Direct3D‚ÌI—¹ˆ—
+bool Direct3D_Initialize(HWND hWnd); // Direct3Dâ€šĞœĞâ€°Ğ‰ÑŠâ€°Â»
+void Direct3D_Finalize(); // Direct3Dâ€šĞœĞIâ€”â„–Ğâ‚¬â€”Ñœ
 
-void Direct3D_Clear(); // ƒoƒbƒNƒoƒbƒtƒ@‚ÌƒNƒŠƒA
-void Direct3D_Present(); // ƒoƒbƒNƒoƒbƒtƒ@‚Ì•\¦
+void Direct3D_Present(); // Ñ“oÑ“bÑ“NÑ“oÑ“bÑ“tÑ“@â€šĞœâ€¢\Ğ‹Â¦
 
-//ƒoƒbƒNƒoƒbƒtƒ@‚Ì‘å‚«‚³‚Ìæ“¾
-unsigned int Direct3D_GetBackBufferWidth(); //•
-unsigned int Direct3D_GetBackBufferHeight(); //‚‚³
+//Ñ“oÑ“bÑ“NÑ“oÑ“bÑ“tÑ“@â€šĞœâ€˜Ğµâ€šÂ«â€šÑ–â€šĞœĞ‹Ğ¶â€œÑ•
+unsigned int Direct3D_GetBackBufferWidth(); //â€¢Ñœ
+unsigned int Direct3D_GetBackBufferHeight(); //ĞŒâ€šâ€šÑ–
 
-//Direct3dƒfƒoƒCƒX‚Ìæ“¾
+//Direct3dÑ“fÑ“oÑ“CÑ“Xâ€šĞœĞ‹Ğ¶â€œÑ•
 ID3D11Device* Direct3D_GetDevice();
-//Direct3dƒfƒoƒCƒXƒRƒ“ƒeƒLƒXƒg‚Ìæ“¾
+//Direct3dÑ“fÑ“oÑ“CÑ“XÑ“RÑ“â€œÑ“eÑ“LÑ“XÑ“gâ€šĞœĞ‹Ğ¶â€œÑ•
 ID3D11DeviceContext* Direct3D_GetContext();
 
-//ƒ¿ƒuƒŒƒ“ƒhİ’èŠÖ”
-void Direct3D_SetAlphaBlendTransparent(); //“§‰ßˆ—
-void Direct3D_SetAlphaBlendAdd();// ‰ÁZ‡¬
+//Ñ“Ñ—Ñ“uÑ“ĞŠÑ“â€œÑ“hÑ’Ğ­â€™Ğ¸Ğ‰Ğ¦Ñ’â€
+void Direct3D_SetAlphaBlendTransparent(); //â€œÂ§â€°Ğ¯Ğâ‚¬â€”Ñœ
+void Direct3D_SetAlphaBlendAdd();// â€°Ğ‘Ğ‹ZĞŒâ€¡Ñ’Â¬
+DirectX::XMMATRIX Direct3D_MatrixViewport();
+DirectX::XMFLOAT3 Direct3D_ScreenToWorld(int x, int y, float depth, const DirectX::XMFLOAT4X4 & view, const DirectX::XMFLOAT4X4 & projection);
+// 3Dåº§æ¨™å¤‰æ› â†’ ã‚¹ã‚¯ãƒªãƒ¼ãƒ³åº§æ¨™
+DirectX::XMFLOAT2 Direct3D_WorldToScreen(const DirectX::XMFLOAT3 & position,
+    const DirectX::XMFLOAT4X4 & view,
+    const DirectX::XMFLOAT4X4 & projection);
 
-//[“xƒoƒbƒtƒ@‚Ìİ’è
+// Clear the back buffer
+void Direct3D_ClearBackBuffer();
+
+// Switch rendering to the back buffer
+void Direct3D_SetBackBuffer();
+
+// Clear the offscreen buffer
+void Direct3D_ClearOffscreen();
+
 void Direct3D_SetDepthEnable(bool enable);
+void Direct3D_SetDepthStencilStateDepthWhiteDisable();
 
+void Direct3D_SetOffscreen();
+void Direct3D_SetOffscreenTexture(int slot);
+
+void Direct3D_ClearDepth();
+
+void Direct3D_SetDepth();
+
+void Direct3D_SetDepthTexture(int slot);
+void Direct3D_SetLightViewProjctionMatrix(const DirectX::XMMATRIX & matrix);
+void UnbindAllPSResources();
 #endif // DIRECT3D_H

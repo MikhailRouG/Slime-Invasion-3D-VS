@@ -1,13 +1,4 @@
-/*==============================================================================
 
-   メッシュフィールド描画用頂点シェーダー [shader_vertex_field.hlsl]
-														 Author : Harada Ren
-														 Date   : 2025/10/20
---------------------------------------------------------------------------------
-
-==============================================================================*/
-
-// 定数バッファ
 cbuffer VS_CONSTANT_BUFFER : register(b0)
 {
     float4x4 world;
@@ -23,7 +14,10 @@ cbuffer VS_CONSTANT_BUFFER : register(b2)
     float4x4 proj;
 };
    
-
+cbuffer VS_CONSTANT_BUFFER : register(b3)
+{
+    float4x4 light_view_proj;
+};
 struct VS_IN
 {
     //:~ セマンティクス
@@ -37,6 +31,7 @@ struct VS_OUT
 {
     float4 posH : SV_POSITION;
     float4 posW : POSITION0;
+    float4 posLightWVP : POSITION1;
     float4 normalW : NORMAL0;
     float4 blend : COLOR0;
     float2 texcoord : TEXCOORD0;
@@ -54,7 +49,7 @@ VS_OUT main(VS_IN vi)
     float4x4 mtxWVP = mul(mtxWV, proj); // プロジェクション変換
     vo.posH = mul(vi.posL, mtxWVP);
  
-    
+    vo.posLightWVP = mul(vi.posL, mul(world, light_view_proj));
     //普通のワールド変換行列はだめ(拡大縮小の影響を受けるため)
     //ワールド変換行列の転置逆行列を使う
     float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //αは0
