@@ -3,15 +3,15 @@
 #include "player.h"
 #include <cstdlib>
 #include <cmath>
-
+#include <iostream>
+#include <vector>
 using namespace DirectX;
+double m_spawnTimer = 0.0;
+const double SPAWN_INTERVAL = 2.0;
+const float SPAWN_RADIUS = 30.0f;
+const int MAX_ENEMIES = 15;
 
-static double g_SpawnTimer = 0.0;
-static constexpr double SPAWN_INTERVAL = 3.0;
-static constexpr float SPAWN_RADIUS = 30.0f;
-static constexpr int MAX_ENEMIES = 15;
-
-static XMFLOAT3 GetRandomSpawnPosition()
+static XMFLOAT3 GetRandomSpawnPosition(float r)
 {
     XMFLOAT3 player = { 0,0,0 };
 
@@ -19,7 +19,7 @@ static XMFLOAT3 GetRandomSpawnPosition()
 
     float radius =
         10.0f +
-        sqrtf((float)(rand() / (double)RAND_MAX)) * (SPAWN_RADIUS - 10.0f);
+        sqrtf((float)(rand() / (double)RAND_MAX)) * (r - 10.0f);
 
     XMFLOAT3 pos;
     pos.x = player.x + cosf(angle) * radius;
@@ -30,26 +30,29 @@ static XMFLOAT3 GetRandomSpawnPosition()
 }
 
 
-void EnemySpawner_Initialize()
+ void EnemySpawner_Initialize()
 {
-    g_SpawnTimer = 0.0;
+     m_spawnTimer = 0.0;
     for (int i = 0; i < MAX_ENEMIES - 1; i++) {
-        Enemy_Create(GetRandomSpawnPosition());
+        Enemy_Create(GetRandomSpawnPosition(SPAWN_RADIUS));
     }
 }
 
 void EnemySpawner_Update(double elapsedTime)
 {
-    g_SpawnTimer += elapsedTime;
+    m_spawnTimer += elapsedTime;
 
-    if (g_SpawnTimer < SPAWN_INTERVAL)
+    if (m_spawnTimer < SPAWN_INTERVAL)
         return;
 
-    g_SpawnTimer = 0.0;
+    m_spawnTimer = 0.0;
 
     if (Enemy_GetEnemyCount() >= MAX_ENEMIES)
         return;
 
-    XMFLOAT3 spawnPos = GetRandomSpawnPosition();
-    Enemy_Create(spawnPos);
+    if (Enemy_GetEnemyCount() < MAX_ENEMIES)
+    {
+        XMFLOAT3 spawnPos = GetRandomSpawnPosition(SPAWN_RADIUS);
+        Enemy_Create(spawnPos);
+    }
 }

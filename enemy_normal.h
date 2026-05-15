@@ -30,6 +30,7 @@ public:
         Enemy_LvlStats();
         UpdateState();
     };
+     void Update(double elapsed_time) override;
     void Damage(int damage) override {
         m_Hp -= damage;
         m_HitTimer = 1.5f;
@@ -62,10 +63,12 @@ public:
         if (m_HitTimer > 0) return true;
         else return false;
     }
+    void ResolveEnemyCollisions();
     const DirectX::XMFLOAT3& GetPosition() const
     {
         return m_Position;
     }
+
     class EnemyNormalStatePatrol : public State
     {
     private:

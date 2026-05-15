@@ -28,40 +28,33 @@ void Enemy::ChangeState(State* pNext)
 	m_pNextState = pNext;
 }
 static constexpr int MAX_ENEMY = 16;
-static Enemy* g_Enemys[MAX_ENEMY]{};
-static int g_EnemyCount{ 0 };
+static std::vector<Enemy*> g_Enemies;
 void Enemy_Initialize()
 {
 	EnemyNormal_Initialize();
-	g_EnemyCount = 0;
 }
 
 void Enemy_Finalize()
 {
-	for (int i = 0; i < g_EnemyCount; i++)
-	{
-		delete g_Enemys[i];
-		g_Enemys[i] = nullptr; 
-	}
-	g_EnemyCount = 0;
+	for (auto* e : g_Enemies) delete e;
+	g_Enemies.clear();
 	EnemyNormal_Finalize();
 }
 
 void Enemy_Update(double elapsed_time)
 {
-	for (int i = 0; i < g_EnemyCount; i++) {
-		g_Enemys[i]->Update(elapsed_time);
-	}
-	for (int i = 0; i < g_EnemyCount; i++) {
-		g_Enemys[i]->UpdateState();
-	}
-	for (int i = g_EnemyCount - 1; i >= 0; i--) {
-		if (g_Enemys[i]->isDestroy())
-		{
-			delete g_Enemys[i];
-			g_Enemys[i] = g_Enemys[--g_EnemyCount];
-		}
-	}
+	for (auto* e : g_Enemies) e->Update(elapsed_time);
+
+	for (auto* e : g_Enemies) e->UpdateState();
+
+	g_Enemies.erase(std::remove_if(g_Enemies.begin(), g_Enemies.end(),
+		[](Enemy* e) {
+			if (e->isDestroy()) {
+				delete e;
+				return true;
+			}
+			return false;
+		}), g_Enemies.end());
 }
 
 void Enemy_UpdateState()
@@ -70,39 +63,43 @@ void Enemy_UpdateState()
 
 void Enemy_Draw()
 {
-	for (int i = 0; i < g_EnemyCount; i++) {
-		g_Enemys[i]->Draw();
+	for (auto* e : g_Enemies) { 
+		e->Draw();
 	}
 }
 
 void Enemy_DepthDraw()
 {
-	for (int i = 0; i < g_EnemyCount; i++) {
-		g_Enemys[i]->DepthDraw();
+	for (auto* e : g_Enemies) {
+		e->DepthDraw();
 	}
 }
 
-void Enemy_Create(const DirectX::XMFLOAT3& position)
+Enemy* Enemy_Create(const DirectX::XMFLOAT3& position)
 {
-	if (g_EnemyCount >= MAX_ENEMY)
-		return;
-
-	g_Enemys[g_EnemyCount++] = new EnemyNormal(position);
+	Enemy* newEnemy = new EnemyNormal(position);
+	g_Enemies.push_back(newEnemy);
+	return newEnemy;
 }
 
 int Enemy_GetEnemyCount()
 {
-	return g_EnemyCount;
+	return (int)g_Enemies.size();
 }
 
 Enemy* Enemy_GetEnemy(int index)
 {
-	return g_Enemys[index];
+	return g_Enemies[index];
+}
+
+const std::vector<Enemy*>& Enemy_GetEnemies()
+{
+	return g_Enemies;
 }
 
 void Enemy::State::DepthDraw() const
 {
-	for (int i = 0; i < g_EnemyCount; i++) {
-		g_Enemys[i]->Draw();
-	}
+	//for (int i = 0; i < g_EnemyCount; i++) {
+	//	g_Enemies[i]->Draw();
+	//}
 }

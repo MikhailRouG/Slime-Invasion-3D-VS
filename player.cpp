@@ -18,15 +18,18 @@ using namespace DirectX;
 
 static ID3D11Device* device;
 static ID3D11DeviceContext* context;
+
 static XMFLOAT3 g_PlayerPosition{};
 static XMFLOAT3 g_PlayerFront{0.0f,0.0f,1.0f};
 static XMFLOAT3 g_PlayerVelocity{};
 static MODEL* g_pPlayerModel{ nullptr };
+
 static bool g_IsJump = false;
 static bool g_IsGrounded = false;
+float g_PlayerScale;
 constexpr int g_PlayerMaxHealth = 100;
 int g_PlayerHealth;
-float g_PlayerScale;
+
 const float MOVE_SPEED = 2.0f;
 const float ROTATE_SPEED = XM_PIDIV2* 2;
 float m_HitColorTimer{ 0.0f };
@@ -45,9 +48,6 @@ void Player_Initialize(const XMFLOAT3& position,const XMFLOAT3& front){
 	XMStoreFloat3(&g_PlayerFront, XMVector3Normalize(XMLoadFloat3(&front)));
 	g_PlayerScale = 1;
 	g_pPlayerModel = ModelLoad("resource/model/slime.fbx", 1);
-	//player.Init(device);
-	//player.Load("resource/model/slime.fbx");
-	//player.Play(0);
 }
 
 void Player_Finalize(){
@@ -55,140 +55,94 @@ void Player_Finalize(){
 	CircleShadow_Finalize();
 }
 
-void Player_Update(double elapsed_time){
-	if(m_HitColorTimer > 0.0f)
-{
-	m_HitColorTimer -= (float)elapsed_time;
-}
-	player.Update(elapsed_time);
-	g_IsGrounded = false;
-	XMVECTOR position = XMLoadFloat3(&g_PlayerPosition);
-	XMVECTOR velocity = XMLoadFloat3(&g_PlayerVelocity);
-	XMVECTOR front = XMLoadFloat3(&g_PlayerFront);
-	XMVECTOR gvelocity{};
+void Player_Update(double elapsed_time) {
+    float dt = (float)elapsed_time;
 
-	if (KeyLogger_IsTrigger(KK_SPACE) && !g_IsJump) {
-		velocity += { 0.0f,50.0f,0.0f };
-		g_IsJump = true;
-	}
+    if (m_HitColorTimer > 0.0f) {
+        m_HitColorTimer -= dt;
+    }
 
-	XMVECTOR moveDir = XMVectorZero();
-	if (KeyLogger_IsPressed(KK_W)) moveDir += front;
-	if (KeyLogger_IsPressed(KK_S)) moveDir -= front;
-	moveDir = XMVectorSetY(moveDir, 0.0f);
-	moveDir = XMVector3Normalize(moveDir);
+    player.Update(elapsed_time);
+    g_IsGrounded = false;
 
-	float acceleration = 0.5f;
-	if (!XMVector3Equal(moveDir, XMVectorZero())) {
-		velocity += moveDir * acceleration * MOVE_SPEED;
-	}
-	float rotate = 0.0f;
+    XMVECTOR position = XMLoadFloat3(&g_PlayerPosition);
+    XMVECTOR velocity = XMLoadFloat3(&g_PlayerVelocity);
+    XMVECTOR front = XMLoadFloat3(&g_PlayerFront);
 
-	if (KeyLogger_IsPressed(KK_D)) {
-		rotate += ROTATE_SPEED * (float)elapsed_time;
-	}
-	if (KeyLogger_IsPressed(KK_A)) {
-		rotate -= ROTATE_SPEED * (float)elapsed_time;
-	}
+    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR right = XMVector3Cross(up, front);
+    XMVECTOR moveDir = XMVectorZero();
 
-	if (rotate != 0.0f) {
-		XMMATRIX rotY = XMMatrixRotationY(rotate);
-		front = XMVector3Normalize(
-			XMVector3TransformNormal(front, rotY)
-		);
-	}
-	XMStoreFloat3(&g_PlayerFront, front);
-	XMStoreFloat3(&g_PlayerVelocity, velocity);
+    if (KeyLogger_IsTrigger(KK_SPACE) && !g_IsJump) {
+        velocity = XMVectorSetY(velocity, 50.0f); 
+        g_IsJump = true;
+    }
 
-	float friction = 5.0f;
-	XMVECTOR horizontalVel = XMVectorSetY(velocity, 0.0f); 
-	horizontalVel -= horizontalVel * friction * (float)elapsed_time;
-	velocity = XMVectorSetY(horizontalVel, XMVectorGetY(velocity));
+    if (KeyLogger_IsPressed(KK_W)) moveDir += front;
+    if (KeyLogger_IsPressed(KK_S)) moveDir -= front;
+    if (KeyLogger_IsPressed(KK_D)) moveDir += right;
+    if (KeyLogger_IsPressed(KK_A)) moveDir -= right;
 
-	XMFLOAT3 gdir{ 0.0f, 1.0f , 0.0f};
-	float gravity = -9.8f * 15.0f * (float)elapsed_time;
-	if (!g_IsGrounded)
-	{
-		velocity += XMLoadFloat3(&gdir) * gravity;
-	}
+    if (!XMVector3Equal(moveDir, XMVectorZero())) {
+        moveDir = XMVectorSetY(moveDir, 0.0f);
+        moveDir = XMVector3Normalize(moveDir);
+        velocity += moveDir * 0.5f * MOVE_SPEED;
+    }
 
-	XMVECTOR vertical_move = XMVectorSet(0.0f, XMVectorGetY(velocity) * (float)elapsed_time, 0.0f, 0.0f);
-	position += vertical_move;
+    float friction = 5.0f;
+    XMVECTOR horizontalVel = XMVectorSetY(velocity, 0.0f);
+    horizontalVel -= horizontalVel * friction * dt;
+    velocity = XMVectorSetY(horizontalVel, XMVectorGetY(velocity));
 
-	AABB player = Player_ConvertPositionToAABB(position);
+    float gravity = -9.8f * 15.0f;
+    velocity += XMVectorSet(0.0f, gravity * dt, 0.0f, 0.0f);
 
-	float highestY = -FLT_MAX;
-	bool landed = false;
-	int objCount = Map_GetObjectsCount();
+    position += XMVectorSet(0.0f, XMVectorGetY(velocity) * dt, 0.0f, 0.0f);
+    AABB playerAABB = Player_ConvertPositionToAABB(position);
 
-		for (int i = 0; i < Map_GetObjectsCount(); i++)
-		{
-			AABB object = Map_GetObject(i)->aabb;
-			Hit hit = Collision_IsHitAABB(object, player);
+    float highestY = -FLT_MAX;
+    bool landed = false;
 
-			if (hit.isHit && hit.normal.y > 0.0f)
-			{
-				highestY = std::max(highestY, object.max.y);
-				landed = true;
-			}
-		}
+    for (int i = 0; i < Map_GetObjectsCount(); i++) {
+        AABB object = Map_GetObject(i)->aabb;
+        Hit hit = Collision_IsHitAABB(object, playerAABB);
+        if (hit.isHit && hit.normal.y > 0.0f) {
+            highestY = std::max(highestY, object.max.y);
+            landed = true;
+        }
+    }
 
-		if (landed)
-		{
-			position = XMVectorSetY(position, highestY + 0.001f);
-			velocity = XMVectorSetY(velocity, 0.0f);
-			g_IsGrounded = true;
-			g_IsJump = false;
-		}
+    if (landed || XMVectorGetY(position) < 0.0f) {
+        float floorY = landed ? highestY + 0.001f : 0.0f;
+        position = XMVectorSetY(position, floorY);
+        velocity = XMVectorSetY(velocity, 0.0f);
+        g_IsGrounded = true;
+        g_IsJump = false;
+    }
 
-	XMVECTOR horizontal_move = XMVectorSet(XMVectorGetX(velocity) * (float)elapsed_time, 0.0f, XMVectorGetZ(velocity) * (float)elapsed_time, 0.0f);
-	position += horizontal_move;
+    XMVECTOR hMove = XMVectorMultiply(velocity, XMVectorSet(dt, 0.0f, dt, 0.0f));
+    position += hMove;
 
-	player =
-	Player_ConvertPositionToAABB(position);
-	XMFLOAT3 half = g_pPlayerModel->local_aabb.GetHalf();
-	for (int i = 0;i < Map_GetObjectsCount();i++) {
-		AABB object = Map_GetObject(i)->aabb;
-		Hit hit = Collision_IsHitAABB(object, player);
+    playerAABB = Player_ConvertPositionToAABB(position);
+    XMFLOAT3 half = g_pPlayerModel->local_aabb.GetHalf();
 
-		if (hit.isHit) {
-			if (hit.normal.x > 0.0f) {
-				position = XMVectorSetX(position, object.max.x + half.x);
-				velocity *= { 0.0f, 1.0f, 1.0f };
-			}
-			else if (hit.normal.x < 0.0f) {
-				position = XMVectorSetX(position, object.min.x - half.x);
-				velocity *= { 0.0f, 1.0f, 1.0f };
-			}
-			else if (hit.normal.z > 0.0f) {
-				position = XMVectorSetZ(position, object.max.z + half.z);
-				velocity *= { 1.0f, 1.0f, 0.0f };
-			}
-			else if (hit.normal.z < 0.0f) {
-				position = XMVectorSetZ(position, object.min.z - half.z);
-				velocity *= { 1.0f, 1.0f, 0.0f };
-			}
+    for (int i = 0; i < Map_GetObjectsCount(); i++) {
+        AABB object = Map_GetObject(i)->aabb;
+        Hit hit = Collision_IsHitAABB(object, playerAABB);
 
-		}
-	}
-	//if (KeyLogger_IsTrigger(KK_J)) {
-	//	XMFLOAT3 shot_position = g_PlayerPosition;
-	//	XMFLOAT3 shot_velocity;
-	//	shot_position.y += 1.0f;
-	//	XMStoreFloat3(&shot_velocity, XMLoadFloat3(&g_PlayerFront) * 10.0f);
-	//	Bullet_Create(shot_position, shot_velocity);
-	//}
-	if (XMVectorGetY(position) < 0.0f)
-	{
-		position = XMVectorSetY(position, 0.0f);
-		velocity = XMVectorSetY(velocity, 0.0f);
+        if (hit.isHit) {
+            if (hit.normal.x > 0.0f)      position = XMVectorSetX(position, object.max.x + half.x);
+            else if (hit.normal.x < 0.0f) position = XMVectorSetX(position, object.min.x - half.x);
 
-		g_IsGrounded = true;
-		g_IsJump = false;
-	}
-	XMStoreFloat3(&g_PlayerVelocity, velocity);
-	XMStoreFloat3(&g_PlayerPosition, position);
+            if (hit.normal.z > 0.0f)      position = XMVectorSetZ(position, object.max.z + half.z);
+            else if (hit.normal.z < 0.0f) position = XMVectorSetZ(position, object.min.z - half.z);
 
+            velocity *= XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+        }
+    }
+
+    XMStoreFloat3(&g_PlayerVelocity, velocity);
+    XMStoreFloat3(&g_PlayerPosition, position);
 }
 
 void Player_Draw() {

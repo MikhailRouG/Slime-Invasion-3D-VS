@@ -8,10 +8,11 @@ using namespace DirectX;
 #include "player_camera.h"
 #include <random>
 #include "billboard.h"
- static MODEL* g_EnemyNormalModel = nullptr;
- static void DrawEnemyHpBar(const EnemyNormal* enemy);
- float g_Speed = 3.0f;
 
+ static MODEL* g_EnemyNormalModel = nullptr;
+ float g_Speed = 3.0f;
+ float m_CurrentSpeed;
+ static void DrawEnemyHpBar(const EnemyNormal* enemy);
  void EnemyNormal_Initialize()
  {
      g_EnemyNormalModel = ModelLoad("resource/model/slime.fbx", 1.0f);
@@ -19,6 +20,50 @@ using namespace DirectX;
  void EnemyNormal_Finalize()
  {
      ModelRelease(g_EnemyNormalModel);
+ }
+ void EnemyNormal::Update(double elapsed_time) {
+     Enemy::Update(elapsed_time);
+     float dt = (float)elapsed_time;
+
+     m_CurrentSpeed = std::min(12.0f, 3.0f + Get_GamePassedTime() / 100.0f);
+
+     if (m_HitTimer > 0.0f)      m_HitTimer -= dt;
+     if (m_HitColorTimer > 0.0f) m_HitColorTimer -= dt;
+
+     if (Collision_IsOverlapSphere({ m_Position, 2.0f }, Player_GetPosition())) {
+         this->Damage(100);
+         Player_TakeDamage(20);
+     }
+     ResolveEnemyCollisions();
+ }
+ void EnemyNormal::ResolveEnemyCollisions() {
+
+     XMVECTOR posA = XMLoadFloat3(&m_Position);
+     float radiusA = 1.0f * m_ScalebyLvl;
+
+     const auto& allEnemies = Enemy_GetEnemies();
+
+     for (Enemy* other : allEnemies) {
+         if (other == this) continue;
+
+         XMVECTOR posB = XMLoadFloat3(&other->GetPosition());
+         XMVECTOR diff = posA - posB;
+
+         XMVECTOR distSqVec = XMVector3LengthSq(diff);
+         float distSq;
+         XMStoreFloat(&distSq, distSqVec);
+
+         float minDist = radiusA + other->GetRadius();
+
+         if (distSq < minDist * minDist && distSq > 0.0001f) {
+             float distance = sqrtf(distSq);
+             XMVECTOR pushDir = diff / distance;
+             float overlap = minDist - distance;
+
+             posA += pushDir * overlap * 0.5f;
+             XMStoreFloat3(&m_Position, posA);
+         }
+     }
  }
 void EnemyNormal::EnemyNormalStatePatrol::Update(double elapsed_time)
 {
@@ -66,19 +111,6 @@ void EnemyNormal::EnemyNormalStatePatrol::Update(double elapsed_time)
         if (distSq < 5.0f) {
             m_pOwner->m_hasTarget = false;
         }
-    }
-    if (Collision_IsOverlapSphere(
-        { m_pOwner->m_Position, 2 },
-        Player_GetPosition()))
-    {
-        m_pOwner->Damage(100);
-        Player_TakeDamage(20);
-    }
-    if (Collision_IsOverlapSphere(
-        { m_pOwner->m_Position, m_pOwner->m_DetectionRadius },
-        Player_GetPosition()))
-    {
-        m_pOwner->ChangeState(new EnemyNormalStateChase(m_pOwner));
     }
 }
 
@@ -138,25 +170,6 @@ void EnemyNormal::EnemyNormalStateChase::Update(double elapsed_time)
         else
         {
             g_AccumulatedTime = 0.0;
-        }
-        if (!Collision_IsOverlapSphere(
-            { m_pOwner->m_Position },
-            Player_GetPosition()))
-        {
-            g_AccumulatedTime += elapsed_time;
-            if (g_AccumulatedTime >= 3.0f) {
-                g_AccumulatedTime = 0.0;
-                m_pOwner->ChangeState(new EnemyNormalStatePatrol(m_pOwner));
-            }
-
-        }
-        if (Collision_IsOverlapSphere(
-            { m_pOwner->m_Position, 2 },
-            Player_GetPosition()))
-        {
-            //UpgradeSystem_UpgradeParametr();
-            m_pOwner->Damage(100);
-            Player_TakeDamage(20);
         }
 }
 

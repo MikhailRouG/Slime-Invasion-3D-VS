@@ -2,7 +2,7 @@
 #define ENEMY_H
 #include "DirectXMath.h"
 #include "collision.h"
-
+#include <vector>
 class Enemy
 {
 protected:
@@ -20,6 +20,7 @@ protected:
         Enemy* GetOwner() const { return m_pOwner; }
     };
 private:
+    DirectX::XMFLOAT3 m_Position{};
     State* m_pState{};
     State* m_pNextState{};
     bool m_isDestroy{};
@@ -36,6 +37,7 @@ public:
    virtual int GetLvl() const { return 0; }
    virtual bool isDemaged()const { return false; }
    virtual Sphere GetCollision() const {return{}; };
+   virtual float GetRadius() const { return 1.0f; }
    virtual const DirectX::XMFLOAT3& GetPosition() const
    {
        return {0,0,0};
@@ -49,7 +51,8 @@ void Enemy_Finalize();
 void Enemy_Update(double elapsed_time);
 void Enemy_Draw();
 void Enemy_DepthDraw();
-void Enemy_Create(const DirectX::XMFLOAT3& position);
+Enemy* Enemy_Create(const DirectX::XMFLOAT3& position);
 int Enemy_GetEnemyCount();
 Enemy* Enemy_GetEnemy(int index);
+ const std::vector<Enemy*>& Enemy_GetEnemies();
 #endif // ENEMY_H
