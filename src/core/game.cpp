@@ -42,7 +42,7 @@ int g_TextTex01 = 0;
 
 float g_PassedTime;
 void Map_Rendering();
-void Light_Rendering();
+static void Light_Rendering(); // forward-declaration (определена в конце файла)
 
 void Game_Initialize(){
 	PlayerCamera_Initialize();
@@ -60,6 +60,7 @@ void Game_Initialize(){
 	Trajectory3d_Initialize();
 	LightCamera_Initialize({ -1.0f,-1.0f,1.0f }, { 1.0f,1.0f,1.0f });
 	CircleShadow_Initialize();
+	Light_SetPointLightcount(0); // явно инициализируем PS-слот b4, иначе на D3D11.0 count = мусор
 	g_IsDebug = false;
 	g_TextTex01 = Texture_Load(L"resource/texture/Front.png");
 	Score_Initialize(1600,30,1);
@@ -132,6 +133,9 @@ void Game_Update(double elapsed_time){
 
 void Game_Draw(){
 
+	// --- Shadow map pass (must run before main scene) ---
+	Light_Rendering();
+
 	Direct3D_SetBackBuffer();
 	Direct3D_ClearBackBuffer();
 	Direct3D_SetDepthTexture(2);
@@ -150,7 +154,7 @@ void Game_Draw(){
 	Sky_Draw();
 	Direct3D_SetDepthEnable(true);
 
-	Light_SetAmbient({ 0.45f, 0.45f, 0.45f });
+	Light_SetAmbient({ 0.45f, 0.45f, 0.45f, 1.0f });
 	XMVECTOR vDir = XMVector3Normalize(XMVectorSet(-1.0f, -1.0f, 1.0f, 0.0f));
 	XMFLOAT4 dir;
 	XMStoreFloat4(&dir, vDir);
@@ -212,7 +216,7 @@ void Map_Rendering()
 	Map_Draw();*/
 }
 
-void Light_Rendering()
+static void Light_Rendering()
 {
 	Direct3D_SetDepth();
 	Direct3D_ClearDepth();

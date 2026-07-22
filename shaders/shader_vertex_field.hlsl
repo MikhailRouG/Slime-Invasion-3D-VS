@@ -20,7 +20,7 @@ cbuffer VS_CONSTANT_BUFFER : register(b3)
 };
 struct VS_IN
 {
-    //:~ ƒZƒ}ƒ“ƒeƒBƒNƒX
+    //:~ ï¿½Zï¿½}ï¿½ï¿½ï¿½eï¿½Bï¿½Nï¿½X
     float4 posL : POSITION0;
     float4 normalL : NORMAL0;
     float4 blend : COLOR0;
@@ -38,25 +38,25 @@ struct VS_OUT
 };
 
 //=============================================================================
-// ’¸“_ƒVƒF[ƒ_
+// ï¿½ï¿½ï¿½_ï¿½Vï¿½Fï¿½[ï¿½_
 //=============================================================================
 VS_OUT main(VS_IN vi)
 {
     VS_OUT vo;
     
-    //À•W•ÏŠ·
-    float4x4 mtxWV = mul(world, view); //ƒrƒ…[•ÏŠ·
-    float4x4 mtxWVP = mul(mtxWV, proj); // ƒvƒƒWƒFƒNƒVƒ‡ƒ“•ÏŠ·
+    //ï¿½ï¿½ï¿½Wï¿½ÏŠï¿½
+    float4x4 mtxWV = mul(world, view); //ï¿½rï¿½ï¿½ï¿½[ï¿½ÏŠï¿½
+    float4x4 mtxWVP = mul(mtxWV, proj); // ï¿½vï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ÏŠï¿½
     vo.posH = mul(vi.posL, mtxWVP);
  
     vo.posLightWVP = mul(vi.posL, mul(world, light_view_proj));
-    //•’Ê‚Ìƒ[ƒ‹ƒh•ÏŠ·s—ñ‚Í‚¾‚ß(Šg‘åk¬‚Ì‰e‹¿‚ðŽó‚¯‚é‚½‚ß)
-    //ƒ[ƒ‹ƒh•ÏŠ·s—ñ‚Ì“]’u‹ts—ñ‚ðŽg‚¤
-    float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //ƒ¿‚Í0
-    vo.normalW = normalW; //’PˆÊƒxƒNƒgƒ‹‰»    
+    //ï¿½ï¿½ï¿½Ê‚Ìƒï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½ÏŠï¿½ï¿½sï¿½ï¿½Í‚ï¿½ï¿½ï¿½(ï¿½gï¿½ï¿½kï¿½ï¿½ï¿½Ì‰eï¿½ï¿½ï¿½ï¿½ï¿½ó‚¯‚é‚½ï¿½ï¿½)
+    //ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½ÏŠï¿½ï¿½sï¿½ï¿½Ì“]ï¿½uï¿½tï¿½sï¿½ï¿½ï¿½ï¿½gï¿½ï¿½
+    float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //ï¿½ï¿½ï¿½ï¿½0
+    vo.normalW = normalize(normalW); //ï¿½Pï¿½Êƒxï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½
     vo.posW = mul(vi.posL, world);
 
-    //’n–Ê‚ÌƒeƒNƒXƒ`ƒƒ‚ÌƒuƒŒƒ“ƒh’l‚Í‚»‚Ì‚Ü‚ÜƒpƒXƒXƒ‹[  
+    //ï¿½nï¿½Ê‚Ìƒeï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ìƒuï¿½ï¿½ï¿½ï¿½ï¿½hï¿½lï¿½Í‚ï¿½ï¿½Ì‚Ü‚Üƒpï¿½Xï¿½Xï¿½ï¿½ï¿½[  
     vo.blend = vi.blend;
     
     vo.texcoord = vi.texcoord;

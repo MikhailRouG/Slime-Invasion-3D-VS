@@ -77,6 +77,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>assimp;src\core;src\render;src\gameplay;src\camera;src\input;src\audio;src\ui;src\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -86,6 +87,9 @@
       <Command>xcopy "$(ProjectDir)resource" "$(OutDir)resource" /E /I /Y
 xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
     </PostBuildEvent>
+    <FxCompile>
+      <ObjectFileOutput>$(ProjectDir)resource\shader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -98,6 +102,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>assimp;src\core;src\render;src\gameplay;src\camera;src\input;src\audio;src\ui;src\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,6 +116,9 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <Command>xcopy "$(ProjectDir)resource" "$(OutDir)resource" /E /I /Y
 xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
     </PostBuildEvent>
+    <FxCompile>
+      <ObjectFileOutput>$(ProjectDir)resource\shader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -119,7 +127,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>assimp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>assimp;src\core;src\render;src\gameplay;src\camera;src\input;src\audio;src\ui;src\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,6 +138,9 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <Command>xcopy "$(ProjectDir)resource" "$(OutDir)resource" /E /I /Y
 xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
     </PostBuildEvent>
+    <FxCompile>
+      <ObjectFileOutput>$(ProjectDir)resource\shader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -140,7 +151,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>assimp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>assimp;src\core;src\render;src\gameplay;src\camera;src\input;src\audio;src\ui;src\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
@@ -156,144 +167,147 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <Command>xcopy "$(ProjectDir)resource" "$(OutDir)resource" /E /I /Y
 xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
     </PostBuildEvent>
+    <FxCompile>
+      <ObjectFileOutput>$(ProjectDir)resource\shader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="animator.cpp" />
-    <ClCompile Include="Audio.cpp" />
-    <ClCompile Include="audio_manager.cpp" />
-    <ClCompile Include="billboard.cpp" />
-    <ClCompile Include="bullet.cpp" />
-    <ClCompile Include="bullet_hit_effect.cpp" />
-    <ClCompile Include="camera.cpp" />
-    <ClCompile Include="circle_shadow.cpp" />
-    <ClCompile Include="collision.cpp" />
-    <ClCompile Include="cube.cpp" />
-    <ClCompile Include="debug_ostream.cpp">
+    <ClCompile Include="src\render\animator.cpp" />
+    <ClCompile Include="src\audio\Audio.cpp" />
+    <ClCompile Include="src\audio\audio_manager.cpp" />
+    <ClCompile Include="src\render\billboard.cpp" />
+    <ClCompile Include="src\gameplay\bullet.cpp" />
+    <ClCompile Include="src\gameplay\bullet_hit_effect.cpp" />
+    <ClCompile Include="src\camera\camera.cpp" />
+    <ClCompile Include="src\render\circle_shadow.cpp" />
+    <ClCompile Include="src\gameplay\collision.cpp" />
+    <ClCompile Include="src\render\cube.cpp" />
+    <ClCompile Include="src\core\debug_ostream.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="debug_text.cpp">
+    <ClCompile Include="src\core\debug_text.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="direct3d.cpp" />
-    <ClCompile Include="effect.cpp" />
-    <ClCompile Include="EndScene.cpp" />
-    <ClCompile Include="enemy.cpp" />
-    <ClCompile Include="enemy_normal.cpp" />
-    <ClCompile Include="enemy_spawner.cpp" />
-    <ClCompile Include="fade.cpp" />
-    <ClCompile Include="game.cpp" />
-    <ClCompile Include="game_Ui.cpp" />
-    <ClCompile Include="game_window.cpp" />
-    <ClCompile Include="grid.cpp" />
-    <ClCompile Include="hummer.cpp" />
-    <ClCompile Include="keyboard.cpp" />
-    <ClCompile Include="key_logger.cpp" />
-    <ClCompile Include="light.cpp" />
-    <ClCompile Include="light_camera.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="map.cpp" />
-    <ClCompile Include="mapcamera.cpp" />
-    <ClCompile Include="meshfield.cpp" />
-    <ClCompile Include="model.cpp" />
-    <ClCompile Include="modelLoader.cpp" />
-    <ClCompile Include="mouse.cpp" />
-    <ClCompile Include="particle.cpp" />
-    <ClCompile Include="particle_test.cpp" />
-    <ClCompile Include="player.cpp" />
-    <ClCompile Include="player_camera.cpp" />
-    <ClCompile Include="sampler.cpp" />
-    <ClCompile Include="scene.cpp" />
-    <ClCompile Include="score.cpp" />
-    <ClCompile Include="shader2d.cpp" />
-    <ClCompile Include="shader3d.cpp" />
-    <ClCompile Include="shader3d_unlit.cpp" />
-    <ClCompile Include="shader_billboard.cpp" />
-    <ClCompile Include="shader_depth.cpp" />
-    <ClCompile Include="shader_field.cpp" />
-    <ClCompile Include="SkinnedModel.cpp" />
-    <ClCompile Include="sky.cpp" />
-    <ClCompile Include="sprite.cpp" />
-    <ClCompile Include="sprite_anim.cpp" />
-    <ClCompile Include="system_timer.cpp" />
-    <ClCompile Include="text.cpp" />
-    <ClCompile Include="texture.cpp" />
-    <ClCompile Include="title.cpp" />
-    <ClCompile Include="trajectory3d.cpp" />
-    <ClCompile Include="WICTextureLoader11.cpp">
+    <ClCompile Include="src\core\direct3d.cpp" />
+    <ClCompile Include="src\render\effect.cpp" />
+    <ClCompile Include="src\ui\EndScene.cpp" />
+    <ClCompile Include="src\gameplay\enemy.cpp" />
+    <ClCompile Include="src\gameplay\enemy_normal.cpp" />
+    <ClCompile Include="src\gameplay\enemy_spawner.cpp" />
+    <ClCompile Include="src\ui\fade.cpp" />
+    <ClCompile Include="src\core\game.cpp" />
+    <ClCompile Include="src\ui\game_Ui.cpp" />
+    <ClCompile Include="src\core\game_window.cpp" />
+    <ClCompile Include="src\render\grid.cpp" />
+    <ClCompile Include="src\gameplay\hummer.cpp" />
+    <ClCompile Include="src\input\keyboard.cpp" />
+    <ClCompile Include="src\input\key_logger.cpp" />
+    <ClCompile Include="src\render\light.cpp" />
+    <ClCompile Include="src\camera\light_camera.cpp" />
+    <ClCompile Include="src\core\main.cpp" />
+    <ClCompile Include="src\gameplay\map.cpp" />
+    <ClCompile Include="src\camera\mapcamera.cpp" />
+    <ClCompile Include="src\render\meshfield.cpp" />
+    <ClCompile Include="src\render\model.cpp" />
+    <ClCompile Include="src\render\modelLoader.cpp" />
+    <ClCompile Include="src\input\mouse.cpp" />
+    <ClCompile Include="src\render\particle.cpp" />
+    <ClCompile Include="src\render\particle_test.cpp" />
+    <ClCompile Include="src\gameplay\player.cpp" />
+    <ClCompile Include="src\camera\player_camera.cpp" />
+    <ClCompile Include="src\render\sampler.cpp" />
+    <ClCompile Include="src\core\scene.cpp" />
+    <ClCompile Include="src\gameplay\score.cpp" />
+    <ClCompile Include="src\render\shader2d.cpp" />
+    <ClCompile Include="src\render\shader3d.cpp" />
+    <ClCompile Include="src\render\shader3d_unlit.cpp" />
+    <ClCompile Include="src\render\shader_billboard.cpp" />
+    <ClCompile Include="src\render\shader_depth.cpp" />
+    <ClCompile Include="src\render\shader_field.cpp" />
+    <ClCompile Include="src\render\SkinnedModel.cpp" />
+    <ClCompile Include="src\render\sky.cpp" />
+    <ClCompile Include="src\render\sprite.cpp" />
+    <ClCompile Include="src\render\sprite_anim.cpp" />
+    <ClCompile Include="src\core\system_timer.cpp" />
+    <ClCompile Include="src\ui\text.cpp" />
+    <ClCompile Include="src\render\texture.cpp" />
+    <ClCompile Include="src\ui\title.cpp" />
+    <ClCompile Include="src\render\trajectory3d.cpp" />
+    <ClCompile Include="src\external\WICTextureLoader11.cpp">
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MultiThreadedDLL</RuntimeLibrary>
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="animator.h" />
-    <ClInclude Include="Audio.h" />
-    <ClInclude Include="audio_manager.h" />
-    <ClInclude Include="billboard.h" />
-    <ClInclude Include="bullet.h" />
-    <ClInclude Include="bullet_hit_effect.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="circle_shadow.h" />
-    <ClInclude Include="collision.h" />
-    <ClInclude Include="cube.h" />
-    <ClInclude Include="debug_ostream.h">
+    <ClInclude Include="src\render\animator.h" />
+    <ClInclude Include="src\audio\Audio.h" />
+    <ClInclude Include="src\audio\audio_manager.h" />
+    <ClInclude Include="src\render\billboard.h" />
+    <ClInclude Include="src\gameplay\bullet.h" />
+    <ClInclude Include="src\gameplay\bullet_hit_effect.h" />
+    <ClInclude Include="src\camera\camera.h" />
+    <ClInclude Include="src\render\circle_shadow.h" />
+    <ClInclude Include="src\gameplay\collision.h" />
+    <ClInclude Include="src\render\cube.h" />
+    <ClInclude Include="src\core\debug_ostream.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="debug_text.h">
+    <ClInclude Include="src\core\debug_text.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="direct3d.h" />
-    <ClInclude Include="effect.h" />
-    <ClInclude Include="EndScene.h" />
-    <ClInclude Include="enemy.h" />
-    <ClInclude Include="enemy_normal.h" />
-    <ClInclude Include="enemy_spawner.h" />
-    <ClInclude Include="fade.h" />
-    <ClInclude Include="game.h" />
-    <ClInclude Include="game_Ui.h" />
-    <ClInclude Include="game_window.h" />
-    <ClInclude Include="grid.h" />
-    <ClInclude Include="hummer.h" />
-    <ClInclude Include="keyboard.h" />
-    <ClInclude Include="key_logger.h" />
-    <ClInclude Include="light_camera.h" />
-    <ClInclude Include="map.h" />
-    <ClInclude Include="mapcamera.h" />
-    <ClInclude Include="meshfield.h" />
-    <ClInclude Include="model.h" />
-    <ClInclude Include="modelLoader.h" />
-    <ClInclude Include="mouse.h" />
-    <ClInclude Include="particle.h" />
-    <ClInclude Include="particle_test.h" />
-    <ClInclude Include="pause.h" />
-    <ClInclude Include="light.h" />
-    <ClInclude Include="player.h" />
-    <ClInclude Include="player_camera.h" />
-    <ClInclude Include="sampler.h" />
-    <ClInclude Include="scene.h" />
-    <ClInclude Include="score.h" />
-    <ClInclude Include="shader2d.h" />
-    <ClInclude Include="shader3d.h" />
-    <ClInclude Include="shader3d_unlit.h" />
-    <ClInclude Include="shader_billboard.h" />
-    <ClInclude Include="shader_depth.h" />
-    <ClInclude Include="shader_field.h" />
-    <ClInclude Include="SkinnedModel.h" />
-    <ClInclude Include="sky.h" />
-    <ClInclude Include="sprite.h" />
-    <ClInclude Include="sprite_anim.h" />
-    <ClInclude Include="system_timer.h" />
-    <ClInclude Include="text.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="title.h" />
-    <ClInclude Include="trajectory3d.h" />
-    <ClInclude Include="WICTextureLoader11.h" />
+    <ClInclude Include="src\core\direct3d.h" />
+    <ClInclude Include="src\render\effect.h" />
+    <ClInclude Include="src\ui\EndScene.h" />
+    <ClInclude Include="src\gameplay\enemy.h" />
+    <ClInclude Include="src\gameplay\enemy_normal.h" />
+    <ClInclude Include="src\gameplay\enemy_spawner.h" />
+    <ClInclude Include="src\ui\fade.h" />
+    <ClInclude Include="src\core\game.h" />
+    <ClInclude Include="src\ui\game_Ui.h" />
+    <ClInclude Include="src\core\game_window.h" />
+    <ClInclude Include="src\render\grid.h" />
+    <ClInclude Include="src\gameplay\hummer.h" />
+    <ClInclude Include="src\input\keyboard.h" />
+    <ClInclude Include="src\input\key_logger.h" />
+    <ClInclude Include="src\camera\light_camera.h" />
+    <ClInclude Include="src\gameplay\map.h" />
+    <ClInclude Include="src\camera\mapcamera.h" />
+    <ClInclude Include="src\render\meshfield.h" />
+    <ClInclude Include="src\render\model.h" />
+    <ClInclude Include="src\render\modelLoader.h" />
+    <ClInclude Include="src\input\mouse.h" />
+    <ClInclude Include="src\render\particle.h" />
+    <ClInclude Include="src\render\particle_test.h" />
+    <ClInclude Include="src\ui\pause.h" />
+    <ClInclude Include="src\render\light.h" />
+    <ClInclude Include="src\gameplay\player.h" />
+    <ClInclude Include="src\camera\player_camera.h" />
+    <ClInclude Include="src\render\sampler.h" />
+    <ClInclude Include="src\core\scene.h" />
+    <ClInclude Include="src\gameplay\score.h" />
+    <ClInclude Include="src\render\shader2d.h" />
+    <ClInclude Include="src\render\shader3d.h" />
+    <ClInclude Include="src\render\shader3d_unlit.h" />
+    <ClInclude Include="src\render\shader_billboard.h" />
+    <ClInclude Include="src\render\shader_depth.h" />
+    <ClInclude Include="src\render\shader_field.h" />
+    <ClInclude Include="src\render\SkinnedModel.h" />
+    <ClInclude Include="src\render\sky.h" />
+    <ClInclude Include="src\render\sprite.h" />
+    <ClInclude Include="src\render\sprite_anim.h" />
+    <ClInclude Include="src\core\system_timer.h" />
+    <ClInclude Include="src\ui\text.h" />
+    <ClInclude Include="src\render\texture.h" />
+    <ClInclude Include="src\ui\title.h" />
+    <ClInclude Include="src\render\trajectory3d.h" />
+    <ClInclude Include="src\external\WICTextureLoader11.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader_pixel_2d.hlsl">
+    <FxCompile Include="shaders\shader_pixel_2d.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
@@ -301,7 +315,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="shader_pixel_3d.hlsl">
+    <FxCompile Include="shaders\shader_pixel_3d.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -311,7 +325,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="shader_pixel_3d_unlit.hlsl">
+    <FxCompile Include="shaders\shader_pixel_3d_unlit.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -319,7 +333,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="shader_pixel_billboard.hlsl">
+    <FxCompile Include="shaders\shader_pixel_billboard.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -329,7 +343,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="shader_pixel_depth.hlsl">
+    <FxCompile Include="shaders\shader_pixel_depth.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -339,7 +353,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="shader_pixel_field.hlsl">
+    <FxCompile Include="shaders\shader_pixel_field.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -349,7 +363,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="shader_vertex_2d.hlsl">
+    <FxCompile Include="shaders\shader_vertex_2d.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
@@ -357,45 +371,7 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="shader_vertex_3d.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="shader_vertex_3d_skinned.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
-    <FxCompile Include="shader_vertex_3d_unlit.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="shader_vertex_billboard.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-    </FxCompile>
-    <FxCompile Include="shader_vertex_depth.hlsl">
+    <FxCompile Include="shaders\shader_vertex_3d.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
@@ -405,7 +381,45 @@ xcopy "$(ProjectDir)assimp-vc143-mt.dll" "$(OutDir)" /Y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="shader_vertex_field.hlsl">
+    <FxCompile Include="shaders\shader_vertex_3d_skinned.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_3d_unlit.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_billboard.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_depth.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_field.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>

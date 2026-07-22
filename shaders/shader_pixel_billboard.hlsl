@@ -19,7 +19,7 @@ float4 main(PS_IN pi) : SV_TARGET
 
     if (color.a < 0.1f)
     {
-        color.a = saturate(color.a);
+        discard;
     }
     return color;
 }

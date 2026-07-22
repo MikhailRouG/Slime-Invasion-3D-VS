@@ -120,13 +120,15 @@ float4 main(PS_IN pi) : SV_TARGET{
     float2 shadowmap_uv = pi.posLightWVP.xy / pi.posLightWVP.w;
     shadowmap_uv = shadowmap_uv * float2(0.5f, -0.5f) + 0.5f;
 
-    float depthmap_z = tex2.Sample(samp, shadowmap_uv).r;
-
     float shadowmap_z = pi.posLightWVP.z / pi.posLightWVP.w;
 
-    if (shadowmap_z > depthmap_z + 0.001f)
+    bool inBounds = (shadowmap_uv.x >= 0.0f && shadowmap_uv.x <= 1.0f &&
+                     shadowmap_uv.y >= 0.0f && shadowmap_uv.y <= 1.0f);
+    if (inBounds)
     {
-        color *= 0.5f;
+        float depthmap_z = tex2.Sample(samp, shadowmap_uv).r;
+        if (shadowmap_z > depthmap_z + 0.001f)
+            color *= 0.5f;
     }
 
     return float4(color, 1.0f);

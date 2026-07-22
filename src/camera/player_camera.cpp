@@ -20,11 +20,9 @@ static float       g_CameraOffsetY = 40.0f;
 static float       g_CameraOffsetZ = 0.0f;
 static float       g_CameraScale = 1.0f;
 
-static bool canRotate = false;
-
 void PlayerCamera_Initialize(){
     g_CameraScale = 1.0f;
-    g_currentCameraPosition = XMVectorSet(0.0f, 4.0f, 0.0f, 1.0f);
+    g_currentCameraPosition = XMVectorSet(4.0f, 4.0f, 0.0f, 1.0f);
 }
 
 void PlayerCamera_Finalize()
@@ -33,14 +31,6 @@ void PlayerCamera_Finalize()
 void PlayerCamera_Update(double elapsed_time)
 {
     XMVECTOR playerPos = XMLoadFloat3(&Player_GetPosition());
-    XMVECTOR playerFront;
-    playerFront = { 0.0f,0.0f ,1.0f,0.0f };
-    //if(canRotate == true)
-    //playerFront = XMVector3Normalize(XMLoadFloat3(&Player_GetFront()));
-    //else
-    //{
-    //    playerFront = {0.0f,0.0f ,1.0f,0.0f };
-    //}
     float distBack = g_CameraOffsetZ * g_CameraScale;
     float height = g_CameraOffsetY * g_CameraScale;
     XMVECTOR fixedDirection = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);

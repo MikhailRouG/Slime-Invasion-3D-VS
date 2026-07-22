@@ -137,11 +137,8 @@ float4 main(PS_IN pi) : SV_TARGET
     float3 color = ambient + diffuse + specular;
 
     // --- Point lights ---
-    [unroll]
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < point_light_count; i++)
     {
-        if (i >= point_light_count)
-            break;
 
         float3 L = point_light[i].posW - pi.posW;
         float dist2 = dot(L, L);
@@ -155,10 +152,9 @@ float4 main(PS_IN pi) : SV_TARGET
         float NdotLp = saturate(dot(N, L));
         color += material * point_light[i].color.rgb * att * NdotLp;
 
-        // cheap specular
+        // Blinn-Phong specular
         float3 H = normalize(L + V);
-        float specPL = saturate(dot(N, H));
-        specPL = specPL * specPL;
+        float specPL = pow(saturate(dot(N, H)), specular_power);
         color += point_light[i].color.rgb * specPL * 0.2f;
     }
     

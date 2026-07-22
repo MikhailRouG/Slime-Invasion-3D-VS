@@ -55,7 +55,10 @@ public:
     {
         return m_Lvl;
     }
-    int GetScaleByLvl() const
+    // Scale factor derived from the enemy level (e.g. 1.0, 1.1, 1.2 ...).
+    // Previously declared as `int`, which truncated the fractional part and
+    // silently disabled per-level scaling. All call sites already use it as a float.
+    float GetScaleByLvl() const
     {
         return m_ScalebyLvl;
     }

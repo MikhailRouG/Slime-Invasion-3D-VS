@@ -20,10 +20,10 @@ bool ShaderBillboard_Initialize() {
         ifs.read((char*)buffer.data(), buffer.size());
         return buffer;
         };
-    // 1. Загрузка VS
-    std::ifstream ifs_vs("shader_vertex_billboard.cso", std::ios::binary);
+    // 1. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ VS
+    std::ifstream ifs_vs("resource/shader/shader_vertex_billboard.cso", std::ios::binary);
     if (!ifs_vs.is_open()) {
-        MessageBox(nullptr, "Не найден VS шейдер!", "Error", MB_OK);
+        MessageBox(nullptr, "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ VS пїЅпїЅпїЅпїЅпїЅпїЅ!", "Error", MB_OK);
         return false;
     }
     ifs_vs.seekg(0, std::ios::end);
@@ -45,29 +45,29 @@ bool ShaderBillboard_Initialize() {
     hr = dev->CreateInputLayout(layout, 3, vs_data.data(), vs_size, &g_pInputLayout);
     if (FAILED(hr)) return false;
 
-    // 3. Создание Константных Буферов
+    // 3. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     D3D11_BUFFER_DESC bd = {};
     bd.Usage = D3D11_USAGE_DEFAULT;
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-    // Буфер VS (BillboardVSConstant) - проверка размера
+    // пїЅпїЅпїЅпїЅпїЅ VS (BillboardVSConstant) - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     bd.ByteWidth = sizeof(BillboardVSConstant);
-    // Размер ДОЛЖЕН быть кратен 16. Если нет - округляем вверх.
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 16. пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.
     if (bd.ByteWidth % 16 != 0) bd.ByteWidth += 16 - (bd.ByteWidth % 16);
 
     hr = dev->CreateBuffer(&bd, nullptr, &g_pVSConstantBuffer0);
     if (FAILED(hr)) {
-        OutputDebugStringA("!!! Ошибка создания VS Constant Buffer !!!\n");
+        OutputDebugStringA("!!! пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ VS Constant Buffer !!!\n");
         return false;
     }
 
-    // Буфер PS (Color)
-    bd.ByteWidth = sizeof(DirectX::XMFLOAT4); // 16 байт, кратно 16.
+    // пїЅпїЅпїЅпїЅпїЅ PS (Color)
+    bd.ByteWidth = sizeof(DirectX::XMFLOAT4); // 16 пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ 16.
     hr = dev->CreateBuffer(&bd, nullptr, &g_pPSConstantBuffer0);
     if (FAILED(hr)) return false;
 
-    // 4. Загрузка PS
-    std::ifstream ifs_ps("shader_pixel_billboard.cso", std::ios::binary);
+    // 4. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ PS
+    std::ifstream ifs_ps("resource/shader/shader_pixel_billboard.cso", std::ios::binary);
     if (!ifs_ps) return false;
     ifs_ps.seekg(0, std::ios::end);
     size_t ps_size = (size_t)ifs_ps.tellg();
@@ -83,17 +83,17 @@ bool ShaderBillboard_Initialize() {
 void ShaderBillboard_Begin() {
     auto ctx = Direct3D_GetContext();
 
-    // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     if (g_pVertexShader == nullptr) OutputDebugStringA("VS NULL\n");
     if (g_pPixelShader == nullptr) OutputDebugStringA("PS NULL\n");
 
     if (!g_pVertexShader || !g_pPixelShader) return;
 
     ctx->VSSetShader(g_pVertexShader, nullptr, 0);
-    ctx->PSSetShader(g_pPixelShader, nullptr, 0); // ПРИВЯЗКА ПИКСЕЛЬНОГО ШЕЙДЕРА
+    ctx->PSSetShader(g_pPixelShader, nullptr, 0); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     ctx->IASetInputLayout(g_pInputLayout);
 
-    // Обязательно передаем буферы
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     ctx->VSSetConstantBuffers(0, 1, &g_pVSConstantBuffer0);
     ctx->PSSetConstantBuffers(0, 1, &g_pPSConstantBuffer0);
 }

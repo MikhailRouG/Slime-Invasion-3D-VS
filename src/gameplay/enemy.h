@@ -40,7 +40,10 @@ public:
    virtual float GetRadius() const { return 1.0f; }
    virtual const DirectX::XMFLOAT3& GetPosition() const
    {
-       return {0,0,0};
+       // Return a reference to a static zero vector. Returning a reference to a
+       // local/temporary object (previously `return {0,0,0};`) is undefined behaviour.
+       static const DirectX::XMFLOAT3 kZero{ 0.0f, 0.0f, 0.0f };
+       return kZero;
    }
 protected:
     void ChangeState(State* pNext);

@@ -1,138 +1,425 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="shader_pixel_2d.hlsl" />
-    <FxCompile Include="shader_pixel_3d.hlsl" />
-    <FxCompile Include="shader_pixel_3d_unlit.hlsl" />
-    <FxCompile Include="shader_pixel_billboard.hlsl" />
-    <FxCompile Include="shader_pixel_depth.hlsl" />
-    <FxCompile Include="shader_pixel_field.hlsl" />
-    <FxCompile Include="shader_vertex_2d.hlsl" />
-    <FxCompile Include="shader_vertex_3d.hlsl" />
-    <FxCompile Include="shader_vertex_3d_unlit.hlsl" />
-    <FxCompile Include="shader_vertex_billboard.hlsl" />
-    <FxCompile Include="shader_vertex_depth.hlsl" />
-    <FxCompile Include="shader_vertex_field.hlsl" />
-    <FxCompile Include="shader_vertex_3d_skinned.hlsl" />
+    <Filter Include="Core">
+      <UniqueIdentifier>{bea2c555-525c-4b03-be47-3d27c8b7c6b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{30451fea-19bf-4b6a-a642-feccf46295c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay">
+      <UniqueIdentifier>{04f35bfc-4a12-457d-84d2-f6e4a06f5b9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{53ea291e-26ab-4962-9b2b-37cb7739920d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{032c05c3-56c8-4bd9-95c3-72a258a956c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{520d8827-9b9e-4e46-b263-bcd6bf731a95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{fe2457a3-5712-4758-90be-74e98bc30991}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{f2ab14b4-93a5-433b-bff7-b46466b60043}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{e9996c9e-bac4-42c4-8a94-3360ecb8c463}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Audio.cpp" />
-    <ClCompile Include="audio_manager.cpp" />
-    <ClCompile Include="billboard.cpp" />
-    <ClCompile Include="bullet.cpp" />
-    <ClCompile Include="bullet_hit_effect.cpp" />
-    <ClCompile Include="camera.cpp" />
-    <ClCompile Include="circle_shadow.cpp" />
-    <ClCompile Include="collision.cpp" />
-    <ClCompile Include="cube.cpp" />
-    <ClCompile Include="debug_ostream.cpp" />
-    <ClCompile Include="debug_text.cpp" />
-    <ClCompile Include="direct3d.cpp" />
-    <ClCompile Include="effect.cpp" />
-    <ClCompile Include="enemy.cpp" />
-    <ClCompile Include="enemy_normal.cpp" />
-    <ClCompile Include="fade.cpp" />
-    <ClCompile Include="game.cpp" />
-    <ClCompile Include="game_window.cpp" />
-    <ClCompile Include="grid.cpp" />
-    <ClCompile Include="keyboard.cpp" />
-    <ClCompile Include="key_logger.cpp" />
-    <ClCompile Include="light.cpp" />
-    <ClCompile Include="light_camera.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="map.cpp" />
-    <ClCompile Include="mapcamera.cpp" />
-    <ClCompile Include="meshfield.cpp" />
-    <ClCompile Include="model.cpp" />
-    <ClCompile Include="mouse.cpp" />
-    <ClCompile Include="particle.cpp" />
-    <ClCompile Include="player.cpp" />
-    <ClCompile Include="player_camera.cpp" />
-    <ClCompile Include="sampler.cpp" />
-    <ClCompile Include="scene.cpp" />
-    <ClCompile Include="score.cpp" />
-    <ClCompile Include="shader2d.cpp" />
-    <ClCompile Include="shader3d.cpp" />
-    <ClCompile Include="shader3d_unlit.cpp" />
-    <ClCompile Include="shader_billboard.cpp" />
-    <ClCompile Include="shader_depth.cpp" />
-    <ClCompile Include="shader_field.cpp" />
-    <ClCompile Include="sky.cpp" />
-    <ClCompile Include="sprite.cpp" />
-    <ClCompile Include="sprite_anim.cpp" />
-    <ClCompile Include="system_timer.cpp" />
-    <ClCompile Include="texture.cpp" />
-    <ClCompile Include="trajectory3d.cpp" />
-    <ClCompile Include="WICTextureLoader11.cpp" />
-    <ClCompile Include="hummer.cpp" />
-    <ClCompile Include="enemy_spawner.cpp" />
-    <ClCompile Include="text.cpp" />
-    <ClCompile Include="title.cpp" />
-    <ClCompile Include="EndScene.cpp" />
-    <ClCompile Include="game_Ui.cpp" />
-    <ClCompile Include="particle_test.cpp" />
-    <ClCompile Include="animator.cpp" />
-    <ClCompile Include="modelLoader.cpp" />
-    <ClCompile Include="SkinnedModel.cpp" />
+    <ClCompile Include="src\core\debug_ostream.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\debug_text.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\direct3d.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\game.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\game_window.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\main.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\scene.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\system_timer.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\SkinnedModel.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\animator.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\billboard.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\circle_shadow.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\cube.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\effect.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\grid.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\light.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\meshfield.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\model.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\modelLoader.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\particle.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\particle_test.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\sampler.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\shader2d.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\shader3d.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\shader3d_unlit.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\shader_billboard.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\shader_depth.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\shader_field.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\sky.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\sprite.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\sprite_anim.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\texture.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\trajectory3d.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\bullet.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\bullet_hit_effect.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\collision.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\enemy.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\enemy_normal.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\enemy_spawner.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\hummer.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\map.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\player.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\score.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\camera\camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\camera\light_camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\camera\mapcamera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\camera\player_camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\key_logger.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\keyboard.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\mouse.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\Audio.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\audio_manager.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\EndScene.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\fade.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\game_Ui.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\text.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\title.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\WICTextureLoader11.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Audio.h" />
-    <ClInclude Include="audio_manager.h" />
-    <ClInclude Include="billboard.h" />
-    <ClInclude Include="bullet.h" />
-    <ClInclude Include="bullet_hit_effect.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="circle_shadow.h" />
-    <ClInclude Include="collision.h" />
-    <ClInclude Include="cube.h" />
-    <ClInclude Include="debug_ostream.h" />
-    <ClInclude Include="debug_text.h" />
-    <ClInclude Include="direct3d.h" />
-    <ClInclude Include="effect.h" />
-    <ClInclude Include="enemy.h" />
-    <ClInclude Include="enemy_normal.h" />
-    <ClInclude Include="fade.h" />
-    <ClInclude Include="game.h" />
-    <ClInclude Include="game_window.h" />
-    <ClInclude Include="grid.h" />
-    <ClInclude Include="keyboard.h" />
-    <ClInclude Include="key_logger.h" />
-    <ClInclude Include="light_camera.h" />
-    <ClInclude Include="map.h" />
-    <ClInclude Include="mapcamera.h" />
-    <ClInclude Include="meshfield.h" />
-    <ClInclude Include="model.h" />
-    <ClInclude Include="mouse.h" />
-    <ClInclude Include="particle.h" />
-    <ClInclude Include="pause.h" />
-    <ClInclude Include="light.h" />
-    <ClInclude Include="player.h" />
-    <ClInclude Include="player_camera.h" />
-    <ClInclude Include="sampler.h" />
-    <ClInclude Include="scene.h" />
-    <ClInclude Include="score.h" />
-    <ClInclude Include="shader2d.h" />
-    <ClInclude Include="shader3d.h" />
-    <ClInclude Include="shader3d_unlit.h" />
-    <ClInclude Include="shader_billboard.h" />
-    <ClInclude Include="shader_depth.h" />
-    <ClInclude Include="shader_field.h" />
-    <ClInclude Include="sky.h" />
-    <ClInclude Include="sprite.h" />
-    <ClInclude Include="sprite_anim.h" />
-    <ClInclude Include="system_timer.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="trajectory3d.h" />
-    <ClInclude Include="WICTextureLoader11.h" />
-    <ClInclude Include="hummer.h" />
-    <ClInclude Include="enemy_spawner.h" />
-    <ClInclude Include="text.h" />
-    <ClInclude Include="title.h" />
-    <ClInclude Include="EndScene.h" />
-    <ClInclude Include="game_Ui.h" />
-    <ClInclude Include="particle_test.h" />
-    <ClInclude Include="animator.h" />
-    <ClInclude Include="modelLoader.h" />
-    <ClInclude Include="SkinnedModel.h" />
+    <ClInclude Include="src\core\debug_ostream.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\debug_text.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\direct3d.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\game.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\game_window.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\scene.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\system_timer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\SkinnedModel.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\animator.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\billboard.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\circle_shadow.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\cube.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\effect.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\grid.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\light.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\meshfield.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\model.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\modelLoader.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\particle.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\particle_test.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\sampler.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\shader2d.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\shader3d.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\shader3d_unlit.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\shader_billboard.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\shader_depth.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\shader_field.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\sky.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\sprite.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\sprite_anim.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\texture.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\trajectory3d.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\bullet.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\bullet_hit_effect.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\collision.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\enemy.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\enemy_normal.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\enemy_spawner.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\hummer.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\map.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\player.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\score.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\camera\camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\camera\light_camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\camera\mapcamera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\camera\player_camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\key_logger.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\keyboard.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\mouse.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\Audio.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\audio_manager.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\EndScene.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\fade.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\game_Ui.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\pause.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\text.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\title.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\external\WICTextureLoader11.h">
+      <Filter>External</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\shader_pixel_2d.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_pixel_3d.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_pixel_3d_unlit.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_pixel_billboard.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_pixel_depth.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_pixel_field.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_2d.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_3d.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_3d_skinned.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_3d_unlit.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_billboard.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_depth.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\shader_vertex_field.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
