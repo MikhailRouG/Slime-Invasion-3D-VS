@@ -11,4 +11,9 @@ void Sampler_SetFilterPoint();
 void Sampler_SetFilterLinear();
 void Sampler_SetFilterAnisotropic();
 
+// Binds the shadow-map sampler to s1 (point filtering + white border).
+// Must stay on its own slot: the shadow map needs point sampling and
+// clamped edges, while s0 keeps anisotropic filtering for diffuse maps.
+void Sampler_SetShadow();
+
 #endif //SAMPLER_H

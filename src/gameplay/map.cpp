@@ -65,6 +65,23 @@ void Map_Finalize(){
 	ModelRelease(g_pTree01);
 }
 
+void Map_DepthDraw(){
+	for (const MapObject& mo : g_MapObjects) {
+		switch (mo.KindId) {
+		case tree:
+		case rock:
+			ModelDepthDraw(g_pCup01,
+				XMMatrixTranslation(mo.Position.x, mo.Position.y, mo.Position.z));
+			break;
+
+		default:
+			// The terrain receives shadows rather than casting them, and the
+			// cubes use their own vertex path - neither belongs here.
+			break;
+		}
+	}
+}
+
 void Map_Draw(){
 	XMMATRIX mtxWorld;
 	for (const MapObject& mo : g_MapObjects) {
@@ -83,13 +100,13 @@ void Map_Draw(){
 			Cube_Draw(g_Cube2TexId, mtxWorld);
 			break;
 
-		case tree: //–Ø
+		case tree: //ï¿½ï¿½
 			mtxWorld = XMMatrixTranslation(mo.Position.x, mo.Position.y, mo.Position.z);
 			//ModelDraw(g_pTree01,mtxWorld);
 			ModelDraw(g_pCup01, mtxWorld);
 			break;
 
-		case rock: //Šâ
+		case rock: //ï¿½ï¿½
 			mtxWorld = XMMatrixTranslation(mo.Position.x, mo.Position.y, mo.Position.z);
 			ModelDraw(g_pCup01, mtxWorld);
 			//ModelDraw(g_pRock01, mtxWorld);

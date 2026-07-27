@@ -26,7 +26,6 @@ using namespace DirectX;
 #include "mouse.h"
 #include "mapcamera.h"
 #include "light_camera.h"
-#include "circle_shadow.h"
 #include "hummer.h"
 #include "score.h"
 #include "scene.h"
@@ -40,9 +39,11 @@ static int g_AnimPlayId = -1;
 static bool g_IsDebug = false;
 int g_TextTex01 = 0;
 
+static const XMFLOAT3 SUN_DIRECTION = { -1.0f, -1.0f, 1.0f };
+
 float g_PassedTime;
 void Map_Rendering();
-static void Light_Rendering(); // forward-declaration (определена в конце файла)
+static void Light_Rendering(); 
 
 void Game_Initialize(){
 	PlayerCamera_Initialize();
@@ -58,9 +59,8 @@ void Game_Initialize(){
 	
 	BulletHitEffect_Initialize();
 	Trajectory3d_Initialize();
-	LightCamera_Initialize({ -1.0f,-1.0f,1.0f }, { 1.0f,1.0f,1.0f });
-	CircleShadow_Initialize();
-	Light_SetPointLightcount(0); // явно инициализируем PS-слот b4, иначе на D3D11.0 count = мусор
+	LightCamera_Initialize(SUN_DIRECTION, { 0.0f,0.0f,0.0f });
+	Light_SetPointLightcount(0);
 	g_IsDebug = false;
 	g_TextTex01 = Texture_Load(L"resource/texture/Front.png");
 	Score_Initialize(1600,30,1);
@@ -149,13 +149,14 @@ void Game_Draw(){
 	Camera_SetMatrix(view, proj);
 
 	Sampler_SetFilterAnisotropic();
+	Sampler_SetShadow(); // s1: point + white border, used by the PCF lookup
 
 	Direct3D_SetDepthEnable(false);
 	Sky_Draw();
 	Direct3D_SetDepthEnable(true);
 
 	Light_SetAmbient({ 0.45f, 0.45f, 0.45f, 1.0f });
-	XMVECTOR vDir = XMVector3Normalize(XMVectorSet(-1.0f, -1.0f, 1.0f, 0.0f));
+	XMVECTOR vDir = XMVector3Normalize(XMLoadFloat3(&SUN_DIRECTION));
 	XMFLOAT4 dir;
 	XMStoreFloat4(&dir, vDir);
 	Light_SetDirectionalWorld(dir, { 0.75f, 0.75f, 0.75f, 1.0f });
@@ -218,6 +219,11 @@ void Map_Rendering()
 
 static void Light_Rendering()
 {
+	// Keep the orthographic shadow box centred on the player so the shadow
+	// map always covers what is on screen. (Direct3D_SetDepth() already
+	// unbinds the shadow map from the PS before rebinding it as a target.)
+	LightCamera_SetTarget(Player_GetPosition());
+
 	Direct3D_SetDepth();
 	Direct3D_ClearDepth();
 
@@ -230,5 +236,5 @@ static void Light_Rendering()
 
 	Enemy_DepthDraw();
 	Player_DepthDraw();
-	//Map_Draw();
+	Map_DepthDraw();
 }

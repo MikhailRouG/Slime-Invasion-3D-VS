@@ -2,31 +2,31 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Core">
-      <UniqueIdentifier>{bea2c555-525c-4b03-be47-3d27c8b7c6b8}</UniqueIdentifier>
+      <UniqueIdentifier>{c8d48667-881f-4eaf-85e1-ac6d28be446a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Render">
-      <UniqueIdentifier>{30451fea-19bf-4b6a-a642-feccf46295c8}</UniqueIdentifier>
+      <UniqueIdentifier>{a5fc40e1-19f6-4075-8267-05b4385e2aa6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Gameplay">
-      <UniqueIdentifier>{04f35bfc-4a12-457d-84d2-f6e4a06f5b9b}</UniqueIdentifier>
+      <UniqueIdentifier>{a77590bf-3af6-4476-8395-a7e565c00a15}</UniqueIdentifier>
     </Filter>
     <Filter Include="Camera">
-      <UniqueIdentifier>{53ea291e-26ab-4962-9b2b-37cb7739920d}</UniqueIdentifier>
+      <UniqueIdentifier>{d5e123ec-7b3a-499c-b8cf-0187af56fd6c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Input">
-      <UniqueIdentifier>{032c05c3-56c8-4bd9-95c3-72a258a956c3}</UniqueIdentifier>
+      <UniqueIdentifier>{5d4733b2-15ce-4f46-8698-e0fe2f4ae644}</UniqueIdentifier>
     </Filter>
     <Filter Include="Audio">
-      <UniqueIdentifier>{520d8827-9b9e-4e46-b263-bcd6bf731a95}</UniqueIdentifier>
+      <UniqueIdentifier>{84ef256c-a6c5-4253-a2a8-bcb5b462a0d3}</UniqueIdentifier>
     </Filter>
     <Filter Include="UI">
-      <UniqueIdentifier>{fe2457a3-5712-4758-90be-74e98bc30991}</UniqueIdentifier>
+      <UniqueIdentifier>{ba286c92-66d9-4d47-bf36-ee405ba397d8}</UniqueIdentifier>
     </Filter>
     <Filter Include="External">
-      <UniqueIdentifier>{f2ab14b4-93a5-433b-bff7-b46466b60043}</UniqueIdentifier>
+      <UniqueIdentifier>{2ad5da3c-474a-4369-9bae-1df763e1ed59}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders">
-      <UniqueIdentifier>{e9996c9e-bac4-42c4-8a94-3360ecb8c463}</UniqueIdentifier>
+      <UniqueIdentifier>{53e86868-7209-4aad-9e40-a9897bebf858}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,9 +61,6 @@
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="src\render\billboard.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\circle_shadow.cpp">
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="src\render\cube.cpp">
@@ -234,9 +231,6 @@
       <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="src\render\billboard.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\circle_shadow.h">
       <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="src\render\cube.h">
@@ -421,5 +415,8 @@
     <FxCompile Include="shaders\shader_vertex_field.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\shadow.hlsli" />
   </ItemGroup>
 </Project>

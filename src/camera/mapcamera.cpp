@@ -21,9 +21,9 @@ void MapCamera_SetFront(const XMFLOAT3& front)
     g_Front = front;
 }
 
-const DirectX::XMFLOAT4X4& MapCamera_GetViewMatrix()
+DirectX::XMFLOAT4X4 MapCamera_GetViewMatrix()
 {
-    static XMFLOAT4X4 mtxView;
+    XMFLOAT4X4 mtxView;
 
     XMVECTOR eye = XMLoadFloat3(&g_Position);
     XMVECTOR front = XMLoadFloat3(&g_Front);
@@ -42,7 +42,7 @@ const DirectX::XMFLOAT4X4& MapCamera_GetViewMatrix()
 }
 
 
-const DirectX::XMFLOAT4X4& MapCamera_GetPerspectiveMatrix()
+DirectX::XMFLOAT4X4 MapCamera_GetPerspectiveMatrix()
 {
     XMFLOAT4X4 mtxProj;
 

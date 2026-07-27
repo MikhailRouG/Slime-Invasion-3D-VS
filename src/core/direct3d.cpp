@@ -348,7 +348,11 @@ void Direct3D_SetOffscreenTexture(int slot)
 }
 void Direct3D_ClearDepth()
 {
-	float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	// Clear to 1.0 = the far plane, i.e. "nothing occludes this texel".
+	// Clearing to 0.0 (the near plane) made every texel with no caster read
+	// as maximally close, so the shadow test failed everywhere and the whole
+	// lit scene was darkened instead of just the shadowed parts.
+	float clear_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	g_pDeviceContext->ClearRenderTargetView(
 		g_pDepthRenderTargetView,

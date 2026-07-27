@@ -1,5 +1,5 @@
 #include <SDKDDKVer.h>
-#define WIN32_LEAN_AND_MEAN //ƒRƒ“ƒpƒCƒ‹ŠÔ‚ª‘‚­‚È‚é(ŒÃ‚¢ƒvƒƒOƒ‰ƒ€‚ğg‚í‚È‚¢)
+#define WIN32_LEAN_AND_MEAN //ï¿½Rï¿½ï¿½ï¿½pï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½(ï¿½Ã‚ï¿½ï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½È‚ï¿½)
 #include <Windows.h>
 #include "game_window.h"
 #include "direct3d.h"
@@ -30,13 +30,13 @@
 #include "shader_depth.h"
 #include "text.h"
 #include "player.h"
-//ƒƒCƒ“
+//ï¿½ï¿½ï¿½Cï¿½ï¿½
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int nCmdShow) {
 
-	//COMƒ‰ƒCƒuƒ‰ƒŠ‚Ì‰Šú‰»
+	//COMï¿½ï¿½ï¿½Cï¿½uï¿½ï¿½ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
 	(void)CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	////GPIƒXƒP[ƒŠƒ“ƒO
+	////GPIï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½O
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
 	HWND hWnd = GameWindow_Create(hInstance);
@@ -46,8 +46,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Mouse_Initialize(hWnd);
 	InitAudio();
 
-	Direct3D_Initialize(hWnd); //ƒ_ƒCƒŒƒNƒg3D‚Ì‰Šú‰»
-	Shader2d_Initialize(Direct3D_GetDevice(), Direct3D_GetContext()); //«ƒ_ƒCƒŒƒNƒg3D‚Ì‰Šú‰»‚ÌŒã‚É‰Šú‰»
+	Direct3D_Initialize(hWnd); //ï¿½_ï¿½Cï¿½ï¿½ï¿½Nï¿½g3Dï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
+	Shader2d_Initialize(Direct3D_GetDevice(), Direct3D_GetContext()); //ï¿½ï¿½ï¿½_ï¿½Cï¿½ï¿½ï¿½Nï¿½g3Dï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌŒï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½
 	Shader3d_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Shader3DUnlit_Initialize();
 	Sampler_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
@@ -67,15 +67,15 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 //	hal::DebugText dt(Direct3D_GetDevice(), Direct3D_GetContext(),
 //		L"resource/texture/consolab_ascii_512.png",
 //		Direct3D_GetBackBufferWidth(), Direct3D_GetBackBufferHeight(),
-//		0.0f, 0.0f, //’²®
+//		0.0f, 0.0f, //ï¿½ï¿½ï¿½ï¿½
 //		0, 0,
-//		0.0f, 14.0f); //’²®
+//		0.0f, 14.0f); //ï¿½ï¿½ï¿½ï¿½
 //
 //	Collision_DebugInitialize(Direct3D_GetDevice(), Direct3D_GetContext());
 //#endif
 
-	ShowWindow(hWnd, nCmdShow); //w’è‚ÌƒEƒBƒ“ƒhƒE‚ğ‰æ–Ê‚É•\¦‚·‚é
-	UpdateWindow(hWnd); //ƒEƒBƒ“ƒhƒE‚Ì’†‚ğXV‚·‚é
+	ShowWindow(hWnd, nCmdShow); //ï¿½wï¿½ï¿½ÌƒEï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½ï¿½ï¿½ï¿½Ê‚É•\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	UpdateWindow(hWnd); //ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Ì’ï¿½ï¿½ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
 
 	double exec_last_time = SystemTimer_GetTime();
 	double fps_last_time = exec_last_time;
@@ -85,35 +85,35 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	double elapsed_time = 0.0f;
 	MSG msg;
 
-	//ƒEƒBƒ“ƒhƒEƒvƒƒOƒ‰ƒ€‚Ì’†S	
+	//ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Ì’ï¿½ï¿½S	
 	do {
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) { //ƒEƒBƒ“ƒhƒEƒƒbƒZ[ƒW‚ª—ˆ‚Ä‚¢‚½‚ç
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) { //ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½
 		
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else { //ƒQ[ƒ€‚Ìˆ—
-			current_time = SystemTimer_GetTime(); //ƒVƒXƒeƒ€‚ğæ“¾
-			double fps_elapsed_time = current_time - fps_last_time; //fpsŒv‘ª—p‚ÌŒo‰ßŠÔ‚ğŒvZ
+		else { //ï¿½Qï¿½[ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½
+			current_time = SystemTimer_GetTime(); //ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ“¾
+			double fps_elapsed_time = current_time - fps_last_time; //fpsï¿½vï¿½ï¿½ï¿½pï¿½ÌŒoï¿½ßï¿½ï¿½Ô‚ï¿½ï¿½vï¿½Z
 
-			if (fps_elapsed_time >= 1.0) { //1•b‚²‚Æ‚ÉŒv‘ª
+			if (fps_elapsed_time >= 1.0) { //1ï¿½bï¿½ï¿½ï¿½Æ‚ÉŒvï¿½ï¿½
 				fps = frame_count / fps_elapsed_time;
-				fps_last_time = current_time; //FPS‚ğ‘ª’è‚µ‚½‚ğ•Û‘¶
-				frame_count = 0; //ƒJƒEƒ“ƒg‚ğƒNƒŠƒA
+				fps_last_time = current_time; //FPSï¿½ğ‘ª’è‚µï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û‘ï¿½
+				frame_count = 0; //ï¿½Jï¿½Eï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½A
 			}
 
-			//1/60•b‚²‚Æ‚ÉÀs
+			//1/60ï¿½bï¿½ï¿½ï¿½Æ‚Éï¿½ï¿½s
 			elapsed_time += SystemTimer_GetElapsedTime();
-			//if(elapsed_time>=(1.0/60.0)){ //60fps‚ÉŒÅ’è
+			//if(elapsed_time>=(1.0/60.0)){ //60fpsï¿½ÉŒÅ’ï¿½
 			//if (true) 
-			{ //‚Ç‚ñ‚Èfps’l‚Å‚àƒAƒjƒ[ƒVƒ‡ƒ“‚Ì“®‚«‚ÍŒÅ’è
-				//exec_last_time = current_time; //ˆ—‚µ‚½‚ğ•Û‘¶
+			{ //ï¿½Ç‚ï¿½ï¿½fpsï¿½lï¿½Å‚ï¿½ï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Ì“ï¿½ï¿½ï¿½ï¿½ÍŒÅ’ï¿½
+				//exec_last_time = current_time; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û‘ï¿½
 
-				//ƒQ[ƒ€‚ÌXV
+				//ï¿½Qï¿½[ï¿½ï¿½ï¿½ÌXï¿½V
 				KeyLogger_Update();
 
 				Mouse_State ms{};
-				Mouse_GetState(&ms); //ƒ}ƒEƒX‚Ìó‘Ôæ“¾
+				Mouse_GetState(&ms); //ï¿½}ï¿½Eï¿½Xï¿½Ìï¿½Ôæ“¾
 
 				
 				Scene_Update(elapsed_time);
@@ -128,7 +128,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 				Scene_Draw();
 				Fade_Draw();
 
-//#if defined(DEBUG)||defined(_DEBUG)//ƒfƒoƒbƒO‚Ì‚¾‚¯—LŒø
+//#if defined(DEBUG)||defined(_DEBUG)//ï¿½fï¿½oï¿½bï¿½Oï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½
 //				std::stringstream ss;
 //				ss << "fps:" << fps << std::endl;
 //
@@ -139,7 +139,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 //				dt.Clear();
 //#endif
 
-				//‰æ–Ê‚ÌƒXƒƒbƒv
+				//ï¿½ï¿½Ê‚ÌƒXï¿½ï¿½ï¿½bï¿½v
 				Direct3D_Present();
 
 				frame_count++;
@@ -153,7 +153,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 //	Collision_DebugFinalize();
 //#endif
 
-	//‰Šú‰»‚Æ‹t‡‚ÉŒã•Ğ•t‚¯
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‹tï¿½ï¿½ï¿½ÉŒï¿½Ğ•tï¿½ï¿½
 	Meshfield_Finalize();
 	Light_Finalize();
 	Cube_Finalize();

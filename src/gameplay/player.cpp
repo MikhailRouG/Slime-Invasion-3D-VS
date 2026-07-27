@@ -10,7 +10,6 @@ using namespace DirectX;
 #include "shader_depth.h"
 #include <iostream>
 #include <algorithm>
-#include "circle_shadow.h"
 #include "scene.h"
 #include "score.h"
 #include "game_Ui.h"
@@ -52,7 +51,6 @@ void Player_Initialize(const XMFLOAT3& position,const XMFLOAT3& front){
 
 void Player_Finalize(){
 	ModelRelease(g_pPlayerModel);
-	CircleShadow_Finalize();
 }
 
 void Player_Update(double elapsed_time) {
@@ -159,7 +157,6 @@ void Player_Draw() {
 	ModelDraw(g_pPlayerModel, world, color);
 	//player.Draw(context);
 	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
-	CircleShadow_Draw(g_PlayerPosition);
 }
 
 void Player_DepthDraw()

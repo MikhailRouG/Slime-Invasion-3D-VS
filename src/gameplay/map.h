@@ -22,9 +22,11 @@ void Map_Finalize();
 //void Map_Update(double elapsed_time);
 void Map_Draw();
 
+void Map_DepthDraw();
+
 int Map_GetObjectsCount();
 
-//ƒ}ƒbƒv‚Ìæ“ªƒAƒhƒŒƒX‚ğ•Ô‚·
+//ï¿½}ï¿½bï¿½vï¿½Ìæ“ªï¿½Aï¿½hï¿½ï¿½ï¿½Xï¿½ï¿½Ô‚ï¿½
 const MapObject* Map_GetObject(int index);
 
 #endif //MAP_H
