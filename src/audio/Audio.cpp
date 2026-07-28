@@ -1,12 +1,3 @@
-/*====================================================================================
-
-オーディオ処理[Audio.cpp]
-
-																Author	: Harada Ren
-																Date	: 2025/07/09
---------------------------------------------------------------------------------------
-
-======================================================================================*/
 #include <xaudio2.h>
 #include <assert.h>
 #include "audio.h"
@@ -34,10 +25,8 @@ static IXAudio2SourceVoice* g_BGMAudio = nullptr;
 
 void InitAudio()
 {
-	// XAudio生成
 	XAudio2Create(&g_Xaudio, 0);
 
-	// マスタリングボイス生成
 	g_Xaudio->CreateMasteringVoice(&g_MasteringVoice);
 
 	for (AUDIO& audio : g_Audio) {
@@ -76,7 +65,6 @@ int LoadAudio(const char *FileName)
 		return -1;
 
 
-	// サウンドデータ読込
 	WAVEFORMATEX wfx = { 0 };
 
 	{
@@ -130,7 +118,6 @@ int LoadAudio(const char *FileName)
 	}
 
 
-	// サウンドソース生成
 	g_Xaudio->CreateSourceVoice(&g_Audio[index].SourceVoice, &wfx);
 	assert(g_Audio[index].SourceVoice);
 
@@ -177,7 +164,6 @@ void PlayAudio(int Index, bool Loop, float volume){
 	g_Audio[Index].SourceVoice->FlushSourceBuffers();
 
 
-	// バッファ設定
 	XAUDIO2_BUFFER bufinfo;
 
 	memset(&bufinfo, 0x00, sizeof(bufinfo));
@@ -189,20 +175,17 @@ void PlayAudio(int Index, bool Loop, float volume){
 	volume *= AudioManager_GetVolume();
 	g_Audio[Index].SourceVoice->SetVolume(volume);
 
-	// ループ設定
 	if (Loop){
 		bufinfo.LoopBegin = 0;
 		bufinfo.LoopLength = g_Audio[Index].PlayLength;
 		bufinfo.LoopCount = XAUDIO2_LOOP_INFINITE;
 
-		//ループならBGMとして記憶
 		g_BGMAudio = g_Audio[Index].SourceVoice;
 	}
 
 	g_Audio[Index].SourceVoice->SubmitSourceBuffer(&bufinfo, NULL);
 
 
-	// 再生
 	g_Audio[Index].SourceVoice->Start();
 
 }

@@ -1,14 +1,8 @@
 //--------------------------------------------------------------------------------------
 // File: Keyboard.h
-//
-// キーボードモジュール
-//
 //--------------------------------------------------------------------------------------
 // 2020/06/07
-//     DirectXTKより、なんちゃってC言語用にシェイプアップ改変
-//
 // Licensed under the MIT License.
-//
 // http://go.microsoft.com/fwlink/?LinkId=248929
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
@@ -21,7 +15,6 @@
 #include <memory>
 
 
-// キー列挙
 typedef enum Keyboard_Keys_tag : unsigned char
 {
     KK_NONE               = 0x0,
@@ -203,7 +196,6 @@ typedef enum Keyboard_Keys_tag : unsigned char
 } Keyboard_Keys;
 
 
-// キーボード状態構造体
 typedef struct Keyboard_State_tag
 {
     bool Reserved0 : 8;
@@ -393,46 +385,23 @@ typedef struct Keyboard_State_tag
 } Keyboard_State;
 
 
-// キーボードモジュールの初期化
 void Keyboard_Initialize(void);
 
-// キーボードの現在のキー毎の状態を取得する
 bool Keyboard_IsKeyDown(Keyboard_Keys key);
 bool Keyboard_IsKeyUp(Keyboard_Keys key);
 
-// キーボードの現在の状態を取得する
 const Keyboard_State* Keyboard_GetState(void);
 
-// キーボードの状態からキー毎の状態を取得する
 bool Keyboard_IsKeyDown(Keyboard_Keys key, const Keyboard_State* pState);
 bool Keyboard_IsKeyUp(Keyboard_Keys key, const Keyboard_State* pState);
 
-// キーボードの状態をリセットする
 void Keyboard_Reset(void);
 
-// キーボード制御のためのウォンどうメッセージプロシージャフック関数
 void Keyboard_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
 
-//
 // For a Win32 desktop application, call this function from your Window Message Procedure
-//
 // LResult CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-// {
-//     switch (message)
-//     {
-//
-//     case WM_ACTIVATEAPP:
-//     case WM_KEYDOWN:
-//     case WM_SYSKEYDOWN:
-//     case WM_KEYUP:
-//     case WM_SYSKEYUP:
-//         Keyboard_ProcessMessage(message, wParam, lParam);
-//         break;
-//
-//     }
-// }
-//
 
 
 #endif // HAL_YOUHEI_KEYBOARD_H

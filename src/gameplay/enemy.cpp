@@ -99,7 +99,4 @@ const std::vector<Enemy*>& Enemy_GetEnemies()
 
 void Enemy::State::DepthDraw() const
 {
-	//for (int i = 0; i < g_EnemyCount; i++) {
-	//	g_Enemies[i]->Draw();
-	//}
 }

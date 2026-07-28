@@ -5,11 +5,9 @@
 
 //======================================================================
 //  Shadow-map camera for the directional (sun) light.
-//
 //  A directional light has no position - only a direction - so the
 //  shadow camera is an *orthographic* box that slides along with the
 //  action. Two details matter for quality:
-//
 //    * Orthographic, not perspective. A perspective shadow frustum for a
 //      sun light distorts the projection and wastes most of the map.
 //    * Texel snapping. If the box slides by sub-texel amounts, every
@@ -18,7 +16,6 @@
 //======================================================================
 
 // `world_directional` is the direction the light travels (e.g. {-1,-1,1}
-// for a sun in the upper-right shining down); `target` is the point the
 // shadow box initially centres on.
 void LightCamera_Initialize(const DirectX::XMFLOAT3& world_directional,
                             const DirectX::XMFLOAT3& target);

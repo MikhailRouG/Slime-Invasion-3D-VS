@@ -20,7 +20,6 @@ bool ShaderBillboard_Initialize() {
         ifs.read((char*)buffer.data(), buffer.size());
         return buffer;
         };
-    // 1. �������� VS
     std::ifstream ifs_vs("resource/shader/shader_vertex_billboard.cso", std::ios::binary);
     if (!ifs_vs.is_open()) {
         MessageBox(nullptr, "�� ������ VS ������!", "Error", MB_OK);
@@ -45,14 +44,11 @@ bool ShaderBillboard_Initialize() {
     hr = dev->CreateInputLayout(layout, 3, vs_data.data(), vs_size, &g_pInputLayout);
     if (FAILED(hr)) return false;
 
-    // 3. �������� ����������� �������
     D3D11_BUFFER_DESC bd = {};
     bd.Usage = D3D11_USAGE_DEFAULT;
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-    // ����� VS (BillboardVSConstant) - �������� �������
     bd.ByteWidth = sizeof(BillboardVSConstant);
-    // ������ ������ ���� ������ 16. ���� ��� - ��������� �����.
     if (bd.ByteWidth % 16 != 0) bd.ByteWidth += 16 - (bd.ByteWidth % 16);
 
     hr = dev->CreateBuffer(&bd, nullptr, &g_pVSConstantBuffer0);
@@ -61,12 +57,10 @@ bool ShaderBillboard_Initialize() {
         return false;
     }
 
-    // ����� PS (Color)
-    bd.ByteWidth = sizeof(DirectX::XMFLOAT4); // 16 ����, ������ 16.
+    bd.ByteWidth = sizeof(DirectX::XMFLOAT4);
     hr = dev->CreateBuffer(&bd, nullptr, &g_pPSConstantBuffer0);
     if (FAILED(hr)) return false;
 
-    // 4. �������� PS
     std::ifstream ifs_ps("resource/shader/shader_pixel_billboard.cso", std::ios::binary);
     if (!ifs_ps) return false;
     ifs_ps.seekg(0, std::ios::end);
@@ -83,17 +77,15 @@ bool ShaderBillboard_Initialize() {
 void ShaderBillboard_Begin() {
     auto ctx = Direct3D_GetContext();
 
-    // �������� ��� ��������
     if (g_pVertexShader == nullptr) OutputDebugStringA("VS NULL\n");
     if (g_pPixelShader == nullptr) OutputDebugStringA("PS NULL\n");
 
     if (!g_pVertexShader || !g_pPixelShader) return;
 
     ctx->VSSetShader(g_pVertexShader, nullptr, 0);
-    ctx->PSSetShader(g_pPixelShader, nullptr, 0); // �������� ����������� �������
+    ctx->PSSetShader(g_pPixelShader, nullptr, 0);
     ctx->IASetInputLayout(g_pInputLayout);
 
-    // ����������� �������� ������
     ctx->VSSetConstantBuffers(0, 1, &g_pVSConstantBuffer0);
     ctx->PSSetConstantBuffers(0, 1, &g_pPSConstantBuffer0);
 }

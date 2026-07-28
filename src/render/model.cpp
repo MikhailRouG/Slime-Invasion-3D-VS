@@ -10,9 +10,9 @@ using namespace DirectX;
 #include "shader_depth.h"
 
 struct Vertex3d {
-	XMFLOAT3 position; // ���_���W
-	XMFLOAT3 normal; //�@��
-	XMFLOAT4 color; //���_�J���[
+	XMFLOAT3 position;
+	XMFLOAT3 normal;
+	XMFLOAT4 color;
 	XMFLOAT2 texcoord; //UV
 };
 
@@ -22,7 +22,6 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 	MODEL* model = new MODEL;
 
 	model->AiScene = aiImportFile(FileName, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded);
-	//assert(model->AiScene);
 	if (model->AiScene == nullptr) {
 		delete model;
 		return nullptr;
@@ -36,7 +35,6 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 	{
 		aiMesh* mesh = model->AiScene->mMeshes[m];
 
-		// ���_�o�b�t�@����
 		{
 			Vertex3d* vertex = new Vertex3d[mesh->mNumVertices];
 
@@ -53,7 +51,6 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 				vertex[v].color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 				vertex[v].texcoord = XMFLOAT2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
 
-				//aabb�擾
 				if (v == 0 && m ==0) {
 					model->local_aabb.min = vertex[v].position;
 					model->local_aabb.max = vertex[v].position;
@@ -85,7 +82,6 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 		}
 
 
-		// �C���f�b�N�X�o�b�t�@����
 		{
 			unsigned int* index = new unsigned int[mesh->mNumFaces * 3];
 
@@ -121,8 +117,6 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 
 	g_TextureWhite = Texture_Load(L"resource/texture/white.png");
 	
-	//FBX�ɓ����Ă���ꍇ
-	//�e�N�X�`���ǂݍ���
 	for (unsigned int i = 0; i < model->AiScene->mNumTextures; i++) {
 		aiTexture* aitexture = model->AiScene->mTextures[i];
 
@@ -144,22 +138,19 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 		model->Texture[aitexture->mFilename.data] = texture;
 	}
 
-	//fbx�̃t�@�C���p�X�����擾
 	const std::string modelPath(FileName);
 
-	//�Ō��'/'�܂���'\\'�̈ʒu��T��
 	size_t pos = modelPath.find_last_of("/\\");
 	std::string directory;
 
 	if (pos != std::string::npos) {
-		directory = modelPath.substr(0, pos); //�t�@�C����������������
+		directory = modelPath.substr(0, pos);
 	}
 	else {
-		directory = ""; //�p�X�ɋ�؂肪�Ȃ��ꍇ(�t�@�C�����̂�)
+		directory = "";
 	}
 
 	
-	//�e�N�X�`����FBX�Ƃ͕ʂɗp�ӂ���Ă���
 	for (unsigned int m = 0; m < model->AiScene->mNumTextures; m++) {
 		aiString filename;
 		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
@@ -191,7 +182,6 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 
 		delete[] pWideFilename;
 
-		//assert(texture);
 		if (texture == nullptr) {
 			model->Texture[filename.C_Str()] = nullptr;
 		}
@@ -200,7 +190,6 @@ MODEL* ModelLoad(const char* FileName, float scale, bool bBlender) {
 			model->Texture[filename.C_Str()] = texture;
 		}
 
-		//resource->Release();
 
 		model->Texture[filename.C_Str()] = texture;
 	}
@@ -353,21 +342,17 @@ void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld, const Direc
 	Shader3DUnlit_SetWorldMatrix(mtxWorld);
 
 	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++) {
-		//�e�N�X�`���̐ݒ�
 		aiString texture;
 		aiMaterial* aimaterial = model->AiScene->mMaterials[model->AiScene->mMeshes[m]->mMaterialIndex];
 		aimaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture);
 
 		if (texture.length != 0) {
-			//if (texture != aiString("")) {
 			Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
 			Shader3DUnlit_SetColor(color);
 		}
 		else {
 			Texture_SetTexture(g_TextureWhite);
 			aiColor3D diffuse;
-			//��̃��f�����Ńp�[�c����(���b�V������)�ɕ�����ꍇ
-			//AI_MATKEY_COLOR_SPECULAR�ȂǗ��p or �X�y�L�����}�b�v���p
 			aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
 			Shader3d_SetColor({ diffuse.r, diffuse.g, diffuse.b, 1.0f });
 		}
@@ -376,10 +361,8 @@ void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld, const Direc
 		UINT offset = 0;
 		Direct3D_GetContext()->IASetVertexBuffers(0, 1, &model->VertexBuffer[m], &stride, &offset);
 
-		// �C���f�b�N�X�o�b�t�@��`��p�C�v���C���ɐݒ�
 		Direct3D_GetContext()->IASetIndexBuffer(model->IndexBuffer[m], DXGI_FORMAT_R32_UINT, 0);
 
-		// �|���S���`�施�ߔ��s
 		Direct3D_GetContext()->DrawIndexed(model->AiScene->mMeshes[m]->mNumFaces * 3, 0, 0);
 	}
 }
@@ -406,7 +389,6 @@ void ModelDepthDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld)
 
 AABB Model_GetAABB(MODEL* model, const DirectX::XMFLOAT3& position){
 	if (model == nullptr) {
-		// model���܂��ǂݍ��܂�ĂȂ��Ȃ�A�Ƃ肠�������_�����̏�����AABB��Ԃ�
 		return { position, position };
 	}
 

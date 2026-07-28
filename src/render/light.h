@@ -7,11 +7,9 @@
 
 //======================================================================
 //  Lighting
-//
 //  LightRenderer owns the pixel-shader constant buffers that describe the
 //  scene lighting (ambient, directional, specular and up to four point
 //  lights) and uploads them to the GPU.
-//
 //  Design notes (OOP / SOLID):
 //    * Single Responsibility - the class only manages light constant
 //      buffers; it does not create devices, load assets or draw geometry.
@@ -20,7 +18,6 @@
 //    * RAII                   - constant buffers are held in ComPtr and
 //      released automatically; there is no manual "finalize" step and no
 //      chance of leaking on an early return.
-//
 //  The free Light_* functions below are a thin compatibility facade kept so
 //  that existing C-style call sites (main.cpp, game.cpp) continue to work
 //  unchanged while the implementation is fully object oriented.

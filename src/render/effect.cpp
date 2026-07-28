@@ -10,8 +10,6 @@ using namespace DirectX;
 
 struct Effect {
 	XMFLOAT2 position;
-	//XMFLOAT2 velocity; //動くものを使いたかったら
-	//double LifeTime;
 	int sprite_anim_id;
 	bool isEnable;
 };
@@ -50,10 +48,8 @@ void Effect_Update(){
 
 void Effect_Draw(){
 	for (Effect& e : g_Effects) {
-		//使っていなかったら読み飛ばす
 		if (!e.isEnable) continue;
 
-		// プレイヤーのワールド座標からスクリーン座標を計算
 		float screen_x = e.position.x;
 		float screen_y = e.position.y;
 
@@ -65,7 +61,6 @@ void Effect_Create(const DirectX::XMFLOAT2& position){
 	for (Effect& e : g_Effects) {
 		if (e.isEnable) continue;
 
-		//空き領域発見して1発分作成
 		e.isEnable = true;
 		e.position = position;
 		e.sprite_anim_id = SpriteAnim_CreatePlayer(g_AnimPatternId);

@@ -1,14 +1,8 @@
 //--------------------------------------------------------------------------------------
 // File: mouse.cpp
-//
-// 便利なマウスモジュール
-//
 //--------------------------------------------------------------------------------------
 // 2020/02/11
-//     DirectXTKより、なんちゃってC言語用にシェイプアップ改変
-//
 // Licensed under the MIT License.
-//
 // http://go.microsoft.com/fwlink/?LinkId=248929
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
@@ -182,7 +176,6 @@ void Mouse_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
         point.x = gLastX;
         point.y = gLastY;
 
-        // リモートディスクトップに対応するために移動前にカーソルを表示する
         ShowCursor(TRUE);
 
         if (MapWindowPoints(gWindow, nullptr, &point, 1)) {
@@ -254,7 +247,6 @@ void Mouse_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 else if (raw.data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) {
 
-                    // リモートディスクトップなどに対応
                     const int width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
                     const int height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
@@ -349,13 +341,11 @@ void Mouse_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     default:
-        // マウスに対するメッセージは無かった…
         return;
     }
 
     if (gMode == MOUSE_POSITION_MODE_ABSOLUTE) {
 
-        // すべてのマウスメッセージに対して新しい座標を取得する
         int xPos = GET_X_LPARAM(lParam);
         int yPos = GET_Y_LPARAM(lParam);
 

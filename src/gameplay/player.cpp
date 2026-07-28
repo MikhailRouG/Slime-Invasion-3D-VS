@@ -155,7 +155,6 @@ void Player_Draw() {
 	else
 		color = { 1.0f, 0.84f, 0.0f, 0.80f };
 	ModelDraw(g_pPlayerModel, world, color);
-	//player.Draw(context);
 	Light_SetSpecularWorld(PlayerCamera_GetPosition(), 10.0f, { 0.3f,0.3f,0.3f,1.0f });
 }
 

@@ -10,7 +10,7 @@ struct Trajectory3d
     XMFLOAT4 color;
     float    size;
     double   lifeTime;
-    double   birthTime;   // 0.0 だったら未使用
+    double   birthTime;
 };
 
 static constexpr unsigned int TRAJECTORY_MAX = 4096;

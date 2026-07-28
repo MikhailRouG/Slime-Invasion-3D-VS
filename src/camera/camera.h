@@ -3,7 +3,6 @@
 
 #include <DirectXMath.h>
 
-//upÇÕäOêœÇ≈èoÇ∑
 void Camera_Initialize(const DirectX::XMFLOAT3& position, 
 	const DirectX::XMFLOAT3& front,
 	const DirectX::XMFLOAT3& right);
@@ -16,7 +15,6 @@ const DirectX::XMFLOAT4X4& Camera_GetPerspectiveMatrix();
 
 const DirectX::XMFLOAT3& Camera_GetPosition();
 const DirectX::XMFLOAT3& Camera_GetFront();
-//âÊäp
 float Camera_GetFov();
 
 void Camera_SetMatrix(const DirectX::XMMATRIX& view, const DirectX::XMMATRIX& projection);

@@ -5,7 +5,6 @@
 using namespace DirectX;
 
 
-//テクスチャ管理最大数
 static constexpr int TEXTURE_MAX = 1024;
 
 struct Texture {
@@ -13,25 +12,23 @@ struct Texture {
 	unsigned int width;
 	unsigned int height;
 	ID3D11Resource* pTexture = nullptr;
-	ID3D11ShaderResourceView* pTextureView = nullptr; //テクスチャ
+	ID3D11ShaderResourceView* pTextureView = nullptr;
 };
 
 static Texture g_Textures[TEXTURE_MAX]{};
 static int g_SetTextureIndex = -1;
 
-// 注意！初期化で外部から設定されるもの。Release不要。
 static ID3D11Device* g_pDevice = nullptr;
 static ID3D11DeviceContext* g_pContext = nullptr;
 
 void Texture_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 	for (Texture& t : g_Textures) {
-		t.pTexture = nullptr; //初期化
+		t.pTexture = nullptr;
 		t.pTextureView = nullptr;
 	}
 
 	g_SetTextureIndex = -1;
 
-	// デバイスとデバイスコンテキストの保存
 	g_pDevice = pDevice;
 	g_pContext = pContext;
 
@@ -42,20 +39,16 @@ void Texture_Finalize(void){
 }
 
 int Texture_Load(const wchar_t* pFilename){
-	//既に読み込んでいるファイルは読み込まない
 	for (int i = 0; i < TEXTURE_MAX; i++) {
 		if (g_Textures[i].filename == pFilename) {
 			return i;
 		}
 	}
 
-	//空いている管理領域を探す
 	for (int i = 0; i < TEXTURE_MAX; i++) {
-		//使用中(nullptrじゃなかったら)だったら次の領域に
 		if (g_Textures[i].pTexture) {
 			continue;
 		}
-		//テクスチャの読み込み
 		HRESULT hr;
 
 		hr = CreateWICTextureFromFile(g_pDevice, g_pContext, pFilename, &g_Textures[i].pTexture, &g_Textures[i].pTextureView);
@@ -64,7 +57,6 @@ int Texture_Load(const wchar_t* pFilename){
 		D3D11_TEXTURE2D_DESC t2desc;
 		if (!pTexture)
 		{
-			//MessageBoxA(nullptr, "Texture is null!", "Texture Error", MB_OK);
 			return -1; 
 		}
 		pTexture->GetDesc(&t2desc);
@@ -78,7 +70,7 @@ int Texture_Load(const wchar_t* pFilename){
 
 		g_Textures[i].filename = pFilename;
 
-		return i; //管理番号
+		return i;
 	}
 
 	return -1;
@@ -96,11 +88,10 @@ void Texture_AllRelease(){
 
 void Texture_SetTexture(int texid, int slot){
 	if (texid < 0) {
-		return; //-1だったら何もしないで返す
+		return;
 	}
 
 	g_SetTextureIndex = texid;
-	//テクスチャ設定,スロット番号のレジスタに渡す
 	g_pContext->PSSetShaderResources(slot, 1, &g_Textures[texid].pTextureView);
 }
 

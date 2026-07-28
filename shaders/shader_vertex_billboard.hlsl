@@ -34,7 +34,7 @@ VS_OUT main(VS_IN vi)
     vo.posH = mul(float4(vi.posL, 1.0f), mtxWVP);
 
     
-    vo.color = vi.color; // 地面のテクスチャのブレンド値はそのままパススルー
+    vo.color = vi.color;
     vo.texcoord = vi.texcoord * scale + translation;
     
     return vo;

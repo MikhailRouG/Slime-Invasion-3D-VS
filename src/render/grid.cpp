@@ -5,42 +5,34 @@ using namespace DirectX;
 #include "shader3d.h"
 
 
-static constexpr int GRID_H_COUNT = 10; //ますの数
-static constexpr int GRID_V_COUNT = 10; //線の数-１
-static constexpr int GRID_H_LINE_COUNT = GRID_H_COUNT + 1; //線の数
+static constexpr int GRID_H_COUNT = 10;
+static constexpr int GRID_V_COUNT = 10;
+static constexpr int GRID_H_LINE_COUNT = GRID_H_COUNT + 1;
 static constexpr int GRID_V_LINE_COUNT = GRID_V_COUNT + 1;
 static constexpr int NUM_VERTEX = GRID_H_LINE_COUNT * 2 + GRID_V_LINE_COUNT * 2;
 
-static ID3D11Buffer* g_pVertexBuffer = nullptr; // 頂点バッファ
+static ID3D11Buffer* g_pVertexBuffer = nullptr;
 
-// 注意！初期化で外部から設定されるもの。Release不要。
 static ID3D11Device* g_pDevice = nullptr;
 static ID3D11DeviceContext* g_pContext = nullptr;
 
-// 3d頂点構造体
 struct Vertex3d {
-	XMFLOAT3 position; // 頂点座標
-	XMFLOAT4 color; //頂点カラー
+	XMFLOAT3 position;
+	XMFLOAT4 color;
 };
 
 static Vertex3d g_GridVertex[NUM_VERTEX]{};
 
 
 void Grid_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
-	// デバイスとデバイスコンテキストの保存
 	g_pDevice = pDevice;
 	g_pContext = pContext;
 
-	//点の数を算出
-	//g_NumVertex = (int)(g_Radius * 2.0f + XM_PI);
 
-	// 頂点バッファ生成
 	D3D11_BUFFER_DESC bd = {};
-	//書き換えない(3dでは元の座標は変わらない)
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(Vertex3d) * NUM_VERTEX;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	//1回描いたら書き換えない
 	bd.CPUAccessFlags = 0;
 
 
@@ -48,33 +40,16 @@ void Grid_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 	sd.pSysMem = g_GridVertex;
 
 
-	//1*1のグリッド情報を入れる
-	/*
-	float x = -5.0f;
-	for (int i = 0;i < GRID_H_LINE_COUNT * 2;i += 2) {
-		g_GridVertex[i] = { {x,0.0f,5.0f},{0.0f,1.0f,0.0f,1.0f} };
-		g_GridVertex[i+1] = { {x,0.0f,-5.0f},{0.0f,1.0f,0.0f,1.0f} };
-		x += 1.0f;
-	}
-	float z = -5.0f;
-	for (int i = GRID_H_LINE_COUNT * 2;i < NUM_VERTEX;i += 2) {
-		g_GridVertex[i] = { {5.0f,0.0f,z},{0.0f,1.0f,0.0f,1.0f} };
-		g_GridVertex[i + 1] = { {-5.0f,0.0f,z},{0.0f,1.0f,0.0f,1.0f} };
-		z += 1.0f;
-	}
-	*/
 
 	float x = -5.0f;
 	float z = -5.0f;
 	for (int i = 0; i < NUM_VERTEX; i += 2) {
 		if (i < GRID_H_LINE_COUNT * 2) {
-			// X方向の線
 			g_GridVertex[i] = { { x, 0.0f,  5.0f }, {0.0f, 1.0f, 0.0f, 1.0f} };
 			g_GridVertex[i + 1] = { { x, 0.0f, -5.0f }, {0.0f, 1.0f, 0.0f, 1.0f} };
 			x += 1.0f;
 		}
 		else {
-			// Z方向の線
 			g_GridVertex[i] = { {  5.0f, 0.0f, z }, {0.0f, 1.0f, 0.0f, 1.0f} };
 			g_GridVertex[i + 1] = { { -5.0f, 0.0f, z }, {0.0f, 1.0f, 0.0f, 1.0f} };
 			z += 1.0f;
@@ -90,24 +65,18 @@ void Grid_Finalize(void){
 }
 
 void Grid_Draw(void){
-	// シェーダーを描画パイプラインに設定
 	Shader3d_Begin();
 
-	// 頂点バッファを描画パイプラインに設定
 	UINT stride = sizeof(Vertex3d);
 	UINT offset = 0;
 	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 
 
-	//ワールド座標変換行列の作成
-	XMMATRIX mtxWorld = XMMatrixIdentity(); //単位行列の作成
-	//頂点シェーダーにワールド座標変換行列を設定
+	XMMATRIX mtxWorld = XMMatrixIdentity();
 	Shader3d_SetWorldMatrix(mtxWorld);
 
 
-	// プリミティブトポロジ設定
 	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	// ポリゴン描画命令発行
 	g_pContext->Draw(NUM_VERTEX, 0);
 }

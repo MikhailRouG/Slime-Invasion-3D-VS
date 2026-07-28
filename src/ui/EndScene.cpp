@@ -11,7 +11,6 @@
 
 static int g_TitleEndBgTexId2 = -1;
 
-// Координаты кнопок (такие же, как в Title)
 const int menuBtnX = 760;
 const int menuBtnY = 600;
 const int menuBtnW = 400;
@@ -24,14 +23,11 @@ const int exitBtnW = 400;
 const int exitBtnH = 150;
 static float exitBtnAlpha = 0.7f;
 
-// Функция для обработки логики кнопок
 void EndUI_HandleClick(int mx, int my, bool isClick)
 {
-    // Сброс подсветки
     menuBtnAlpha = 0.7f;
     exitBtnAlpha = 0.7f;
 
-    // Проверка кнопки Menu (вместо Play)
     if (mx >= menuBtnX && mx <= (menuBtnX + menuBtnW) &&
         my >= menuBtnY && my <= (menuBtnY + menuBtnH))
     {
@@ -39,11 +35,10 @@ void EndUI_HandleClick(int mx, int my, bool isClick)
             Scene_Change(SCENE_TITLE);
         }
         else {
-            menuBtnAlpha = 0.4f; // Эффект наведения
+            menuBtnAlpha = 0.4f;
         }
     }
 
-    // Проверка кнопки Exit
     if (mx >= exitBtnX && mx <= (exitBtnX + exitBtnW) &&
         my >= exitBtnY && my <= (exitBtnY + exitBtnH))
     {
@@ -51,7 +46,7 @@ void EndUI_HandleClick(int mx, int my, bool isClick)
             PostQuitMessage(0);
         }
         else {
-            exitBtnAlpha = 0.4f; // Эффект наведения
+            exitBtnAlpha = 0.4f;
         }
     }
 }

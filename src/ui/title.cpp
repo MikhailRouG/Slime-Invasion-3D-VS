@@ -48,7 +48,6 @@ void Title_Draw()
 	Sprite_Draw(g_TitleBgTexId2,
 		0.0f, 0.0f,
 		0,0,1920,1080);
-	//Text_Draw(500, 810, "Press Enter to continue", { 1,1,1,1 }, 1.3f);
 	Sprite_Draw(
 		0, 
 		playBtnX, playBtnY,
@@ -88,7 +87,7 @@ void TitleUI_HandleClick(int mx, int my, bool  isClick)
 			PostQuitMessage(0); 
 		}
 		else {
-			exitBtn = 0.4f; // Ёффект наведени€
+			exitBtn = 0.4f;
 		}
 	}
 }

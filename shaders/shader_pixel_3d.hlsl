@@ -1,9 +1,7 @@
 //======================================================================
 //  Lit 3D pixel shader
-//
 //  Directional key light + up to four point lights, soft PCF shadows,
 //  hemisphere ambient and Blinn-Phong specular.
-//
 //  The important structural point: shadows attenuate *direct* light only.
 //  Ambient is never scaled, so shadowed surfaces keep their colour and
 //  the scene reads as lit-from-the-sky rather than smeared with grey.

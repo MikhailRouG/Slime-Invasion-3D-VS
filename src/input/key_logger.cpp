@@ -1,7 +1,7 @@
 
 #include "key_logger.h"
 
-static Keyboard_State g_PrevState{}; //1フレーム前の情報を取っておく
+static Keyboard_State g_PrevState{};
 static Keyboard_State g_TriggerState{};
 static Keyboard_State g_ReleasedState{};
 
@@ -10,14 +10,13 @@ void KeyLogger_Initialize(){
 }
 
 void KeyLogger_Update(){
-	const Keyboard_State* pState = Keyboard_GetState(); //現在のキーボードの状況取得
+	const Keyboard_State* pState = Keyboard_GetState();
 	LPBYTE pn = (LPBYTE)pState;
 	LPBYTE pp = (LPBYTE)&g_PrevState;
 	LPBYTE pt = (LPBYTE)&g_TriggerState;
 	LPBYTE pr = (LPBYTE)&g_ReleasedState;
 
 	for (int i = 0; i < sizeof(Keyboard_State); i++) {
-		//1フレーム前と今の状態を比べる
 		/*
 		01->1
 		10->0
@@ -34,7 +33,7 @@ void KeyLogger_Update(){
 		pr[i]= (pp[i] ^ pn[i]) & pp[i];
 	}
 
-	g_PrevState = *pState; //現在の入力を過去の入力にする
+	g_PrevState = *pState;
 }
 
 bool KeyLogger_IsPressed(Keyboard_Keys key){

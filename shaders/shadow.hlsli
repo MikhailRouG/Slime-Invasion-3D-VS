@@ -3,12 +3,10 @@
 
 //======================================================================
 //  Shared shadow + lighting helpers
-//
 //  Both the lit 3D shader and the terrain shader sample the same shadow
 //  map, so the lookup lives here instead of being copy-pasted. (The two
 //  shaders previously carried separate, subtly different, and equally
 //  broken copies of it.)
-//
 //  Shadow map: 2048x2048 R32_FLOAT, written by shader_pixel_depth.hlsl,
 //  bound to t2 by Direct3D_SetDepthTexture(2).
 //  Sampler   : point + BORDER(white) at s1 (see Sampler_SetShadow).
@@ -38,7 +36,6 @@ static const float SHADOW_MIN_LIGHT = 0.0f;
 //----------------------------------------------------------------------
 //  Percentage-Closer Filtering, 3x3 taps.
 //  Returns 1.0 = fully lit, 0.0 = fully shadowed.
-//
 //  `NdotL` drives a slope-scaled bias: surfaces facing the light edge-on
 //  need a larger offset to avoid self-shadowing acne, while surfaces
 //  facing it head-on need almost none (which avoids peter-panning).

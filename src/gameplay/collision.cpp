@@ -6,27 +6,24 @@ using namespace DirectX;
 #include <algorithm>
 
 
-static constexpr int NUM_VERTEX = 5000; // 頂点数
+static constexpr int NUM_VERTEX = 5000;
 
 
-static ID3D11Buffer* g_pVertexBuffer = nullptr; // 頂点バッファ
+static ID3D11Buffer* g_pVertexBuffer = nullptr;
 
-// 注意！初期化で外部から設定されるもの。Release不要。
 static ID3D11Device* g_pDevice = nullptr;
 static ID3D11DeviceContext* g_pContext = nullptr;
 
 static int g_WhiteTex = -1;
 
 
-// 頂点構造体
 struct Vertex
 {
-	XMFLOAT3 position; // 頂点座標
+	XMFLOAT3 position;
 
-	//XMFLOAT4…FLOATの値を4つ入れられる
-	XMFLOAT4 color; //頂点カラー
+	XMFLOAT4 color;
 
-	XMFLOAT2 texcoord;//テクスチャ座標(UV)
+	XMFLOAT2 texcoord;
 };
 bool Collision_IsOverlapSphere(const Sphere& a, const Sphere& b)
 {
@@ -68,9 +65,7 @@ bool Collision_IsOverlapSphere(const Sphere& a, const DirectX::XMFLOAT3& point)
 	return a.radius *a.radius > XMVectorGetX(lsq);
 }
 
-//円の当たり判定
 bool Collision_IsOverlapCircle(const Circle& a, const Circle& b){
-	//aを基準として距離を測る
 	float x1 = b.center.x - a.center.x;
 	float y1 = b.center.y - a.center.y;
 	
@@ -78,7 +73,6 @@ bool Collision_IsOverlapCircle(const Circle& a, const Circle& b){
 
 }
 
-//四角の当たり判定
 bool Collision_IsOverlapBox(const Box& a, const Box& b){
 	float at = a.center.y - a.half_height; //top
 	float ab = a.center.y + a.half_height; //bottom
@@ -105,7 +99,6 @@ bool Collision_IsOverlapCircleVSBox(const Box& box, const Circle& circle){
 
 bool Collision_IsOverlapOBBVSCircle(const OBB& obb, const Circle& circle)
 {
-	// 円の中心をOBBのローカル座標系に変換する
 	XMVECTOR obb_center = XMLoadFloat2(&obb.center);
 	XMVECTOR circle_center = XMLoadFloat2(&circle.center);
 	XMVECTOR vec_to_circle = circle_center - obb_center;
@@ -175,7 +168,6 @@ bool Collision_IsOverlapAABB(const AABB& a, const AABB& b) {
 		&& a.max.z > b.min.z;
 }
 
-//どの面に当たったかを返す(侵入深度)
 Hit Collision_IsHitAABB(const AABB& a, const AABB& b){
 	Hit hit;
 
@@ -318,39 +310,33 @@ void Collision_DebugDraw(const Box& box, const DirectX::XMFLOAT4& color){
 
 	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
-	//テクスチャセット
 	Texture_SetTexture(g_WhiteTex);
 
-	//ポリゴン描画命令発行
 	g_pContext->Draw(5, 0);
 }
 
 void Collision_DebugDraw(const OBB& obb, const DirectX::XMFLOAT4& color) {
-	//OBBの半分のサイズと軸ベクトルをXMVECTORにロード
 	XMVECTOR half_extent_x = XMLoadFloat2(&obb.axis[0]) * obb.half_extent.x;
 	XMVECTOR half_extent_y = XMLoadFloat2(&obb.axis[1]) * obb.half_extent.y;
 	XMVECTOR center = XMLoadFloat2(&obb.center);
 
-	//OBBの4つの頂点のワールド座標を計算
 	XMFLOAT2 corners[4]{};
-	XMStoreFloat2(&corners[0], center - half_extent_x - half_extent_y); // 左上
-	XMStoreFloat2(&corners[1], center + half_extent_x - half_extent_y); // 右上
-	XMStoreFloat2(&corners[2], center + half_extent_x + half_extent_y); // 右下
-	XMStoreFloat2(&corners[3], center - half_extent_x + half_extent_y); // 左下
+	XMStoreFloat2(&corners[0], center - half_extent_x - half_extent_y);
+	XMStoreFloat2(&corners[1], center + half_extent_x - half_extent_y);
+	XMStoreFloat2(&corners[2], center + half_extent_x + half_extent_y);
+	XMStoreFloat2(&corners[3], center - half_extent_x + half_extent_y);
 
 
-	//描画のための頂点バッファを準備
 	static constexpr int NumVertex = 5;
 	D3D11_MAPPED_SUBRESOURCE msr;
 	g_pContext->Map(g_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
 	Vertex* v = (Vertex*)msr.pData;
 
-	//4つの頂点を線で結ぶように設定 (最後は始点に戻る)
 	v[0].position = { corners[0].x, corners[0].y, 0.0f };
 	v[1].position = { corners[1].x, corners[1].y, 0.0f };
 	v[2].position = { corners[2].x, corners[2].y, 0.0f };
 	v[3].position = { corners[3].x, corners[3].y, 0.0f };
-	v[4].position = { corners[0].x, corners[0].y, 0.0f }; // 始点に戻る
+	v[4].position = { corners[0].x, corners[0].y, 0.0f };
 
 	for (int i = 0; i < NumVertex; ++i) {
 		v[i].color = color;
@@ -358,13 +344,12 @@ void Collision_DebugDraw(const OBB& obb, const DirectX::XMFLOAT4& color) {
 	}
 	g_pContext->Unmap(g_pVertexBuffer, 0);
 
-	//描画パイプラインの設定と描画命令
 	Shader2d_Begin();
 	Shader2d_SetWorldMatrix(XMMatrixIdentity());
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP); // 線を描画するモード
-	Texture_SetTexture(-1); // テクスチャは使わない
+	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	Texture_SetTexture(-1);
 	g_pContext->Draw(NumVertex, 0);
 }

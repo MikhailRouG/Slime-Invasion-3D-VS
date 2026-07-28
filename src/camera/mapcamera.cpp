@@ -30,7 +30,6 @@ DirectX::XMFLOAT4X4 MapCamera_GetViewMatrix()
     XMVECTOR up = XMVectorSet(0.0f,- 1.0f, 0.0f,0.0F);
 
     // Compute LookAt target (eye + front)
-   // XMVECTOR target = XMVectorAdd(eye, front);
 
     // Create matrix
     XMMATRIX view = XMMatrixLookToLH(eye, up, front);

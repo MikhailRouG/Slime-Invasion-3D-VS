@@ -84,7 +84,6 @@ void LightRenderer::SetPointLight(int index, const XMFLOAT3& position, float ran
 
 //----------------------------------------------------------------------
 //  Compatibility facade
-//
 //  A single process-wide LightRenderer instance backs the legacy Light_*
 //  free functions so existing C-style call sites keep working unchanged.
 //----------------------------------------------------------------------

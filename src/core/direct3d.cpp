@@ -3,7 +3,6 @@
 #include "direct3d.h"
 #include "debug_ostream.h"
 using namespace DirectX;
-/* ЉeЋнѓCѓ“ѓ^Ѓ[ѓtѓFЃ[ѓX */
 static ID3D11Device* g_pDevice = nullptr;
 static ID3D11DeviceContext* g_pDeviceContext = nullptr;
 static IDXGISwapChain* g_pSwapChain = nullptr;
@@ -15,15 +14,14 @@ static ID3D11DepthStencilState * g_pDepthStencilStateDepthWhiteDisable = nullptr
 static ID3D11RasterizerState* g_pRasterizerState = nullptr;
 
 
-/* ѓoѓbѓNѓoѓbѓtѓ@ЉЦA */
 static ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
 static ID3D11Texture2D* g_pDepthStencilBuffer = nullptr;
 static ID3D11DepthStencilView* g_pDepthStencilView = nullptr;
 static D3D11_TEXTURE2D_DESC g_BackBufferDesc{};
 static D3D11_VIEWPORT g_Viewport{};
 
-static bool configureBackBuffer(); // ѓoѓbѓNѓoѓbѓtѓ@‚МђЭ’иЃEђ¶ђ¬
-static void releaseBackBuffer(); // ѓoѓbѓNѓoѓbѓtѓ@‚М‰р•ъ
+static bool configureBackBuffer();
+static void releaseBackBuffer();
 
 static ID3D11Texture2D* g_pOffscreenBuffer = nullptr;
 static ID3D11RenderTargetView* g_pOffscreenRenderTargetView = nullptr;
@@ -31,10 +29,10 @@ static ID3D11ShaderResourceView* g_pOffscreenShaderResourceView = nullptr;
 static ID3D11Texture2D* g_pOffscreenDepthStencilBuffer = nullptr;
 static ID3D11DepthStencilView* g_pOffscreenDepthStencilView = nullptr;
 static D3D11_TEXTURE2D_DESC   g_OffscreenDesc{};
-static D3D11_VIEWPORT         g_OffscreenViewport{}; // ビューポート設定用
+static D3D11_VIEWPORT         g_OffscreenViewport{};
 
 
-static bool configureOffscreenBuffer(); // ѓoѓbѓNѓoѓbѓtѓ@‚МђЭ’иЃEђ¶ђ¬
+static bool configureOffscreenBuffer();
 static void releaseOffScreenBuffer(); //
 
 static ID3D11Texture2D* g_pDepthBuffer = nullptr;
@@ -43,34 +41,26 @@ static ID3D11ShaderResourceView* g_pDepthShaderResourceView = nullptr;
 static ID3D11Texture2D* g_pDepthDepthStencilBuffer = nullptr;
 static ID3D11DepthStencilView* g_pDepthDepthStencilView = nullptr;
 static D3D11_TEXTURE2D_DESC   g_DepthDesc{};
-static D3D11_VIEWPORT         g_DepthViewport{}; // ビューポート設定用
+static D3D11_VIEWPORT         g_DepthViewport{};
 static ID3D11Buffer* g_pVSConstantBuffer3 = nullptr;
 
-static bool configureDepthBuffer(); // ѓoѓbѓNѓoѓbѓtѓ@‚МђЭ’иЃEђ¶ђ¬
+static bool configureDepthBuffer();
 static void releaseDepthBuffer(); //
 bool Direct3D_Initialize(HWND hWnd)
 {
-    /* ѓfѓoѓCѓXЃAѓXѓЏѓbѓvѓ`ѓFЃ[ѓ“ЃAѓRѓ“ѓeѓLѓXѓgђ¶ђ¬ */
     DXGI_SWAP_CHAIN_DESC swap_chain_desc{};
     swap_chain_desc.Windowed = TRUE;
     swap_chain_desc.BufferCount = 2;
-    // swap_chain_desc.BufferDesc.Width = 0;
-    // swap_chain_desc.BufferDesc.Height = 0;
-	// ЃЛ ѓEѓBѓ“ѓhѓEѓTѓCѓY‚ЙЌ‡‚н‚№‚ДЋ©“®“I‚ЙђЭ’и‚і‚к‚й
     swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swap_chain_desc.SampleDesc.Count = 1;
     swap_chain_desc.SampleDesc.Quality = 0;
     swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-	//swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;//ѓxѓ“ѓ`ѓ}Ѓ[ѓNѓeѓXѓg—p
 
     swap_chain_desc.OutputWindow = hWnd;
 
 	UINT device_flags = 0;
 
-//#if defined(DEBUG) || defined(_DEBUG)
-//    device_flags |= D3D11_CREATE_DEVICE_DEBUG;
-//#endif
 
     D3D_FEATURE_LEVEL levels[] = {
         D3D_FEATURE_LEVEL_11_1,
@@ -104,9 +94,6 @@ bool Direct3D_Initialize(HWND hWnd)
 	}
 	configureOffscreenBuffer();
 	configureDepthBuffer();
-	// ѓuѓЊѓ“ѓhѓXѓeЃ[ѓgђЭ’и
-	//ѓїѓuѓЊѓ“ѓh
-	//RGBA AЃcЌD‚«‚ЙЋg‚Б‚Д‚ў‚ў’lЃBЉо–{‚Н“§–ѕ‚М•\Њ»‚ЙЋg‚¤
 	D3D11_BLEND_DESC bd = {};
 	bd.AlphaToCoverageEnable = FALSE;
 	bd.IndependentBlendEnable = FALSE;
@@ -114,30 +101,26 @@ bool Direct3D_Initialize(HWND hWnd)
 	bd.RenderTarget[0].BlendEnable = TRUE; 
 
 
-	//srcЃcѓ\Ѓ[ѓX(ЌЎ‚©‚з•`‚­ЉG(ђF))  destЃc‚·‚Е‚Й•`‚©‚к‚ЅЉG(ђF)
 	
 
-	//--------“§‰ЯѓuѓЊѓ“ѓh‚МђЭ’и---------
 	//RGB	
 	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; 	//SrcRGB*SrcA
 	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; //DestRGB * (1-SrcA)
-	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD; ////OPЃcѓIѓyѓ‰ѓ“ѓh(‰‰ЋZЋq) ADDЃc+
+	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	//SrcRGB * SrcA + DestRGB * (1-SrcA)
 
 
-	//ѓї
 	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE; //1
 	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; //0
-	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD; //OPЃcѓIѓyѓ‰ѓ“ѓh(‰‰ЋZЋq)
+	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	//SrcA * 1 + DestA * 0
 	
 	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	g_pDevice->CreateBlendState(&bd, &g_pBlendStateMultiply); //ѓNѓЉѓGѓCѓg‚µ‚Ѕ‚зѓЉѓЉЃ[ѓX‚·‚й
+	g_pDevice->CreateBlendState(&bd, &g_pBlendStateMultiply);
 
 	//----------------
 
-	//--------‰БЋZѓuѓЊѓ“ѓh----------
 		//RGB
 	bd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE; //DestRGB * (1-SrcA)
 	//SrcRGB * SrcA + DestRGB * (1-SrcA)
@@ -146,23 +129,21 @@ bool Direct3D_Initialize(HWND hWnd)
 
 	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	g_pDevice->CreateBlendState(&bd, &g_pBlendStateAdd); //ѓNѓЉѓGѓCѓg‚µ‚Ѕ‚зѓЉѓЉЃ[ѓX‚·‚й
+	g_pDevice->CreateBlendState(&bd, &g_pBlendStateAdd);
 	//--------------
 
 
-	Direct3D_SetAlphaBlendTransparent();//ѓfѓtѓHѓ‹ѓg‚МѓuѓЊѓ“ѓhѓXѓeЃ[ѓg
+	Direct3D_SetAlphaBlendTransparent();
 
 
-	// ђ[“xѓXѓeѓ“ѓVѓ‹ѓXѓeЃ[ѓgђЭ’и
 	D3D11_DEPTH_STENCIL_DESC dsd{};
 	dsd.DepthFunc = D3D11_COMPARISON_LESS;
 	dsd.StencilEnable = FALSE;
-	dsd.DepthEnable = FALSE; // –іЊш‚Й‚·‚й
+	dsd.DepthEnable = FALSE;
 	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 
 	g_pDevice->CreateDepthStencilState(&dsd, &g_pDepthStencilStateDepthDisable);
 
-	//Ѓ«3D‚ЕЋg‚¤
 	dsd.DepthEnable = TRUE;
 	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	g_pDevice->CreateDepthStencilState(&dsd, &g_pDepthStencilStateDepthEnable);
@@ -174,17 +155,13 @@ bool Direct3D_Initialize(HWND hWnd)
 	Direct3D_SetDepthEnable(true);
 
 
-	// ѓ‰ѓXѓ^ѓ‰ѓCѓUѓXѓeЃ[ѓg‚МЌмђ¬
 	D3D11_RASTERIZER_DESC rd = {};
 	rd.FillMode = D3D11_FILL_SOLID;
-	//rd.FillMode = D3D11_FILL_WIREFRAME;
 	rd.CullMode = D3D11_CULL_BACK;
-	//rd.CullMode = D3D11_CULL_NONE;
 	rd.DepthClipEnable = TRUE;
 	rd.MultisampleEnable = FALSE;
 	g_pDevice->CreateRasterizerState(&rd, &g_pRasterizerState);
 
-	// ѓfѓoѓCѓXѓRѓ“ѓeѓLѓXѓg‚Йѓ‰ѓXѓ^ѓ‰ѓCѓUЃ[ѓXѓeЃ[ѓg‚рђЭ’и
 	g_pDeviceContext->RSSetState(g_pRasterizerState);
 
     return true;
@@ -192,7 +169,6 @@ bool Direct3D_Initialize(HWND hWnd)
 
 void Direct3D_Finalize()
 {
-	//ЌЕЊг‚ЙЋШ‚и‚Ѕ‚а‚М‚©‚зѓЉѓЉЃ[ѓX‚µ‚Д‚ў‚­
 	SAFE_RELEASE(g_pRasterizerState);
 	
 	SAFE_RELEASE(g_pDepthStencilStateDepthEnable);
@@ -212,8 +188,7 @@ void Direct3D_Finalize()
 
 void Direct3D_Present()
 {
-	// ѓXѓЏѓbѓvѓ`ѓFЃ[ѓ“‚М•\Ћ¦
-	g_pSwapChain->Present(1, 0); //(0,0)‚Еђ‚’ј“ЇЉъ–іЋ‹(ѓxѓ“ѓ`ѓ}Ѓ[ѓNѓeѓXѓg—p)
+	g_pSwapChain->Present(1, 0);
 }
 
 unsigned int Direct3D_GetBackBufferWidth()
@@ -337,13 +312,11 @@ void Direct3D_SetDepthStencilStateDepthWhiteDisable()
 void Direct3D_SetOffscreen()
 {
 	g_pDeviceContext->RSSetViewports(1, &g_OffscreenViewport);  
-	// レンダーターゲットビューとデプスステンシルビューの設定
 	g_pDeviceContext->OMSetRenderTargets(1, &g_pOffscreenRenderTargetView, g_pOffscreenDepthStencilView);
 
 }
 void Direct3D_SetOffscreenTexture(int slot)
 {
-	// テクスチャ設定
 	g_pDeviceContext->PSSetShaderResources(slot, 1, &g_pOffscreenShaderResourceView);
 }
 void Direct3D_ClearDepth()
@@ -389,15 +362,15 @@ void Direct3D_SetLightViewProjctionMatrix(const DirectX::XMMATRIX& matrix)
 	XMFLOAT4X4 transpose;
 	XMStoreFloat4x4(&transpose, XMMatrixTranspose(matrix));
 	g_pDeviceContext->UpdateSubresource(
-		g_pVSConstantBuffer3,  // ← buffer being updated
+		g_pVSConstantBuffer3,
 		0, nullptr,
 		&transpose,
 		0, 0);
 
 	Direct3D_GetContext()->VSSetConstantBuffers(
-		3,                     // ← slot b3
+		3,
 		1,
-		&g_pVSConstantBuffer3  // ← DIFFERENT buffer
+		&g_pVSConstantBuffer3
 	);
 }
 
@@ -409,7 +382,6 @@ bool configureBackBuffer()
 
     ID3D11Texture2D* back_buffer_pointer = nullptr;
 
-	// ѓoѓbѓNѓoѓbѓtѓ@‚МЋж“ѕ
 	hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&back_buffer_pointer);
 
     if (FAILED(hr)) {
@@ -417,7 +389,6 @@ bool configureBackBuffer()
         return false;
     }
 
-	// ѓoѓbѓNѓoѓbѓtѓ@‚МѓЊѓ“ѓ_Ѓ[ѓ^Ѓ[ѓQѓbѓgѓrѓ…Ѓ[‚Мђ¶ђ¬
 	hr = g_pDevice->CreateRenderTargetView(back_buffer_pointer, nullptr, &g_pRenderTargetView);
 
     if (FAILED(hr)) {
@@ -426,12 +397,10 @@ bool configureBackBuffer()
         return false;
     }
 
-	// ѓoѓbѓNѓoѓbѓtѓ@‚МЏу‘ФЃiЏо•сЃj‚рЋж“ѕ
     back_buffer_pointer->GetDesc(&g_BackBufferDesc);
 
 	back_buffer_pointer->Release(); 
 
-	// ѓfѓvѓXѓXѓeѓ“ѓVѓ‹ѓoѓbѓtѓ@‚Мђ¶ђ¬
 	D3D11_TEXTURE2D_DESC depth_stencil_desc{};
 	depth_stencil_desc.Width = g_BackBufferDesc.Width;
 	depth_stencil_desc.Height = g_BackBufferDesc.Height;
@@ -451,7 +420,6 @@ bool configureBackBuffer()
 		return false;
 	}
 
-	// ѓfѓvѓXѓXѓeѓ“ѓVѓ‹ѓrѓ…Ѓ[‚Мђ¶ђ¬
 	D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc{};
 	depth_stencil_view_desc.Format = depth_stencil_desc.Format;
 	depth_stencil_view_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -465,17 +433,13 @@ bool configureBackBuffer()
 	}
 
 
-	// ѓrѓ…Ѓ[ѓ|Ѓ[ѓg‚МђЭ’и
-	//‰ж—pЋ†‚М‹жђШ‚и•ы
-	//‰ж—pЋ†‚М‚З‚М•”•Є‚ЙЉG‚р•`‚­‚©
-	// ѓrѓ…Ѓ[ѓ|Ѓ[ѓg‚МђЭ’и
 	g_Viewport.TopLeftX = 0.0f;
 	g_Viewport.TopLeftY = 0.0f;
 	g_Viewport.Width = static_cast<FLOAT>(g_BackBufferDesc.Width);
 	g_Viewport.Height = static_cast<FLOAT>(g_BackBufferDesc.Height);
 	g_Viewport.MinDepth = 0.0f;
 	g_Viewport.MaxDepth = 1.0f;
-	g_pDeviceContext->RSSetViewports(1, &g_Viewport); // ѓrѓ…Ѓ[ѓ|Ѓ[ѓg‚МђЭ’и
+	g_pDeviceContext->RSSetViewports(1, &g_Viewport);
 
     return true;
 }
@@ -496,7 +460,7 @@ bool configureOffscreenBuffer()
 	g_OffscreenDesc.MipLevels = 1;
 	g_OffscreenDesc.ArraySize = 1;
 	g_OffscreenDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	g_OffscreenDesc.SampleDesc.Count = 1;   // MSAA するなら >1
+	g_OffscreenDesc.SampleDesc.Count = 1;
 	g_OffscreenDesc.SampleDesc.Quality = 0;
 	g_OffscreenDesc.Usage = D3D11_USAGE_DEFAULT;
 	g_OffscreenDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -523,7 +487,6 @@ bool configureOffscreenBuffer()
 	depth_stencil_desc.MiscFlags = 0;
 	g_pDevice->CreateTexture2D(&depth_stencil_desc, nullptr, &g_pOffscreenDepthStencilBuffer);
 
-	// ѓfѓvѓXѓXѓeѓ“ѓVѓ‹ѓrѓ…Ѓ[‚Мђ¶ђ¬
 	D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc{};
 	depth_stencil_view_desc.Format = depth_stencil_desc.Format;
 	depth_stencil_view_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -537,7 +500,6 @@ bool configureOffscreenBuffer()
 	g_OffscreenViewport.Height = static_cast<FLOAT>(g_OffscreenDesc.Height);
 	g_OffscreenViewport.MinDepth = 0.0f;
 	g_OffscreenViewport.MaxDepth = 1.0f;
-//	g_pDeviceContext->RSSetViewports(1, &g_Viewport); // ѓrѓ…Ѓ[ѓ|Ѓ[ѓg‚МђЭ’и
 
 	return true;
 }
@@ -559,7 +521,7 @@ bool configureDepthBuffer()
 	g_DepthDesc.MipLevels = 1;
 	g_DepthDesc.ArraySize = 1;
 	g_DepthDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	g_DepthDesc.SampleDesc.Count = 1;   // MSAA するなら >1
+	g_DepthDesc.SampleDesc.Count = 1;
 	g_DepthDesc.SampleDesc.Quality = 0;
 	g_DepthDesc.Usage = D3D11_USAGE_DEFAULT;
 	g_DepthDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -586,7 +548,6 @@ bool configureDepthBuffer()
 	depth_stencil_desc.MiscFlags = 0;
 	g_pDevice->CreateTexture2D(&depth_stencil_desc, nullptr, &g_pDepthDepthStencilBuffer);
 
-	// ѓfѓvѓXѓXѓeѓ“ѓVѓ‹ѓrѓ…Ѓ[‚Мђ¶ђ¬
 	D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc{};
 	depth_stencil_view_desc.Format = depth_stencil_desc.Format;
 	depth_stencil_view_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -601,11 +562,10 @@ bool configureDepthBuffer()
 	g_DepthViewport.MinDepth = 0.0f;
 	g_DepthViewport.MaxDepth = 1.0f;
 	D3D11_BUFFER_DESC buffer_desc{};
-	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4); // ѓoѓbѓtѓ@‚МѓTѓCѓY
-	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // ѓoѓCѓ“ѓhѓtѓ‰ѓO
+	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4);
+	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	g_pDevice->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer3);
-	//	g_pDeviceContext->RSSetViewports(1, &g_Viewport); // ѓrѓ…Ѓ[ѓ|Ѓ[ѓg‚МђЭ’и
 
 	return true;
 }

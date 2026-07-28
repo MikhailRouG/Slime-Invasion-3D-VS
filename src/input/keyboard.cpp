@@ -1,14 +1,8 @@
 //--------------------------------------------------------------------------------------
 // File: Keyboard.cpp
-//
-// キーボードモジュール
-//
 //--------------------------------------------------------------------------------------
 // 2020/06/07
-//     DirectXTKより、なんちゃってC言語用にシェイプアップ改変
-//
 // Licensed under the MIT License.
-//
 // http://go.microsoft.com/fwlink/?LinkId=248929
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
@@ -85,7 +79,6 @@ bool Keyboard_IsKeyUp(Keyboard_Keys key)
 }
 
 
-// キーボードの現在の状態を取得する
 const Keyboard_State* Keyboard_GetState(void)
 {
     return &gState;
@@ -98,7 +91,6 @@ void Keyboard_Reset(void)
 }
 
 
-// キーボード制御のためのウォンどうメッセージプロシージャフック関数
 void Keyboard_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
     bool down = false;
@@ -129,7 +121,6 @@ void Keyboard_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
         vk = (int)MapVirtualKey(((unsigned int)lParam & 0x00ff0000) >> 16u, MAPVK_VSC_TO_VK_EX);
         if (!down)
         {
-            // 左シフトと右シフトの両方が同時に押された場合にクリアされるようにするための回避策
             keyUp(VK_LSHIFT);
             keyUp(VK_RSHIFT);
         }

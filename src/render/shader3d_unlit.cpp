@@ -16,9 +16,8 @@ static ID3D11PixelShader* g_pPixelShader = nullptr;
 
 bool Shader3DUnlit_Initialize()
 {
-	HRESULT hr; // 戻り値格納用
+	HRESULT hr;
 
-	// 事前コンパイル済み頂点シェーダーの読み込み
 	std::ifstream ifs_vs("resource/shader/shader_vertex_3d_unlit.cso", std::ios::binary);
 
 	if (!ifs_vs) {
@@ -26,40 +25,36 @@ bool Shader3DUnlit_Initialize()
 		return false;
 	}
 
-	ifs_vs.seekg(0, std::ios::end); // ファイルポインタを末尾に移動
-	std::streamsize filesize = ifs_vs.tellg(); // ファイルポインタの位置を取得（つまりファイルサイズ）
-	ifs_vs.seekg(0, std::ios::beg); // ファイルポインタを先頭に戻す
+	ifs_vs.seekg(0, std::ios::end);
+	std::streamsize filesize = ifs_vs.tellg();
+	ifs_vs.seekg(0, std::ios::beg);
 
-	// バイナリデータを格納するためのバッファを確保
 	unsigned char* vsbinary_pointer = new unsigned char[filesize];
 
-	ifs_vs.read((char*)vsbinary_pointer, filesize); // バイナリデータを読み込む
-	ifs_vs.close(); // ファイルを閉じる
+	ifs_vs.read((char*)vsbinary_pointer, filesize);
+	ifs_vs.close();
 
-	// 頂点シェーダーの作成
 	hr = Direct3D_GetDevice()->CreateVertexShader(vsbinary_pointer, filesize, nullptr, &g_pVertexShader);
 
 	if (FAILED(hr)) {
 		hal::dout << "ShaderBillboard_Initialize() : 頂点シェーダーの作成に失敗しました" << std::endl;
-		delete[] vsbinary_pointer; // メモリリークしないようにバイナリデータのバッファを解放
+		delete[] vsbinary_pointer;
 		return false;
 	}
 
 
-	// 頂点レイアウトの定義!!
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
 		{ "POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 	0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",		0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }, //32…float4つ分
+		{ "COLOR",		0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{"TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,	    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	UINT num_elements = ARRAYSIZE(layout); // 配列の要素数を取得
+	UINT num_elements = ARRAYSIZE(layout);
 
-	// 頂点レイアウトの作成
 	hr = Direct3D_GetDevice()->CreateInputLayout(layout, num_elements, vsbinary_pointer, filesize, &g_pInputLayout);
 
-	delete[] vsbinary_pointer; // バイナリデータのバッファを解放
+	delete[] vsbinary_pointer;
 
 	if (FAILED(hr)) {
 		hal::dout << "Shader3d_Unlit_Initialize() : 頂点レイアウトの作成に失敗しました" << std::endl;
@@ -68,8 +63,8 @@ bool Shader3DUnlit_Initialize()
 
 
 	D3D11_BUFFER_DESC buffer_desc{};
-	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4); // バッファのサイズ
-	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // バインドフラグ
+	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4);
+	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pVSConstantBuffer0);
 
@@ -87,17 +82,15 @@ bool Shader3DUnlit_Initialize()
 	ifs_ps.read((char*)psbinary_pointer, filesize);
 	ifs_ps.close();
 
-	// ピクセルシェーダーの作成
 	hr = Direct3D_GetDevice()->CreatePixelShader(psbinary_pointer, filesize, nullptr, &g_pPixelShader);
 
-	delete[] psbinary_pointer; // バイナリデータのバッファを解放
+	delete[] psbinary_pointer;
 
 	if (FAILED(hr)) {
 		hal::dout << "Shader3dUnlit_Initialize() : ピクセルシェーダーの作成に失敗しました" << std::endl;
 		return false;
 	}
 
-	// ピクセルシェーダー用定数バッファの作成
 	buffer_desc.ByteWidth = sizeof(XMFLOAT4); 
 
 	Direct3D_GetDevice()->CreateBuffer(&buffer_desc, nullptr, &g_pPSConstantBuffer0);

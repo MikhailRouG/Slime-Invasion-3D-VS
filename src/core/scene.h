@@ -19,11 +19,8 @@ enum Scene {
 
 Scene GetCurrentScene();
 
-//現在のシーンを破棄して、新しいシーンへ
 void Scene_Change(Scene scene);
-//現在のシーンに新しいシーンを重ねる
 void Scene_Push(Scene scene);
-//一番上のシーンを取り除く
 void Scene_Pop();
 
 #endif //SCENE_H

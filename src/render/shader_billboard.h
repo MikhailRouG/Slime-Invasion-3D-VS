@@ -10,7 +10,7 @@ struct BillboardVSConstant {
     DirectX::XMFLOAT4X4 proj;
     DirectX::XMFLOAT2   scale;
     DirectX::XMFLOAT2   translation;
-    float padding[2]; // Выравнивание до 16 байт
+    float padding[2];
 };
 
 bool ShaderBillboard_Initialize();

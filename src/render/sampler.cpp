@@ -1,7 +1,6 @@
 #include "sampler.h"
 #include "direct3d.h"
 
-// ���ӁI�������ŊO������ݒ肳�����́BRelease�s�v�B
 static ID3D11Device* g_pDevice = nullptr;
 static ID3D11DeviceContext* g_pContext = nullptr;
 
@@ -12,18 +11,11 @@ static ID3D11SamplerState* g_pSamplerShadow = nullptr;
 
 
 void Sampler_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
-	// �f�o�C�X�ƃf�o�C�X�R���e�L�X�g�̕ۑ�
 	g_pDevice = pDevice;
 	g_pContext = pContext;
 
-	//�T���v���[�X�e�[�g�ݒ�
 	D3D11_SAMPLER_DESC sampler_desc{};
-	//�t�B���^�����O(LINEAR�c�摜���������΂����߁A���̎��肪�ڂ��������ɂȂ�@���@�k���Ȃ��Y��
-	//				 POINT�c��\�_�����ׂ邽�߁A�������茩����@���@�h�b�g�G�Ȃ��Y��
-	//				 MIPMAP�c���O�ɃT�C�Y�ʂ̉摜��p�ӂ��A�g���@���@�i�q��̊G�ɋ���
-	//				 ANISOTROPIC�c3d���Y��B����
 	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	//UV�Q�ƊO�̎戵��(UV�A�h���b�V���O���[�h)�@UV�l���O<=x<=1�̎��Ȃ�
 	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampler_desc.BorderColor[0] = 0.0f;
@@ -31,7 +23,7 @@ void Sampler_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext){
 	sampler_desc.BorderColor[2] = 0.0f;
 	sampler_desc.BorderColor[3] = 0.0f;
 
-	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; //W�͎g��Ȃ�
+	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.MipLODBias = 0;
 	sampler_desc.MaxAnisotropy = 16;
 	sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;

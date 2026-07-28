@@ -20,7 +20,6 @@ cbuffer VS_CONSTANT_BUFFER : register(b3)
 };
 struct VS_IN
 {
-    //:~ �Z�}���e�B�N�X
     float4 posL : POSITION0;
     float4 normalL : NORMAL0;
     float4 blend : COLOR0;
@@ -38,25 +37,20 @@ struct VS_OUT
 };
 
 //=============================================================================
-// ���_�V�F�[�_
 //=============================================================================
 VS_OUT main(VS_IN vi)
 {
     VS_OUT vo;
     
-    //���W�ϊ�
-    float4x4 mtxWV = mul(world, view); //�r���[�ϊ�
-    float4x4 mtxWVP = mul(mtxWV, proj); // �v���W�F�N�V�����ϊ�
+    float4x4 mtxWV = mul(world, view);
+    float4x4 mtxWVP = mul(mtxWV, proj);
     vo.posH = mul(vi.posL, mtxWVP);
  
     vo.posLightWVP = mul(vi.posL, mul(world, light_view_proj));
-    //���ʂ̃��[���h�ϊ��s��͂���(�g��k���̉e�����󂯂邽��)
-    //���[���h�ϊ��s��̓]�u�t�s����g��
-    float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //����0
-    vo.normalW = normalize(normalW); //�P�ʃx�N�g����
+    float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world);
+    vo.normalW = normalize(normalW);
     vo.posW = mul(vi.posL, world);
 
-    //�n�ʂ̃e�N�X�`���̃u�����h�l�͂��̂܂܃p�X�X���[  
     vo.blend = vi.blend;
     
     vo.texcoord = vi.texcoord;

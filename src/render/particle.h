@@ -8,7 +8,6 @@ class Particle
 private:
     DirectX::XMVECTOR m_position;
     DirectX::XMVECTOR m_velocity;
-    // float m_mass;
     double m_life_tIme{};
     double m_spawn_time{};
     double m_accumulated_time = 0.0f;

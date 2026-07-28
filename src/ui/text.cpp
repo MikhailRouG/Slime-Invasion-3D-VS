@@ -64,12 +64,6 @@ static void DrawChar(
 }
 
 //{static void DrawChar(float x, float y, char c, const XMFLOAT4& color, float size)
-//
-//    if (c >= '0' && c <= '9')
-//    {
-//        int index = c - '0';
-//        int px = index * NUM_CELL_W;
-//
 //        Sprite_Draw(
 //            g_NumberTexId,
 //            x, y,
@@ -80,18 +74,6 @@ static void DrawChar(
 //            NUM_CELL_H,
 //            0.0f,
 //            color
-//        );
-//        return;
-//    }
-//    int index = GetFontIndex(c);
-//    if (index < 0) return;
-//
-//    int col = index % FONT_COLS;
-//    int row = index / FONT_COLS;
-//
-//    int px = col * FONT_CELL_W;
-//    int py = row * FONT_CELL_H;
-//
 //    Sprite_Draw(
 //        g_FontTexId,
 //        x, y,
@@ -102,8 +84,6 @@ static void DrawChar(
 //        FONT_CELL_H,
 //        0.0f,
 //        color
-//    );
-//}
 void Text_Draw(
     float x,
     float y,
@@ -126,7 +106,7 @@ int GetFontIndex(char c)
         return c - '0'; // 0..9
 
     if (c >= 'A' && c <= 'Z')
-        return 10 + (c - 'A'); // после цифр
+        return 10 + (c - 'A');
 
     return -1;
 }

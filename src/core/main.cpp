@@ -1,5 +1,5 @@
 #include <SDKDDKVer.h>
-#define WIN32_LEAN_AND_MEAN //�R���p�C�����Ԃ������Ȃ�(�Â��v���O�������g��Ȃ�)
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "game_window.h"
 #include "direct3d.h"
@@ -30,13 +30,10 @@
 #include "shader_depth.h"
 #include "text.h"
 #include "player.h"
-//���C��
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int nCmdShow) {
 
-	//COM���C�u�����̏�����
 	(void)CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	////GPI�X�P�[�����O
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
 	HWND hWnd = GameWindow_Create(hInstance);
@@ -46,8 +43,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Mouse_Initialize(hWnd);
 	InitAudio();
 
-	Direct3D_Initialize(hWnd); //�_�C���N�g3D�̏�����
-	Shader2d_Initialize(Direct3D_GetDevice(), Direct3D_GetContext()); //���_�C���N�g3D�̏������̌�ɏ�����
+	Direct3D_Initialize(hWnd);
+	Shader2d_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Shader3d_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Shader3DUnlit_Initialize();
 	Sampler_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
@@ -63,19 +60,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Player_SetDevice(Direct3D_GetDevice(), Direct3D_GetContext());
 	ShaderDepth_Initialize();
 	Text_Initialize();
-//#if defined(DEBUG)||defined(_DEBUG)
-//	hal::DebugText dt(Direct3D_GetDevice(), Direct3D_GetContext(),
-//		L"resource/texture/consolab_ascii_512.png",
-//		Direct3D_GetBackBufferWidth(), Direct3D_GetBackBufferHeight(),
-//		0.0f, 0.0f, //����
-//		0, 0,
-//		0.0f, 14.0f); //����
-//
-//	Collision_DebugInitialize(Direct3D_GetDevice(), Direct3D_GetContext());
-//#endif
 
-	ShowWindow(hWnd, nCmdShow); //�w��̃E�B���h�E����ʂɕ\������
-	UpdateWindow(hWnd); //�E�B���h�E�̒����X�V����
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
 
 	double exec_last_time = SystemTimer_GetTime();
 	double fps_last_time = exec_last_time;
@@ -85,35 +72,29 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	double elapsed_time = 0.0f;
 	MSG msg;
 
-	//�E�B���h�E�v���O�����̒��S	
 	do {
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) { //�E�B���h�E���b�Z�[�W�����Ă�����
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 		
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else { //�Q�[���̏���
-			current_time = SystemTimer_GetTime(); //�V�X�e���������擾
-			double fps_elapsed_time = current_time - fps_last_time; //fps�v���p�̌o�ߎ��Ԃ��v�Z
+		else {
+			current_time = SystemTimer_GetTime();
+			double fps_elapsed_time = current_time - fps_last_time;
 
-			if (fps_elapsed_time >= 1.0) { //1�b���ƂɌv��
+			if (fps_elapsed_time >= 1.0) {
 				fps = frame_count / fps_elapsed_time;
-				fps_last_time = current_time; //FPS�𑪒肵��������ۑ�
-				frame_count = 0; //�J�E���g���N���A
+				fps_last_time = current_time;
+				frame_count = 0;
 			}
 
-			//1/60�b���ƂɎ��s
 			elapsed_time += SystemTimer_GetElapsedTime();
-			//if(elapsed_time>=(1.0/60.0)){ //60fps�ɌŒ�
-			//if (true) 
-			{ //�ǂ��fps�l�ł��A�j���[�V�����̓����͌Œ�
-				//exec_last_time = current_time; //��������������ۑ�
+			{
 
-				//�Q�[���̍X�V
 				KeyLogger_Update();
 
 				Mouse_State ms{};
-				Mouse_GetState(&ms); //�}�E�X�̏�Ԏ擾
+				Mouse_GetState(&ms);
 
 				
 				Scene_Update(elapsed_time);
@@ -128,18 +109,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 				Scene_Draw();
 				Fade_Draw();
 
-//#if defined(DEBUG)||defined(_DEBUG)//�f�o�b�O�̎������L��
-//				std::stringstream ss;
-//				ss << "fps:" << fps << std::endl;
-//
-//				dt.SetText(ss.str().c_str(), { 0.0f,1.0f,0.0f,1.0f });
-//				//dt.SetText("debug!\nwatashidayo! \n nye!!", { 0.0f,0.0f,1.0f,1.0f });
-//
-//				dt.Draw();
-//				dt.Clear();
-//#endif
 
-				//��ʂ̃X���b�v
 				Direct3D_Present();
 
 				frame_count++;
@@ -148,12 +118,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 		}
 	} while (msg.message != WM_QUIT);
 
-//	
-//#if defined(DEBUG)||defined(_DEBUG)
-//	Collision_DebugFinalize();
-//#endif
 
-	//�������Ƌt���Ɍ�Еt��
 	Meshfield_Finalize();
 	Light_Finalize();
 	Cube_Finalize();

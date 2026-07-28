@@ -6,9 +6,8 @@ struct PS_IN
     float2 uv   : TEXCOORD0;
 };
 
-Texture2D tex;//テクスチャ
-SamplerState samp; //テクスチャサンプラ
-//サンプラー
+Texture2D tex;
+SamplerState samp;
 
 float4 main(PS_IN pi) : SV_TARGET
 {

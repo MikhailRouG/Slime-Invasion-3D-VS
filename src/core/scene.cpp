@@ -19,7 +19,6 @@ void Scene_Finalize(){
 		break;
 
 	case SCENE_VOLUME:
-		//Volume_Initialize();
 		break;
 
 	case SCENE_GAME:
@@ -27,7 +26,6 @@ void Scene_Finalize(){
 		break;
 
 	case SCENE_PAUSE:
-		//Pause_Finalize();
 		break;
 
 	case SCENE_RESULT:
@@ -35,7 +33,6 @@ void Scene_Finalize(){
 		break;
 
 	case SCENE_CLEAR:
-		//Clear_Finalize();
 		break;
 
 	default:
@@ -50,7 +47,6 @@ void Scene_Update(double elapsed_time){
 		break;
 
 	case SCENE_VOLUME:
-		//Volume_Update(elapsed_time);
 		break;
 
 	case SCENE_GAME:
@@ -58,7 +54,6 @@ void Scene_Update(double elapsed_time){
 		break;
 
 	case SCENE_PAUSE:
-		//Pause_Update();
 		break;
 
 	case SCENE_RESULT:
@@ -66,7 +61,6 @@ void Scene_Update(double elapsed_time){
 		break;
 
 	case SCENE_CLEAR:
-		//Clear_Update();
 		break;
 
 	default:
@@ -82,7 +76,6 @@ void Scene_Draw(){
 			break;
 
 		case SCENE_VOLUME:
-			//Volume_Draw();
 			break;
 
 		case SCENE_GAME:
@@ -90,7 +83,6 @@ void Scene_Draw(){
 			break;
 
 		case SCENE_PAUSE:
-			//Pause_Draw();
 			break;
 
 		case SCENE_RESULT:
@@ -98,7 +90,6 @@ void Scene_Draw(){
 			break;
 
 		case SCENE_CLEAR:
-			//Clear_Draw();
 			break;
 
 		default:
@@ -115,7 +106,6 @@ void OnClick(int mx, int my,bool isClick)
 		break;
 
 	case SCENE_VOLUME:
-		//Volume_Update(elapsed_time);
 		break;
 
 	case SCENE_GAME:
@@ -123,7 +113,6 @@ void OnClick(int mx, int my,bool isClick)
 		break;
 
 	case SCENE_PAUSE:
-		//Pause_Update();
 		break;
 
 	case SCENE_RESULT:
@@ -138,9 +127,8 @@ void OnClick(int mx, int my,bool isClick)
 	}
 }
 
-//åªç›ÇÃÉVÅ[ÉìÇï‘Ç∑
 Scene GetCurrentScene() {
-	return g_SceneStack.back(); //vectorÇÃññîˆ
+	return g_SceneStack.back();
 }
 
 void Scene_Change(Scene scene){
@@ -159,7 +147,6 @@ void Scene_Push(Scene scene){
 		break;
 
 	case SCENE_VOLUME:
-		//Volume_Initialize();
 		break;
 
 	case SCENE_GAME:
@@ -167,7 +154,6 @@ void Scene_Push(Scene scene){
 		break;
 
 	case SCENE_PAUSE:
-		//Pause_Initialize();
 		break;
 
 	case SCENE_RESULT:
@@ -175,7 +161,6 @@ void Scene_Push(Scene scene){
 		break;
 
 	case SCENE_CLEAR:
-		//Clear_Initialize();
 		break;
 
 	default:

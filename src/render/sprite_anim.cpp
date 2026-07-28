@@ -6,37 +6,34 @@ using namespace DirectX;
 #include "billboard.h"
 #include <cstring>
 #include <stdio.h>
-//アニメーションパターン
 struct AnimPatternData {
-	int m_TextureId = -1; //テクスチャID
-	int m_PatternMax = 0; //パターン数
-	int m_HPatternMax = 0; //横のパターン最大数
-	XMUINT2 m_StartPosition{ 0,0 }; //アニメーションのスタート座標
-	XMUINT2 m_PatternSize{ 0,0 }; //1パターンの幅と高さ
-	double m_seconds_per_pattern = 0.1; //パターン一個を何秒表示するか(何秒で切り替えるか)
-	bool m_IsLooped = true; //ループするか(動き続けるか)
+	int m_TextureId = -1;
+	int m_PatternMax = 0;
+	int m_HPatternMax = 0;
+	XMUINT2 m_StartPosition{ 0,0 };
+	XMUINT2 m_PatternSize{ 0,0 };
+	double m_seconds_per_pattern = 0.1;
+	bool m_IsLooped = true;
 };
 
-//再生器
 struct AnimPlayData {
-	int m_PatternId = -1; //アニメーションパターンID
-	int m_PatternNum = 0; //現在再生中のパターン番号
-	double m_accumulated_time = 0.0; //累積時間
-	bool m_IsStopped = false; //アニメーションの最後まで行ったか
+	int m_PatternId = -1;
+	int m_PatternNum = 0;
+	double m_accumulated_time = 0.0;
+	bool m_IsStopped = false;
 };
 
 
-static constexpr int ANIM_PATTERN_MAX = 1024; //パターンの最大値
+static constexpr int ANIM_PATTERN_MAX = 1024;
 static AnimPatternData g_AnimPattern[ANIM_PATTERN_MAX];
-static constexpr int ANIM_PLAY_MAX = 512; //アニメーションの再生を同時に何個するか
+static constexpr int ANIM_PLAY_MAX = 512;
 static AnimPlayData g_AnimPlay[ANIM_PLAY_MAX];
 
 
 
 void SpriteAnim_Initialize() {
-	//アニメーションパターン管理情報を初期化(全て利用していない状況に)する
 	for (AnimPatternData& data : g_AnimPattern) {
-		data.m_TextureId = -1; //テクスチャidが-1だったら使われていない判定
+		data.m_TextureId = -1;
 	}
 
 	for (AnimPlayData& data : g_AnimPlay) {
@@ -137,7 +134,6 @@ void BillboardAnim_Draw(int playid, const DirectX::XMFLOAT3& position, const Dir
 int SpriteAnim_RegisterPattern(int texid, int pattern_max, int h_pattern_max, double m_seconds_per_pattern,
 	const DirectX::XMUINT2& pattern_size, const DirectX::XMUINT2& start_position, bool is_looped) {
 	for (int i = 0; i < ANIM_PATTERN_MAX; i++) {
-		//開いてる場所を探す
 		if (g_AnimPattern[i].m_TextureId >= 0) continue;
 
 		g_AnimPattern[i].m_TextureId = texid;
@@ -177,7 +173,7 @@ void SpriteAnim_DestroyPlayer(int index){
 int SpriteAnim_GetPatternNum(int playid)
 {
 	if (playid < 0 || playid >= ANIM_PLAY_MAX || g_AnimPlay[playid].m_PatternId < 0) {
-		return -1; // エラーの場合は-1を返す
+		return -1;
 	}
 	return g_AnimPlay[playid].m_PatternNum;
 }

@@ -36,6 +36,5 @@ void Sky_Draw()
        // XMMatrixRotationZ(XM_PIDIV2) *
         XMMatrixRotationY(g_RotateAngle)
         * XMMatrixTranslationFromVector(XMLoadFloat3(&g_Position));
-    //Sampler_SetFilterLinear();
     ModelUnlitDraw(g_pModelSky, mtxRotate, g_texSky);
 }

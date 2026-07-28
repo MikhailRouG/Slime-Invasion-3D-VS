@@ -101,28 +101,7 @@ void Game_Update(double elapsed_time){
 
 	Bullet_Update(elapsed_time);
 
-	//for (int j = 0;j < Map_GetObjectsCount();j++) {
-	//	for (int i = 0;i < Bullet_GetCount();i++) {
-	//		AABB bullet = Bullet_GetAABB(i);
-	//		AABB object = Map_GetObject(j)->aabb;
-	//		if (Collision_IsOverlapAABB(bullet, object)) {
-	//			BulletHitEffect_Create(Bullet_GetPosition(i));
-	//			Bullet_Destroy(i);
-	//		}
-	//	}
-	//}
-	//for (int j = 0;j < Enemy_GetEnemyCount();j++) {
-	//	for (int i = 0;i < Bullet_GetCount();i++) {
-	//		Sphere bullet = Bullet_GetSphere(i);
-	//		Sphere enemy = Enemy_GetEnemy(j)->GetCollision();
 
-	//		if (Collision_IsOverlapSphere(bullet, enemy)) {
-	//			BulletHitEffect_Create(Bullet_GetPosition(i));
-	//			Bullet_Destroy(i);
-	//			Enemy_GetEnemy(j)->Damage(50);
-	//		}
-	//	}
-	//}
 
 	BulletHitEffect_Update();
 	Trajectory3d_Update(elapsed_time);
@@ -195,26 +174,6 @@ float Get_GamePassedTime()
 
 void Map_Rendering()
 {
-	/*Direct3D_SetOffscreen();
-	Direct3D_ClearOffscreen();
-
-	XMFLOAT3 position = Player_GetPosition();
-	position.y = 100.0f;
-	MapCamera_SetPosition(position);
-	MapCamera_SetFront(Player_GetFront());
-	XMFLOAT4X4 mtxView = MapCamera_GetViewMatrix();
-	XMFLOAT4X4 mtxProj = MapCamera_GetPerspectiveMatrix();
-	XMMATRIX view = XMLoadFloat4x4(&mtxView);
-	XMMATRIX proj = XMLoadFloat4x4(&mtxProj);
-
-	Camera_SetMatrix(view, proj);
-	Sampler_SetFilterAnisotropic();
-
-	Direct3D_SetDepthEnable(true);
-
-	Enemy_Draw();
-	Player_Draw();
-	Map_Draw();*/
 }
 
 static void Light_Rendering()

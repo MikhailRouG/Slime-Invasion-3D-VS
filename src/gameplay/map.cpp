@@ -100,16 +100,14 @@ void Map_Draw(){
 			Cube_Draw(g_Cube2TexId, mtxWorld);
 			break;
 
-		case tree: //��
+		case tree:
 			mtxWorld = XMMatrixTranslation(mo.Position.x, mo.Position.y, mo.Position.z);
-			//ModelDraw(g_pTree01,mtxWorld);
 			ModelDraw(g_pCup01, mtxWorld);
 			break;
 
-		case rock: //��
+		case rock:
 			mtxWorld = XMMatrixTranslation(mo.Position.x, mo.Position.y, mo.Position.z);
 			ModelDraw(g_pCup01, mtxWorld);
-			//ModelDraw(g_pRock01, mtxWorld);
 			break;
 
 		default:

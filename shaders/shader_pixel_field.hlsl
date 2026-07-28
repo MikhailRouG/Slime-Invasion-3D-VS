@@ -1,6 +1,5 @@
 //======================================================================
 //  Terrain pixel shader
-//
 //  Two detail textures blended by the vertex colour, lit with the same
 //  model as shader_pixel_3d.hlsl and receiving the same soft PCF shadows.
 //  The ground is the scene's main shadow receiver, so the shadow lookup

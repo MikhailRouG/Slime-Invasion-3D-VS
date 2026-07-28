@@ -33,13 +33,13 @@ struct VS_OUT{
 VS_OUT main(VS_IN vi){
     VS_OUT vo;
     
-    float4x4 mtxWV = mul(world, view); //ビュー変換
-    float4x4 mtxWVP = mul(mtxWV, proj); // プロジェクション変換
+    float4x4 mtxWV = mul(world, view);
+    float4x4 mtxWVP = mul(mtxWV, proj);
     vo.posH = mul(vi.posL, mtxWVP);
     
     vo.posLightWVP = mul(vi.posL, mul(world, light_view_proj));
-    float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world); //αは0
-    vo.normalW = normalize(normalW); //単位ベクトル化    
+    float4 normalW = mul(float4(vi.normalL.xyz, 0.0f), world);
+    vo.normalW = normalize(normalW);
     vo.posW = mul(vi.posL, world);
     
     vo.color = vi.color;
